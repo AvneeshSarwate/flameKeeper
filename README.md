@@ -25,7 +25,7 @@
 
 
 # Setup Amazon S3 Buckets
-You must construct/include a .env file with the proper S3 access key and also secret key.  You then need to create buckets and align them with the names in the app (fk-audio and fk-composer-info) or rename accordingly.
+You must construct/include a .env file with the proper S3 access key and also secret key.  You then need to create buckets and align them with the names in the app (fk-audio-dev and fk-composer-info-dev) or rename accordingly.
 - https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-started-nodejs.html#getting-started-nodejs-credentials
 
 # Setup auth0 login credentials

@@ -136,7 +136,7 @@ exports.upload_function = function (req, res, next) {
     .on('file', (name, file) => {
       function uploadFile() {
         Upload.upload_files({
-          name: 'fk-audio',
+          name: 'fk-audio-dev',
           fileName: file.name,
           fileToUpload: file.path
         });
@@ -166,7 +166,7 @@ exports.delete_function = function (req, res, next) {
 
   function deleteLast() {
     Delete.delete_file({
-      name: 'fk-audio',
+      name: 'fk-audio-dev',
       id: req.params.id,
     });
     return new Promise(resolve => {
@@ -319,7 +319,7 @@ exports.intern_upload_function = function (req, res, next) {
     .on('file', (name, file) => {
       function uploadFile() {
         Intern.intern_upload({
-          name: 'fk-composer-info',
+          name: 'fk-composer-info-dev',
           fileName: file.name,
           fileToUpload: file.path
         });

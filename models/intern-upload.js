@@ -34,7 +34,7 @@ let internUpload = function (name, fileToUpload, count) {
 
   // call S3 to retrieve upload file to specified bucket
   let uploadParams = {
-    Bucket: 'fk-composer-info',
+    Bucket: 'fk-composer-info-dev',
     Key: global.internUploadLabel,
     Body: uploadName,
     ACL: 'public-read',

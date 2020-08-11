@@ -17,7 +17,7 @@ block content
 
       each file in files            
         if (file.id != 0)          
-          img(style="width:200px;height:200px;" src=`https://fk-composer-info.s3.amazonaws.com/${file.Name}`)
+          img(style="width:200px;height:200px;" src=`https://fk-composer-info-dev.s3.amazonaws.com/${file.Name}`)
           form(method="POST" action=`/intern-delete`)
             input(type="submit" value="DELETE COMPOSER")
             input(type="hidden" id="id" name="id" value=file.id)            
@@ -73,7 +73,7 @@ block content
       div(class="intern-row")
         div(class="intern-column")          
         each thing in bucketStuff
-          img(style="width:200px;height:200px;" src=`https://fk-composer-info.s3.amazonaws.com/${thing.Name}`)
+          img(style="width:200px;height:200px;" src=`https://fk-composer-info-dev.s3.amazonaws.com/${thing.Name}`)
           h3=thing.Name
           form(method="POST" action=`/delete-photo`)          
             input(type="hidden" id="id" name="file" value=thing.Name)   

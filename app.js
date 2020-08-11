@@ -1,3 +1,7 @@
+// Load environment variables from .env
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const app = express();
 const router = express.Router();
@@ -16,6 +20,9 @@ const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
 
+const Composers = require('./airtable');
+
+let c = new Composers();
 
 
 // view engine setup
@@ -46,10 +53,6 @@ if (app.get('env') === 'production') {
   // "Unable to verify authorization request state"
   app.set('trust proxy', 1);
 }
-
-// Load environment variables from .env
-const dotenv = require('dotenv');
-dotenv.config();
 
 
 

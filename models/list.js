@@ -23,7 +23,7 @@ let listFiles = function () {
 
   // DEFINE YOUR RETURN THE PARAMS!!!!!!!!
   let bucketParams = {
-    Bucket: 'fk-audio',
+    Bucket: 'fk-audio-dev',
     MaxKeys: 1000
     // StartAfter: startingFile  
   };

@@ -13,7 +13,7 @@ let deletePhoto = function (id) {
   });
 
   let params = {
-    Bucket: 'fk-composer-info',
+    Bucket: 'fk-composer-info-dev',
     Key: id.id
     /* 
        where value for 'Key' equals 'pathName1/pathName2/.../pathNameN/fileName.ext'

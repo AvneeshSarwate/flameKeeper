@@ -15,7 +15,7 @@ block content
 
         //- each file in files ? files : ['NO!!!']
         //-   - console.log(file.Key);
-          //- - let audioSrc = `https://fk-audio.s3.amazonaws.com/${file.Key}`           
+          //- - let audioSrc = `https://fk-audio-dev.s3.amazonaws.com/${file.Key}`           
           //- p= file.Key
           //- p= file.LastModified
           //-   audio(controls="", type="audio/mpeg" src=audioSrc)            
@@ -32,7 +32,7 @@ block content
         - let files = fileInfo;                 
         each file in files ? files : ['NO!!!']                                 
           if (file.id != '0')
-            - let photoSrc = `https://fk-composer-info.s3.amazonaws.com/${file.Name}`                           
+            - let photoSrc = `https://fk-composer-info-dev.s3.amazonaws.com/${file.Name}`                           
             .profilePhoto
               //- Profile photo
               img(src=`${photoSrc}` alt='sample logo')

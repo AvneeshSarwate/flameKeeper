@@ -23,7 +23,7 @@ let listComposers = function () {
 
   // DEFINE YOUR RETURN THE PARAMS!!!!!!!!
   let bucketParams = {
-    Bucket: 'fk-composer-info',
+    Bucket: 'fk-composer-info-dev',
     MaxKeys: 1000
     // StartAfter: startingFile  
   };

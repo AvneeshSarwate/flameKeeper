@@ -20,7 +20,7 @@ block content
             
             each file in files ? files : ['NO!!!']       
               
-              - let audioSrc = `https://fk-audio.s3.amazonaws.com/${file.Name}`                            
+              - let audioSrc = `https://fk-audio-dev.s3.amazonaws.com/${file.Name}`                            
               div(class="solid")
                 form(method="POST" action=`/replace/${file.Name}?_method=PUT` id=`launchForm${file.id}` encType="multipart/form-data")                                
                   p= file.Name
@@ -38,7 +38,7 @@ block content
                 br
                 br      
                 
-          - let uploadSrc = `https://fk-audio.s3.amazonaws.com/${lastUpload.Name}`
+          - let uploadSrc = `https://fk-audio-dev.s3.amazonaws.com/${lastUpload.Name}`
           br
           br
           br

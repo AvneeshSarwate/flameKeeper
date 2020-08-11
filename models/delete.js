@@ -17,7 +17,7 @@ let deleteFile = function (id) {
     });
 
     let params = {
-      Bucket: 'fk-audio',
+      Bucket: 'fk-audio-dev',
       Key: id.id
       /* 
          where value for 'Key' equals 'pathName1/pathName2/.../pathNameN/fileName.ext'
