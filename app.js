@@ -20,9 +20,9 @@ const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
 
-const Composers = require('./airtable');
-
+const { Composers } = require('./airtable');
 let c = new Composers();
+c.getComposers().then(composers => console.log("composers", composers));
 
 
 // view engine setup

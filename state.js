@@ -11,6 +11,7 @@ class State {
             {
                 "audioID": "<guid>",
                 "name": "<filename>",
+                "filename": "<guid>-<name>",
                 "uploadedAt": "<timestamp>"
             }
         ],
@@ -43,28 +44,29 @@ class State {
         Object.assign(this, jsonData);
     }
 
-    async addAudio(filename, path) {
+    async addAudio(name, path) {
         let id = uuidv4();
-        let name = `${id}-${filename}`;
+        let filename = `${id}-${name}`;
         let fileStream = fs.createReadStream(path);
         fileStream.on('error', err => console.log(`unable to read file ${path}`, err));
         let uploadParams = {
             Bucket: constants.BUCKET_NAME,
-            Key: name,
+            Key: filename,
             Body: fileStream,
             ACL: 'public-read',
         };
         try {
             await s3.upload(uploadParams).promise();
-            console.log(`uploaded ${name}`);
+            console.log(`uploaded ${filename}`);
         } catch (err) {
-            console.error(`unable to upload ${name} to S3`, err);
+            console.error(`unable to upload ${filename} to S3`, err);
             return undefined;
         }
 
         let audio = {
             "audioID": uuidv4(),
-            "name": filename,
+            "name": name,
+            "filename": filename,
             "uploadedAt": Date.now()
         };
         this.audio.push(audio);
