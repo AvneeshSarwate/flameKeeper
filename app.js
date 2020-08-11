@@ -20,10 +20,6 @@ const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
 
-const { Composers } = require('./airtable');
-let c = new Composers();
-c.getComposers().then(composers => console.log("composers", composers));
-
 
 // view engine setup
 app.set('views', path.join(__dirname, '/views'));
@@ -37,8 +33,10 @@ const MemoryStore = require('memorystore')(session)
 
 // config express-session
 const sess = {
-  store: new MemoryStore,
-  secret: 'ITS A SEEEECRET',
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  }),
+  secret: process.env.EXPRESS_SESSION_SECRET,
   cookie: {maxAge: 60000},
   resave: false,
   saveUninitialized: true
@@ -106,6 +104,9 @@ app.use((req, res, next) => {
 });
 
 app.use('/', authRouter);
+
+const { adminRouter } = require('./routes/admin');
+app.use('/admin', adminRouter);
 
 
 

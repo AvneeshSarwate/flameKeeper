@@ -9,6 +9,7 @@ class Composers {
         this.baseID = "appiuLzmVDcFCntEr";
         this.base = airtable.base(this.baseID);
         this.composerTable = this.base(this.tableName);
+        this.getComposers();
     }
 
     async getComposers() {
@@ -57,4 +58,4 @@ class Composers {
     }
 }
 
-exports.Composers = Composers;
+exports.Composers = new Composers();
