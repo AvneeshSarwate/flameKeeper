@@ -20,6 +20,10 @@ const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
 
+const { state } = require('./state');
+const { flameKeeper } = require('./flameKeeper');
+flameKeeper.start();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, '/views'));

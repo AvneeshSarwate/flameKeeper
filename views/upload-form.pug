@@ -15,7 +15,7 @@ block content
         if isAuthenticated && global.uploadLock == false
           div(class="solid")
             p UPLOAD YOUR FILE (mp3s only):
-            form(method="POST" action="/upload" id="uploadForm" encType="multipart/form-data")                 
+            form(method="POST" action="/admin/upload" id="uploadForm" encType="multipart/form-data")                 
               input(type="file" name="theUpload" id="uploadValue" onChange="disableSubmit()" accept="audio/mp3")                                          
               input(type="submit" form="uploadForm" id="uploadButton" value="UPLOAD" onclick="return redirect()")  
               

@@ -1,5 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { IncomingForm } = require('formidable');
+
+const { state } = require('../state')
+if (!state.loaded) state.load();
+
 const { Composers } = require('../airtable');
 
 // Middleware for checking if a session is authorized.
@@ -47,6 +52,21 @@ router.post('/login', function (req, res, next) {
 
 router.get('/dashboard', function (req, res, next) {
     res.render('admin-dashboard');
+});
+
+router.post('/upload', async function (req, res, next) {
+    new IncomingForm().parse(req)
+        .on('file', (_, file) => {
+            try {
+                if (!state.addAudio(file.name, file.path)) {
+                    // TODO: display error
+                    console.err("unable to add audio");
+                }
+            } catch (err) {
+                // TODO: display error
+                console.err("unable to add audio", err);
+            }
+        });
 });
 
 exports.adminRouter = router;

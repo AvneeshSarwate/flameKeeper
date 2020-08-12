@@ -1,2 +1,2 @@
 exports.BUCKET_NAME = "flamekeeper";
-exports.STATE_FILENAME = "state.json";
+exports.STATE_FILENAME = process.env.LOCAL_STATE_NAME || "state.json";

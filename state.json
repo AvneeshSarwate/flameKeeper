@@ -1,5 +1,6 @@
 {
-    "audio": {},
-    "currentState": [],
-    "history": []
+    "audio": [],
+    "currentState": {},
+    "history": [],
+    "lastEdit": 0
 }

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const getMP3Duration = require('get-mp3-duration');
 
 const s3 = require('./s3');
 const constants = require('./constants');
@@ -12,16 +13,17 @@ class State {
                 "audioID": "<guid>",
                 "name": "<filename>",
                 "filename": "<guid>-<name>",
-                "uploadedAt": "<timestamp>"
+                "lengthSeconds": 0.0,
+                "uploadedAt": <timestamp>
             }
         ],
         "currentState": {
             "composerID": "<guid>",
-            "timestamp": "<timestamp>",
+            "timestamp": <timestamp>,
             "audio": [
                 {
                     "audioID": "<guid>",
-                    "start": 0.0
+                    "offset": 0.0
                 },
                 ... (x7)
             ]
@@ -29,30 +31,52 @@ class State {
         "history": [
             {
                 "composerID": "<guid>"
-                "timestamp": "<timestamp>",
+                "timestamp": <timestamp>,
                 "audio": [<audio>]
             }
-        ]
+        ],
+        "lastEdit": <timestamp>
     }
      */
-    constructor(filename) {
-        // Load object from file
-        let data = fs.readFileSync(filename);
-        let jsonData = JSON.parse(data);
+    constructor() {
+        // Signals whether the S3 file has been fetched
+        this.loaded = false;
+    }
 
-        // Assign properties from file to this object
-        Object.assign(this, jsonData);
+    load() {
+        if (this.loaded) return true;
+        this.loaded = true;
+        return new Promise((resolve, reject) => {
+            let getParams = {
+                Bucket: constants.BUCKET_NAME,
+                Key: constants.STATE_FILENAME
+            };
+            s3.getObject(getParams).promise()
+                .then(data => {
+                    // Write local copy (mostly for development)
+                    let filename = `./${constants.STATE_FILENAME}`;
+                    fs.writeFileSync(filename, data.Body);
+
+                    // Load object from file data
+                    let jsonData = JSON.parse(data.Body);
+
+                    // Assign properties from file to this object
+                    Object.assign(this, jsonData);
+                    console.log("state loaded");
+                    resolve();
+                })
+                .catch(err => reject(err));
+        });
     }
 
     async addAudio(name, path) {
         let id = uuidv4();
         let filename = `${id}-${name}`;
-        let fileStream = fs.createReadStream(path);
-        fileStream.on('error', err => console.log(`unable to read file ${path}`, err));
+        let file = fs.readFileSync(path);
         let uploadParams = {
             Bucket: constants.BUCKET_NAME,
             Key: filename,
-            Body: fileStream,
+            Body: file,
             ACL: 'public-read',
         };
         try {
@@ -64,44 +88,53 @@ class State {
         }
 
         let audio = {
-            "audioID": uuidv4(),
+            "audioID": id,
             "name": name,
             "filename": filename,
+            "lengthSeconds": getMP3Duration(file) / 1000,
             "uploadedAt": Date.now()
         };
         this.audio.push(audio);
         return await this.save();
     }
 
-    async editState(composerID, newAudio) {
+    async editCurrentState(composerID, newAudio) {
         if (this.currentState) {
             let currentState = { ...this.currentState };
             this.history.push(currentState);
         }
+        let now = Date.now();
         this.currentState = {
             composerID: composerID,
-            timestamp: Date.now(),
+            timestamp: now,
             audio: newAudio 
         };
+        this.lastEdit = now;
         return await this.save();
     }
 
     async save() {
-        let stateString = JSON.stringify(this);
+        // Remove properties we don't want to save
+        let copy = { ...this };
+        delete copy.loaded
+
+        let stateString = JSON.stringify(copy, null, "\t");
         let uploadParams = {
             Bucket: constants.BUCKET_NAME,
             Key: constants.STATE_FILENAME,
-            Body: stateString,
-            ACL: 'public-read',
+            Body: stateString
         };
         try {
             await s3.upload(uploadParams).promise();
-            return true;
         } catch (err) {
             console.error("unable to save state to S3", err);
             return false;
         }
+
+        // Save locally mostly for development purposes
+        fs.writeFileSync(`./${constants.STATE_FILENAME}`, stateString);
+        return true
     }
 }
 
-module.exports = State;
+exports.state = new State();
