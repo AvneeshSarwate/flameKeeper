@@ -2,13 +2,13 @@ const crypto = require('crypto');
 const Airtable = require('airtable');
 const { asyncForEach } = require('./util');
 const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
+const baseID = "appiuLzmVDcFCntEr";
+const base = airtable.base(baseID);
 
 class Composers {
     constructor() {
         this.tableName = "Composers";
-        this.baseID = "appiuLzmVDcFCntEr";
-        this.base = airtable.base(this.baseID);
-        this.composerTable = this.base(this.tableName);
+        this.composerTable = base(this.tableName);
         this.getComposers();
     }
 
@@ -26,8 +26,9 @@ class Composers {
                 }
                 else this.composers.push(composer);
             });
+            console.log("composers loaded");
         } catch (err) {
-            console.error("unable to get Composers", err);
+            console.error("unable to get composers", err);
         }
         return this.composers;
     }
@@ -59,3 +60,38 @@ class Composers {
 }
 
 exports.Composers = new Composers();
+
+class Admins {
+    constructor() {
+        this.tableName = "Admins";
+        this.adminTable = base(this.tableName);
+        this.getAdmins();
+    }
+
+    async getAdmins() {
+        this.admins = [];
+        try {
+            let records = await this.adminTable.select({
+                view: 'Grid view'
+            }).all();
+            await asyncForEach(records, async record => {
+                let admin = this.parseAdmin(record);
+                this.admins.push(admin);
+            });
+            console.log("admins loaded");
+        } catch (err) {
+            console.error("unable to get admins", err);
+        }
+        return this.composers;
+    }
+
+    parseAdmin(record) {
+        return {
+            "name": record.get("name"),
+            "key": record.get("key"),
+            "active": record.get("active") || false
+        };
+    }
+}
+
+exports.Admins = new Admins();

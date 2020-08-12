@@ -3,42 +3,59 @@ const router = express.Router();
 const { IncomingForm } = require('formidable');
 
 const { state } = require('../state')
-if (!state.loaded) state.load();
+const { Composers, Admins } = require('../airtable');
 
-const { Composers } = require('../airtable');
+const { sessionStore } = require('../app');
 
-// Middleware for checking if a session is authorized.
+// Middleware for checking if a session is authorized..
 exports.requiresLogin = function (req, res, next) {
-    if (req.session.authenticated) {
+    if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
         return next();
     }
     req.session.returnTo = req.originalUrl;
     res.redirect('/admin/login');
 };
 
+
 router.get('/login', function (req, res, next) {
-    res.render('composer-login');
+    res.render('flamekeeper-login');
 });
 
 router.get('/logout', function (req, res, next) {
-    req.session.authenticated = false;
+    req.session.composerAuthenticated = false;
     req.session.composer = undefined;
+    req.session.adminAuthenticated = false;
+    req.session.admin = undefined;
     res.redirect('/admin/login');
 });
 
 router.post('/login', function (req, res, next) {
-    if (req.session.authenticated) {
+    if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
         res.redirect('/admin/dashboard');
         return
     }
 
     const accessCode = req.body.accessCode;
+
+    // Check if admin
+    let admins = Admins.admins;
+    let admin = admins.find(a => a.key == accessCode);
+    if (admin) {
+        if (admin.active) {
+            req.session.adminAuthenticated = true;
+            req.session.admin = admin;
+            res.redirect('/admin/dashboard');
+            return
+        }
+    }
+
+    // Check if composer
     let composers = Composers.composers;
     let composer = composers.find(c => c.key == accessCode);
     let err;
     if (composer) {
         if (composer.active) {
-            req.session.authenticated = true;
+            req.session.composerAuthenticated = true;
             req.session.composer = composer;
             res.redirect('/admin/dashboard');
             return
@@ -51,7 +68,10 @@ router.post('/login', function (req, res, next) {
 });
 
 router.get('/dashboard', function (req, res, next) {
-    res.render('admin-dashboard');
+    res.render('admin-dashboard', {
+        admin: req.session.admin,
+        composer: req.session.composer
+    });
 });
 
 router.post('/upload', async function (req, res, next) {
@@ -68,6 +88,20 @@ router.post('/upload', async function (req, res, next) {
                 });
         });
         res.redirect('/admin/dashboard');
+    } catch (err) {
+        console.error(err);
+        res.redirect('/admin/dashboard');
+        // TODO: display error
+    }
+});
+
+router.post('/airtable', async function (req, res, next) {
+    try {
+        await Composers.getComposers();
+        await Admins.getAdmins();
+        await sessionStore.clear();
+        console.log("session storage cleared");
+        res.redirect('/admin/login');
     } catch (err) {
         console.error(err);
         res.redirect('/admin/dashboard');

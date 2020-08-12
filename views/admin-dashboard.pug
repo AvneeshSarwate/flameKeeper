@@ -1,3 +1,10 @@
 extends layout
 block content
-    p Hooray! You're logged in.
+    - let isAdmin = admin || false;
+    - let name = isAdmin ? admin.name : composer.name;
+    p= `You're logged in, ${name}` + `${isAdmin ? " (Admin)" : ""}` 
+
+    - if (isAdmin)
+        p Sync composer and admin data from Airtable. Will force you to login again.
+        form(method="POST" action=`/admin/airtable` id="airtableSync")
+            button(id="refreshAirtable" type="submit") Refresh Airtable

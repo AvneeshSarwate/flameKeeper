@@ -41,6 +41,7 @@ class State {
     constructor() {
         // Signals whether the S3 file has been fetched
         this.loaded = false;
+        this.load();
     }
 
     load() {
@@ -53,7 +54,7 @@ class State {
             };
             s3.getObject(getParams).promise()
                 .then(data => {
-                    // Write local copy (mostly for development)
+                    // Save locally mostly for development purposes
                     let filename = `./${constants.STATE_FILENAME}`;
                     fs.writeFileSync(filename, data.Body);
 

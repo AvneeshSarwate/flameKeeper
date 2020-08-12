@@ -34,12 +34,14 @@ app.set('view engine', 'pug');
 
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session)
+const sessionStore = new MemoryStore({
+  checkPeriod: 86400000 // prune expired entries every 24h
+});
+exports.sessionStore = sessionStore;
 
 // config express-session
 const sess = {
-  store: new MemoryStore({
-    checkPeriod: 86400000 // prune expired entries every 24h
-  }),
+  store: sessionStore,
   secret: process.env.EXPRESS_SESSION_SECRET,
   cookie: {maxAge: 60000},
   resave: false,
