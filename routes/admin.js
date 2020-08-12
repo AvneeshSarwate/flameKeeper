@@ -8,7 +8,7 @@ const { Composers, Admins } = require('../airtable');
 const { sessionStore } = require('../app');
 
 // Middleware for checking if a session is authorized..
-exports.requiresLogin = function (req, res, next) {
+const requiresLogin = function (req, res, next) {
     if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
         return next();
     }
@@ -16,25 +16,20 @@ exports.requiresLogin = function (req, res, next) {
     res.redirect('/admin/login');
 };
 
+exports.requiresLogin = requiresLogin;
+
 
 router.get('/login', function (req, res, next) {
+    if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
+        res.redirect('/admin/dashboard');
+        return;
+    }
+
     res.render('flamekeeper-login');
 });
 
-router.get('/logout', function (req, res, next) {
-    req.session.composerAuthenticated = false;
-    req.session.composer = undefined;
-    req.session.adminAuthenticated = false;
-    req.session.admin = undefined;
-    res.redirect('/admin/login');
-});
 
 router.post('/login', function (req, res, next) {
-    if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
-        res.redirect('/admin/dashboard');
-        return
-    }
-
     const accessCode = req.body.accessCode;
 
     // Check if admin
@@ -64,17 +59,28 @@ router.post('/login', function (req, res, next) {
     } else {
         err = "The access code provided was not recognized.";
     }
-    res.render('composer-login', { error: err });
+    res.render('flamekeeper-login', { error: err });
 });
 
-router.get('/dashboard', function (req, res, next) {
+
+router.get('/logout', requiresLogin, function (req, res, next) {
+    req.session.composerAuthenticated = false;
+    req.session.composer = undefined;
+    req.session.adminAuthenticated = false;
+    req.session.admin = undefined;
+    res.redirect('/admin/login');
+});
+
+
+router.get('/dashboard', requiresLogin, function (req, res, next) {
     res.render('admin-dashboard', {
         admin: req.session.admin,
         composer: req.session.composer
     });
 });
 
-router.post('/upload', async function (req, res, next) {
+
+router.post('/upload', requiresLogin, async function (req, res, next) {
     try {
         await new Promise((resolve, reject) => {
             new IncomingForm().parse(req)
@@ -95,7 +101,8 @@ router.post('/upload', async function (req, res, next) {
     }
 });
 
-router.post('/airtable', async function (req, res, next) {
+
+router.post('/airtable', requiresLogin, async function (req, res, next) {
     try {
         await Composers.getComposers();
         await Admins.getAdmins();

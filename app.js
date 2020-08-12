@@ -114,7 +114,8 @@ app.use('/', authRouter);
 const { adminRouter } = require('./routes/admin');
 app.use('/admin', adminRouter);
 
-
+const { mainRouter } = require('./routes/main');
+app.use('/main', mainRouter);
 
 
 // const routes = require('./routes.js');

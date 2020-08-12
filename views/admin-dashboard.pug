@@ -2,7 +2,8 @@ extends layout
 block content
     - let isAdmin = admin || false;
     - let name = isAdmin ? admin.name : composer.name;
-    p= `You're logged in, ${name}` + `${isAdmin ? " (Admin)" : ""}` 
+    p= `You're logged in, ${name}` + `${isAdmin ? " (Admin)" : ""}`
+    a(href='/admin/logout') Log out
 
     - if (isAdmin)
         p Sync composer and admin data from Airtable. Will force you to login again.
