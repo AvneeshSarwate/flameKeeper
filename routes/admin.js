@@ -55,18 +55,24 @@ router.get('/dashboard', function (req, res, next) {
 });
 
 router.post('/upload', async function (req, res, next) {
-    new IncomingForm().parse(req)
-        .on('file', (_, file) => {
-            try {
-                if (!state.addAudio(file.name, file.path)) {
-                    // TODO: display error
-                    console.err("unable to add audio");
-                }
-            } catch (err) {
-                // TODO: display error
-                console.err("unable to add audio", err);
-            }
+    try {
+        await new Promise((resolve, reject) => {
+            new IncomingForm().parse(req)
+                .on('file', (_, file) => {
+                    state.addAudio(file.name, file.path)
+                        .then(ok => {
+                            if (ok) resolve();
+                            else reject("unable to add audio");
+                        })
+                        .catch(err => reject("unable to add audio", err));
+                });
         });
+        res.redirect('/admin/dashboard');
+    } catch (err) {
+        console.error(err);
+        res.redirect('/admin/dashboard');
+        // TODO: display error
+    }
 });
 
 exports.adminRouter = router;

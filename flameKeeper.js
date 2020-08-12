@@ -32,11 +32,11 @@ class FlameKeeper {
         
         // Within 7 hours since last edit
         if (sinceLastEditMilliseconds < this.lockoutTimeMilliseconds) {
-            if (update) console.log("FlameKeeper: composer locked out until", lockoutDate.toISOString(), " (last edit on", lastEditDate.toISOString(), ")");
+            if (update) console.log(`[${new Date(Date.now()).toISOString()}]`, "FlameKeeper: composer locked out until", lockoutDate.toISOString(), "(last edit on", lastEditDate.toISOString() + ")");
             this.locked = true;
         } // Between 7 and 14 hours since last edit 
         else if (sinceLastEditMilliseconds < this.ghostTimeoutMilliseconds) {
-            if (update) console.log("FlameKeeper: composer edit window open until", ghostDate.toISOString(), " (last edit on", lastEditDate.toISOString(), ")");
+            if (update) console.log(`[${new Date(Date.now()).toISOString()}]`, "FlameKeeper: composer edit window open until", ghostDate.toISOString(), "(last edit on", lastEditDate.toISOString() + ")");
             this.locked = false;
         } else {
             // Ghost edit
@@ -51,7 +51,7 @@ class FlameKeeper {
     async makeRandomEdit() {
         // Ensure state is populated with at least some audio and a currentState
         if (state.audio.length > 0 && state.currentState.audio && state.currentState.audio.length > 0) {
-            console.log("FlameKeeper: composer window closed without edit, making ghost edit");
+            console.log(`[${new Date(Date.now()).toISOString()}]`, "FlameKeeper: composer window closed without edit, making ghost edit");
             let randomAudio = state.audio[Math.floor(Math.random() * state.audio.length)];
             let newOffset = Math.random() * randomAudio.lengthSeconds;
             let newAudio = [...state.currentState.audio];
