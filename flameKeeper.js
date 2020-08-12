@@ -29,12 +29,12 @@ class FlameKeeper {
         let lockoutDate = new Date(lastEditDate.getTime() + this.lockoutTimeMilliseconds);
         let ghostDate = new Date(lastEditDate.getTime() + this.ghostTimeoutMilliseconds);
         let sinceLastEditMilliseconds = Date.now() - state.lastEdit;
-        
+
         // Within 7 hours since last edit
         if (sinceLastEditMilliseconds < this.lockoutTimeMilliseconds) {
             if (update) console.log(`[${new Date(Date.now()).toISOString()}]`, "FlameKeeper: composer locked out until", lockoutDate.toISOString(), "(last edit on", lastEditDate.toISOString() + ")");
             this.locked = true;
-        } // Between 7 and 14 hours since last edit 
+        } // Between 7 and 14 hours since last edit
         else if (sinceLastEditMilliseconds < this.ghostTimeoutMilliseconds) {
             if (update) console.log(`[${new Date(Date.now()).toISOString()}]`, "FlameKeeper: composer edit window open until", ghostDate.toISOString(), "(last edit on", lastEditDate.toISOString() + ")");
             this.locked = false;

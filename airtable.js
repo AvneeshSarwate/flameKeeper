@@ -40,7 +40,7 @@ class Composers {
             }).then(record => {
                 resolve(this.parseComposer(record));
             }).catch(err => reject(err));
-        }); 
+        });
     }
 
     parseComposer(record) {

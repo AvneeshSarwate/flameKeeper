@@ -108,7 +108,7 @@ class State {
         this.currentState = {
             composerID: composerID,
             timestamp: now,
-            audio: newAudio 
+            audio: newAudio
         };
         this.lastEdit = now;
         return await this.save();
