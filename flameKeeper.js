@@ -1,9 +1,8 @@
 const { state } = require('./state');
-if (!state.loaded) state.load();
 
 class FlameKeeper {
     constructor() {
-        this.ghostComposerID = "Flame-Keeper";
+        this.ghostComposerID = "6ff99cc4-61f0-4007-aa25-a2e5121b9d1d";
         this.freqMilliseconds = 5000; // Check for state change every 5s
         this.lockoutTimeMilliseconds = 1000 * 60 * 60 * 7; // Lockout composer for 7h after every edit
         this.ghostTimeoutMilliseconds = 1000 * 60 * 60 * 14; // Ghost operates after 14h from last edit

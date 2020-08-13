@@ -54,12 +54,12 @@ class State {
             };
             s3.getObject(getParams).promise()
                 .then(data => {
-                    // Save locally mostly for development purposes
-                    let filename = `./${constants.STATE_FILENAME}`;
-                    fs.writeFileSync(filename, data.Body);
-
                     // Load object from file data
                     let jsonData = JSON.parse(data.Body);
+
+                    // Save locally mostly for development purposes
+                    let filename = `./${constants.STATE_FILENAME}`;
+                    fs.writeFileSync(filename, JSON.stringify(jsonData, null, '\t'));
 
                     // Assign properties from file to this object
                     Object.assign(this, jsonData);
@@ -119,7 +119,7 @@ class State {
         let copy = { ...this };
         delete copy.loaded
 
-        let stateString = JSON.stringify(copy, null, "\t");
+        let stateString = JSON.stringify(copy);
         let uploadParams = {
             Bucket: constants.BUCKET_NAME,
             Key: constants.STATE_FILENAME,
@@ -133,7 +133,8 @@ class State {
         }
 
         // Save locally mostly for development purposes
-        fs.writeFileSync(`./${constants.STATE_FILENAME}`, stateString);
+        let stateStringPretty = JSON.stringify(copy, null, '\t');
+        fs.writeFileSync(`./${constants.STATE_FILENAME}`, stateStringPretty);
         return true
     }
 }
