@@ -1075,6 +1075,11 @@ has-yarn@^2.1.0:
   resolved "https://registry.yarnpkg.com/has-yarn/-/has-yarn-2.1.0.tgz#137e11354a7b5bf11aa5cb649cf0c6f3ff2b2e77"
   integrity sha512-UqBRqi4ju7T+TqGNdqAO0PaSVGsDGJUBQvk9eUWNGRY1CFGDzYhLWoM7JQEemnlvVcv/YEmc2wNW8BC24EnUsw==
 
+helmet-csp@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/helmet-csp/-/helmet-csp-3.0.0.tgz#4f6c9862a2021d0b402b2177fee9f0972f09730a"
+  integrity sha512-yttZ+AsYvcMeSnVdq8+UQLTuNeZFImOYUnWCEVGhyKN7wLd5lZi3dvRlLUpW+b2UYqQFm6EVAdF6rjMojhNEAA==
+
 helmet@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/helmet/-/helmet-4.0.0.tgz#34c187894ed001834f997c688f2b2df19846b193"

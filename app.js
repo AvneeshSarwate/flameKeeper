@@ -7,11 +7,13 @@ const app = express();
 const router = express.Router();
 const server = app.listen(process.env.PORT || 8000);
 
+const uuid = require(`uuid`)
 const createError = require('http-errors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const helmet = require('helmet');
+const csp = require(`helmet-csp`)
 
 const { state } = require('./state');
 const { flameKeeper } = require('./flameKeeper');
@@ -52,7 +54,28 @@ if (app.get('env') === 'production') {
 
 app.use(session(sess));
 app.use(logger('dev'));
-app.use(helmet());
+
+// Create a nonce for CSP
+app.use((req, res, next) => {
+  res.locals.nonce = uuid.v4();
+  next();
+})
+
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
+app.use((req, res, next) => {
+  csp({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "*.amazonaws.com", `'nonce-${res.locals.nonce}'`],
+      styleSrc: ["'self'", "fonts.googleapis.com"],
+      fontSrc: ["'self'", "fonts.gstatic.com"],
+      connectSrc: ["'self'", "*.amazonaws.com"],
+      mediaSrc: ["'self'", "*.amazonaws.com"]
+    }
+  })(req, res, next);
+});
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
@@ -66,11 +89,14 @@ app.use('/', adminRouter);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
+  console.log("not found", req.path);
   next(createError(404));
 });
 
 // Error handler
 app.use(function (err, req, res, next) {
+  console.error(err);
+
   // Set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

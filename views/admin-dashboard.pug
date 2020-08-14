@@ -5,6 +5,22 @@ block content
     p= `You're logged in, ${name}` + `${isAdmin ? " (Admin)" : ""}`
     a(href='/logout') Log out
 
+    //- input(type="file" name="upload" id="upload" accept="audio/mp3")
+
+    //- script(nonce=nonce).
+    //-     let uploadAudio = function() {
+    //-         let input = document.querySelector('input[type="file"]');
+    //-         if (input.files.length > 0) {
+    //-             let data = new FormData();
+    //-             data.append('file', input.files[0]);
+    //-             fetch('/upload', {
+    //-                 method: 'POST',
+    //-                 body: data
+    //-             });
+    //-         }
+    //-     }
+    //-     document.getElementById("upload").addEventListener("change", uploadAudio);
+
     - if (isAdmin)
         p Sync composer and admin data from Airtable. Will force you to login again.
         form(method="POST" action=`/airtable` id="airtableSync")

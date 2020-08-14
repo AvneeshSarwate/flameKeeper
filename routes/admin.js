@@ -25,7 +25,9 @@ router.get('/login', function (req, res, next) {
         return;
     }
 
-    res.render('login');
+    res.render('login', {
+        nonce: res.locals.nonce
+    });
 });
 
 

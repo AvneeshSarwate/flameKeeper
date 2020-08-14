@@ -23,8 +23,11 @@ router.get('/', function (req, res, next) {
         console.log("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
     }
-    res.sendStatus(200);
-    return
+    
+    res.render('index', {
+        nonce: res.locals.nonce,
+        audio: currentAudio
+    });
 });
 
 router.get('/history', function (req, res, next) {

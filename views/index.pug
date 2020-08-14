@@ -7,10 +7,9 @@ block content
         //-- Profile logo. Add a img tag in place of <span>.
         p.logoPlaceholder
           img(src='./images/me-logo-wht.png' alt='sample logo')      
-      #installation
-        - let files = fileInfo.Name;         
+      #installation        
         
-        button(id="beginButton" onclick="begin()") BEGIN
+        button(id="beginButton") BEGIN
       
       //- Identity details
       section.profileHeader
@@ -82,8 +81,7 @@ block content
         | Contact Us - 
         span Email / Social
       
-    script.
-                  
+    script(nonce=nonce).
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
       
@@ -95,14 +93,13 @@ block content
         });
       
 
-        let returns0 = `!{JSON.stringify(fileInfo[0].Name)}`;
-        let returns1 = `!{JSON.stringify(fileInfo[1].Name)}`;
-        let returns2 = `!{JSON.stringify(fileInfo[2].Name)}`;
-        let returns3 = `!{JSON.stringify(fileInfo[3].Name)}`;
-        let returns4 = `!{JSON.stringify(fileInfo[4].Name)}`;
-        let returns5 = `!{JSON.stringify(fileInfo[5].Name)}`;
-        let returns6 = `!{JSON.stringify(fileInfo[6].Name)}`;  
-      
+        let audioFilename0 = `!{audio[0].filename}`;
+        let audioFilename1 = `!{audio[1].filename}`;
+        let audioFilename2 = `!{audio[2].filename}`;
+        let audioFilename3 = `!{audio[3].filename}`;
+        let audioFilename4 = `!{audio[4].filename}`;
+        let audioFilename5 = `!{audio[5].filename}`;
+        let audioFilename6 = `!{audio[6].filename}`;
         
         //- import "./index.css";
         //- import { AudioContext } from "standardized-audio-context";
@@ -124,7 +121,7 @@ block content
         // Nice convenient way to describe the waveforms.
         const waveforms = [
           {
-            url: `https://fk-audio-dev.s3.amazonaws.com/${returns0.slice(1, -1)}`,
+            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename0}`,
             speed: 10,             
             mirrored: true,
             viewHeight: 30,
@@ -135,7 +132,7 @@ block content
             
           },
           {
-            url: `https://fk-audio-dev.s3.amazonaws.com/${returns1.slice(1, -1)}`,
+            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename1}`,
             speed: 10,
             mirrored: true,
             viewHeight: 30,
@@ -146,7 +143,7 @@ block content
             
           },
           {
-            url: `https://fk-audio-dev.s3.amazonaws.com/${returns2.slice(1, -1)}`,
+            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename2}`,
             speed: 15,
             mirrored: true,
             viewHeight: 30,
@@ -156,7 +153,7 @@ block content
             panAmount: 0.75           
           },
           {
-            url: `https://fk-audio-dev.s3.amazonaws.com/${returns3.slice(1, -1)}`,
+            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename3}`,
             speed: 10,
             mirrored: true,
             viewHeight: 30,
@@ -166,7 +163,7 @@ block content
             panAmount: 0.25
           },
           {
-            url: `https://fk-audio-dev.s3.amazonaws.com/${returns4.slice(1, -1)}`,
+            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename4}`,
             speed: 10,
             mirrored: true,
             viewHeight: 30,
@@ -177,7 +174,7 @@ block content
             
           },
           {
-            url: `https://fk-audio-dev.s3.amazonaws.com/${returns5.slice(1, -1)}`,
+            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename5}`,
             speed: 10,
             mirrored: true,
             viewHeight: 30,
@@ -188,7 +185,7 @@ block content
             
           },
           {
-            url: `https://fk-audio-dev.s3.amazonaws.com/${returns6.slice(1, -1)}`,
+            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename6}`,
             speed: 10,
             mirrored: true,
             viewHeight: 30,
@@ -397,6 +394,8 @@ block content
           requestAnimationFrame(draw);
         }
       }
+
+      document.getElementById("beginButton").addEventListener("click", begin);
 
 
         function goFullScreen(){

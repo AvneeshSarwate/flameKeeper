@@ -28,6 +28,7 @@
     "formidable": "^1.2.2",
     "get-mp3-duration": "^1.0.0",
     "helmet": "^4.0.0",
+    "helmet-csp": "^3.0.0",
     "http-errors": "^1.7.3",
     "install": "^0.13.0",
     "jstransformer-babel": "^2.1.0",
