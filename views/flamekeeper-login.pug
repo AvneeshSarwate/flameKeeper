@@ -1,9 +1,0 @@
-extends layout
-block content
-	p Please submit the access code provided to you by Metropolis Ensemble.
-	form(method="POST" action=`/admin/login` id="loginForm")
-		label(for="accessCode" class="sr-only") Access Code
-		input(type="password" name="accessCode" id="accessCode" class="form-control" placeholder="Access Code" required)
-		button(type="submit") Submit
-		if error
-			p= error

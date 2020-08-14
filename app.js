@@ -7,31 +7,23 @@ const app = express();
 const router = express.Router();
 const server = app.listen(process.env.PORT || 8000);
 
-const passport = require('passport');
-const Auth0Strategy = require('passport-auth0');
-
 const createError = require('http-errors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const methodOverride = require('method-override');
-
-const util = require('util');
-const url = require('url');
-const querystring = require('querystring');
+const helmet = require('helmet');
 
 const { state } = require('./state');
 const { flameKeeper } = require('./flameKeeper');
 flameKeeper.start();
 
 
-// view engine setup
+// View engine setup
 app.set('views', path.join(__dirname, '/views'));
 app.set('view engine', 'pug');
 
 
-// Session/Login
-
+// Setup sessions
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session)
 const sessionStore = new MemoryStore({
@@ -39,7 +31,7 @@ const sessionStore = new MemoryStore({
 });
 exports.sessionStore = sessionStore;
 
-// config express-session
+// Configure express-session
 const sess = {
   store: sessionStore,
   secret: process.env.EXPRESS_SESSION_SECRET,
@@ -58,84 +50,32 @@ if (app.get('env') === 'production') {
   app.set('trust proxy', 1);
 }
 
-
-
-// Configure Passport to use Auth0
-const strategy = new Auth0Strategy({
-    domain: process.env.AUTH0_DOMAIN,
-    clientID: process.env.AUTH0_CLIENT_ID,
-    clientSecret: process.env.AUTH0_CLIENT_SECRET,
-    callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:8000/callback'
-  },
-  function (accessToken, refreshToken, extraParams, profile, done) {
-    // accessToken is the token to call Auth0 API (not needed in the most cases)
-    // extraParams.id_token has the JSON Web Token
-    // profile has all the information from the user
-    return done(null, profile);
-  }
-);
-
-
-passport.use(strategy);
-
-
-
 app.use(session(sess));
-
 app.use(logger('dev'));
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(methodOverride('_method'));
 app.use(express.static('public'));
 
-app.use(passport.initialize());
-app.use(passport.session());
-
-// You can use this section to keep a smaller payload
-passport.serializeUser(function (user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-
-
-const authRouter = require('./routes/auth');
-
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.isAuthenticated();
-  next();
-});
-
-app.use('/', authRouter);
+const { mainRouter } = require('./routes/main');
+app.use('/', mainRouter);
 
 const { adminRouter } = require('./routes/admin');
-app.use('/admin', adminRouter);
+app.use('/', adminRouter);
 
-const { mainRouter } = require('./routes/main');
-app.use('/main', mainRouter);
-
-
-// const routes = require('./routes.js');
-const indexRouter = require('./routes/index');
-app.use('/', indexRouter);
-
-
-
-// catch 404 and forward to error handler
+// Catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// Error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
+  // Set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
+  // Render the error page
   res.status(err.status || 500);
   res.render('error');
 });

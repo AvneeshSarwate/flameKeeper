@@ -1,14 +1,9 @@
+extends layout
 block content
-  form(action='/login' method='post')
-    .title
-      h3 Login
-    .field
-      label Username:
-      input(type='text' name='username')
-      br
-    .field
-      label Password:
-      input(type='password' name='password' required='')
-    .field
-      input.submit-btn(type='submit' value='Submit' required='')
-    label#error-message
+	p Please submit the access code provided to you by Metropolis Ensemble.
+	form(method="POST" action=`/login` id="loginForm")
+		label(for="accessCode" class="sr-only") Access Code
+		input(type="password" name="accessCode" id="accessCode" class="form-control" placeholder="Access Code" required)
+		button(type="submit") Submit
+		if error
+			p= error

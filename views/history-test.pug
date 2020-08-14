@@ -1,9 +1,0 @@
-extends layout
-block content
-    p History
-    each historyState in history
-        li= JSON.stringify(historyState, null, 4)
-    
-    p Composers
-    each composer in historyComposers
-        li= JSON.stringify(composer, null, 4)

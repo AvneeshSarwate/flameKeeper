@@ -13,7 +13,7 @@ const requiresLogin = function (req, res, next) {
         return next();
     }
     req.session.returnTo = req.originalUrl;
-    res.redirect('/admin/login');
+    res.redirect('/login');
 };
 
 exports.requiresLogin = requiresLogin;
@@ -21,11 +21,11 @@ exports.requiresLogin = requiresLogin;
 
 router.get('/login', function (req, res, next) {
     if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
-        res.redirect('/admin/dashboard');
+        res.redirect('/dashboard');
         return;
     }
 
-    res.render('flamekeeper-login');
+    res.render('login');
 });
 
 
@@ -39,7 +39,7 @@ router.post('/login', function (req, res, next) {
         if (admin.active) {
             req.session.adminAuthenticated = true;
             req.session.admin = admin;
-            res.redirect('/admin/dashboard');
+            res.redirect('/dashboard');
             return
         }
     }
@@ -52,14 +52,14 @@ router.post('/login', function (req, res, next) {
         if (composer.active) {
             req.session.composerAuthenticated = true;
             req.session.composer = composer;
-            res.redirect('/admin/dashboard');
+            res.redirect('/dashboard');
             return
         }
         err = "The access code provided is no longer valid.";
     } else {
         err = "The access code provided was not recognized.";
     }
-    res.render('flamekeeper-login', { error: err });
+    res.render('login', { error: err });
 });
 
 
@@ -68,7 +68,7 @@ router.get('/logout', requiresLogin, function (req, res, next) {
     req.session.composer = undefined;
     req.session.adminAuthenticated = false;
     req.session.admin = undefined;
-    res.redirect('/admin/login');
+    res.redirect('/login');
 });
 
 
@@ -93,10 +93,10 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                         .catch(err => reject("unable to add audio", err));
                 });
         });
-        res.redirect('/admin/dashboard');
+        res.redirect('/dashboard');
     } catch (err) {
         console.error(err);
-        res.redirect('/admin/dashboard');
+        res.redirect('/dashboard');
         // TODO: display error
     }
 });
@@ -108,10 +108,10 @@ router.post('/airtable', requiresLogin, async function (req, res, next) {
         await Admins.getAdmins();
         await sessionStore.clear();
         console.log("session storage cleared");
-        res.redirect('/admin/login');
+        res.redirect('/login');
     } catch (err) {
         console.error(err);
-        res.redirect('/admin/dashboard');
+        res.redirect('/dashboard');
         // TODO: display error
     }
 });

@@ -29,10 +29,10 @@ router.get('/', function (req, res, next) {
 
 router.get('/history', function (req, res, next) {
     let composerID = req.query.composerID;
-    let from = req.query.from || 0; // Default to entire history
-    let to = req.query.to || FAR_FUTURE; // Default to entire history
-    let limit = req.query.limit || Number.MAX_SAFE_INTEGER;
-    let offset = req.query.offset || 0;
+    let from = parseInt(req.query.from) || 0; // Default to entire history
+    let to = parseInt(req.query.to) || FAR_FUTURE; // Default to entire history
+    let limit = parseInt(req.query.limit) || Number.MAX_SAFE_INTEGER;
+    let offset = parseInt(req.query.offset) || 0;
 
     let composers = Composers.composers;
     let history;
@@ -49,7 +49,7 @@ router.get('/history', function (req, res, next) {
     historyComposerIDs = [ ...new Set(history.map(h => h.composerID)) ];
     historyComposers = composers.filter(c => historyComposerIDs.includes(c.composerID));
 
-    res.render("history-test", {
+    res.render("history", {
         history: history,
         historyComposers: historyComposers
     });
