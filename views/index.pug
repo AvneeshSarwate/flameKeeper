@@ -199,6 +199,9 @@ block content
             
           }
         ];
+        
+        let audioElements = [];
+        let waveformGroups = [];
 
         function createZigZag() {
           const vlength = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
@@ -235,7 +238,7 @@ block content
         document.getElementById("installation").appendChild(container);
         container.appendChild(createZigZag());
 
-        waveforms.forEach(wf => {
+        waveforms.forEach((wf, i) => {
           const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
           group.setAttribute("transform", wf.transform);
 
@@ -268,7 +271,7 @@ block content
           fetch(wf.url)
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
-            .then(audioBuffer => visualize(audioBuffer, wf.viewHeight))                    
+            .then(audioBuffer => visualize(audioBuffer, wf.viewHeight, "wave-"+i))                    
             .then(({ waveformWidth, svg }) => {
               let animateViewHeight = wf.viewHeight * 2;
               if (!wf.mirrored) {
@@ -279,36 +282,38 @@ block content
               animate(svg, waveformWidth, wf.viewWidth, animateViewHeight, wf.speed);
             })
 
-            const audio = new Audio();          
-            audio.crossOrigin = 'anonymous';
-            audio.src = wf.url;
-            audio.loop = true;
-            
-            setTimeout(function() {
-              audio.play();
-            }, 5000);
+          const audio = new Audio();          
+          audio.crossOrigin = 'anonymous';
+          audio.src = wf.url;
+          audio.loop = true;
+          
+          setTimeout(function() {
+            audio.play();
+          }, 5000);
 
-            document.body.appendChild(audio);     
-            const source = audioCtx.createMediaElementSource(audio);
-            
-            //- const panner = new PannerNode(audioCtx);
+          audioElements.push(audio);
 
-            const compressor = audioCtx.createDynamicsCompressor();
-            compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
-            compressor.knee.setValueAtTime(40, audioCtx.currentTime);
-            compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
-            compressor.attack.setValueAtTime(0, audioCtx.currentTime);
-            compressor.release.setValueAtTime(0.25, audioCtx.currentTime)
-            
-            //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
-            //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
-            source.connect(compressor).connect(audioCtx.destination);
+          document.body.appendChild(audio);     
+          const source = audioCtx.createMediaElementSource(audio);
+          
+          //- const panner = new PannerNode(audioCtx);
+
+          const compressor = audioCtx.createDynamicsCompressor();
+          compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
+          compressor.knee.setValueAtTime(40, audioCtx.currentTime);
+          compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+          compressor.attack.setValueAtTime(0, audioCtx.currentTime);
+          compressor.release.setValueAtTime(0.25, audioCtx.currentTime)
+          
+          //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
+          //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
+          source.connect(compressor).connect(audioCtx.destination);
         });
         //});
 
         
 
-        function visualize(audioBuffer, waveformHeight) {
+        function visualize(audioBuffer, waveformHeight, id) {
           const duration = audioBuffer.duration;
           const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
           const samples = SAMPLES_PER_SECOND * duration;
@@ -322,6 +327,8 @@ block content
             }
             data.push(sum / blockSize); // divide the sum by the block size to get the average
           }
+
+          //TODO: - loop-through data again so that viewport skip-back is seamless
 
           // Normalize peaks in data so that the max peak is always 1.
           if (NORMALIZE_DATA) {
@@ -349,6 +356,7 @@ block content
           const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
           svg.setAttribute("height", waveformHeight * 2);
           svg.setAttribute("width", width);
+          svg.setAttribute("id", id);
 
           // Create the actual polyline.
           const line = document.createElementNS(
@@ -386,6 +394,7 @@ block content
             }
             const diff = ts - time;
             const move = (diff / 1000) * speed;
+            //have offset be determined buy currentTime on audio element
             offset += move;
             if (offset > waveformWidth + viewWidth) {
               offset = -1 * viewWidth;
