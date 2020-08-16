@@ -118,6 +118,8 @@ block content
         const PIXELS_PER_SECOND = 50;
         const NORMALIZE_DATA = true;
         const WAVEFORM_COLOR = "gray";
+        const HIGHLIGHT_COLOR = "#ff5050aa";
+        const TRANSPARENT_COLOR = "#ffffff00";
 
         const DEBUG = false;
 
@@ -243,15 +245,17 @@ block content
           group.setAttribute("transform", wf.transform);
 
           // Debugging only, draw rect around the group.
-          if (DEBUG) {
-            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            rect.setAttribute("x", 0);
-            rect.setAttribute("y", 0);
-            rect.setAttribute("height", wf.viewHeight * 2);
-            rect.setAttribute("width", wf.viewWidth);
-            rect.setAttribute("fill", "#ff5050aa");
-            group.appendChild(rect);
-          }
+          const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          bgRect.setAttribute("x", 0);
+          bgRect.setAttribute("y", 0);
+          bgRect.setAttribute("height", wf.viewHeight * 2);
+          bgRect.setAttribute("width", wf.viewWidth);
+          bgRect.setAttribute("fill", TRANSPARENT_COLOR);
+          group.appendChild(bgRect);
+
+          group.onmouseenter = () => {bgRect.setAttribute("fill", HIGHLIGHT_COLOR)};
+          group.onmouseleave = () => {bgRect.setAttribute("fill", TRANSPARENT_COLOR)};
+
           // Draw line at zero to make the no-waveform part look better.
           const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
           line.setAttribute("x1", 0);
