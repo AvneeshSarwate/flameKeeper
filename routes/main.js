@@ -3,6 +3,9 @@ const router = express.Router();
 
 const { state } = require('../state');
 const { Composers } = require('../airtable');
+const { getLogger } = require('../logger');
+
+const logger = getLogger("main");
 
 const FAR_FUTURE = 999999999999999; // Thu Sep 26 33658 21:46:39 GMT-0400 (Eastern Daylight Time)
 
@@ -11,7 +14,7 @@ router.get('/', function (req, res, next) {
     currentAudio = currentAudio.map(a => {
         let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
         if (!audio) {
-            console.log("unable to find audio for audioID", a.audioID);
+            logger.error("unable to find audio for audioID", a.audioID);
             return undefined;
         }
         return {
@@ -20,7 +23,7 @@ router.get('/', function (req, res, next) {
         }
     });
     if (currentAudio.includes(undefined)) {
-        console.log("unable to find currentState audioID in uploaded audio");
+        logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
     }
     

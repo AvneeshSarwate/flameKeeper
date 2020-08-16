@@ -4,9 +4,11 @@ const { asyncForEach } = require('./util');
 const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
 const baseID = "appiuLzmVDcFCntEr";
 const base = airtable.base(baseID);
+const { getLogger } = require('./logger');
 
 class Composers {
     constructor() {
+        this.logger = getLogger("Composers");
         this.tableName = "Composers";
         this.composerTable = base(this.tableName);
         this.getComposers();
@@ -26,9 +28,9 @@ class Composers {
                 }
                 else this.composers.push(composer);
             });
-            console.log("composers loaded");
+            this.logger.info("composers loaded");
         } catch (err) {
-            console.error("unable to get composers", err);
+            this.logger.error("unable to get composers", err);
         }
         return this.composers;
     }
@@ -63,6 +65,7 @@ exports.Composers = new Composers();
 
 class Admins {
     constructor() {
+        this.logger = getLogger("Admins");
         this.tableName = "Admins";
         this.adminTable = base(this.tableName);
         this.getAdmins();
@@ -78,9 +81,9 @@ class Admins {
                 let admin = this.parseAdmin(record);
                 this.admins.push(admin);
             });
-            console.log("admins loaded");
+            this.logger.info("admins loaded");
         } catch (err) {
-            console.error("unable to get admins", err);
+            this.logger.error("unable to get admins", err);
         }
         return this.composers;
     }
