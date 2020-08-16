@@ -244,26 +244,8 @@ block content
           const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
           group.setAttribute("transform", wf.transform);
 
-          // Debugging only, draw rect around the group.
-          const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-          bgRect.setAttribute("x", 0);
-          bgRect.setAttribute("y", 0);
-          bgRect.setAttribute("height", wf.viewHeight * 2);
-          bgRect.setAttribute("width", wf.viewWidth);
-          bgRect.setAttribute("fill", TRANSPARENT_COLOR);
-          group.appendChild(bgRect);
-
-          group.onmouseenter = () => {bgRect.setAttribute("fill", HIGHLIGHT_COLOR)};
-          group.onmouseleave = () => {bgRect.setAttribute("fill", TRANSPARENT_COLOR)};
-
-          // Draw line at zero to make the no-waveform part look better.
-          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-          line.setAttribute("x1", 0);
-          line.setAttribute("x2", wf.viewWidth);
-          line.setAttribute("y1", wf.viewHeight);
-          line.setAttribute("y2", wf.viewHeight);
-          line.setAttribute("stroke", WAVEFORM_COLOR);
-          group.appendChild(line);
+          drawWaveformBackground(wf, group);
+          drawZeroLine(wf, group);
 
           if (wf.zIndex < 0) {
             container.prepend(group);
@@ -285,15 +267,23 @@ block content
               group.appendChild(svg);
               animate(svg, waveformWidth, wf.viewWidth, animateViewHeight, wf.speed);
             })
+          
+          createAudioElement(wf);
+          
+        });
+        //});
 
+        function createAudioElement(wf){
           const audio = new Audio();          
           audio.crossOrigin = 'anonymous';
           audio.src = wf.url;
           audio.loop = true;
           
-          setTimeout(function() {
-            audio.play();
-          }, 5000);
+          //- setTimeout(function() {
+          //-   audio.play();
+          //- }, 5000);
+
+          audio.addEventListener("canplaythrough", () => {audio.play()});
 
           audioElements.push(audio);
 
@@ -312,10 +302,31 @@ block content
           //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
           //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
           source.connect(compressor).connect(audioCtx.destination);
-        });
-        //});
+        }
 
-        
+        function drawWaveformBackground(wf, group){
+          const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          bgRect.setAttribute("x", 0);
+          bgRect.setAttribute("y", 0);
+          bgRect.setAttribute("height", wf.viewHeight * 2);
+          bgRect.setAttribute("width", wf.viewWidth);
+          bgRect.setAttribute("fill", TRANSPARENT_COLOR);
+          group.appendChild(bgRect);
+
+          group.onmouseenter = () => {bgRect.setAttribute("fill", HIGHLIGHT_COLOR)};
+          group.onmouseleave = () => {bgRect.setAttribute("fill", TRANSPARENT_COLOR)};
+        } 
+
+        function drawZeroLine(wf, group){
+          // Draw line at zero to make the no-waveform part look better.
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", 0);
+          line.setAttribute("x2", wf.viewWidth);
+          line.setAttribute("y1", wf.viewHeight);
+          line.setAttribute("y2", wf.viewHeight);
+          line.setAttribute("stroke", WAVEFORM_COLOR);
+          group.appendChild(line);
+        }       
 
         function visualize(audioBuffer, waveformHeight, id) {
           const duration = audioBuffer.duration;
