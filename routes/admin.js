@@ -4,8 +4,10 @@ const { IncomingForm } = require('formidable');
 
 const { state } = require('../state')
 const { Composers, Admins } = require('../airtable');
-
 const { sessionStore } = require('../app');
+const { getLogger } = require('../logger');
+
+const logger = getLogger("admin");
 
 // Middleware for checking if a session is authorized..
 const requiresLogin = function (req, res, next) {
@@ -97,7 +99,7 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
         });
         res.redirect('/dashboard');
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         res.redirect('/dashboard');
         // TODO: display error
     }
@@ -109,10 +111,10 @@ router.post('/airtable', requiresLogin, async function (req, res, next) {
         await Composers.getComposers();
         await Admins.getAdmins();
         await sessionStore.clear();
-        console.log("session storage cleared");
+        logger.info("session storage cleared");
         res.redirect('/login');
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         res.redirect('/dashboard');
         // TODO: display error
     }

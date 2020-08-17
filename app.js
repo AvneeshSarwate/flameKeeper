@@ -2,6 +2,9 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+const { getLogger } = require('./logger');
+const logger = getLogger("app.js");
+
 const express = require('express');
 const app = express();
 const router = express.Router();
@@ -11,7 +14,6 @@ const uuid = require(`uuid`)
 const createError = require('http-errors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const logger = require('morgan');
 const helmet = require('helmet');
 const csp = require(`helmet-csp`)
 
@@ -53,7 +55,6 @@ if (app.get('env') === 'production') {
 }
 
 app.use(session(sess));
-app.use(logger('dev'));
 
 // Create a nonce for CSP
 app.use((req, res, next) => {
@@ -87,15 +88,15 @@ app.use('/', mainRouter);
 const { adminRouter } = require('./routes/admin');
 app.use('/', adminRouter);
 
-// Catch 404 and forward to error handler
+// Redirect 404 to main page
 app.use(function (req, res, next) {
-  console.log("not found", req.path);
-  next(createError(404));
+  res.redirect('/');
 });
 
 // Error handler
 app.use(function (err, req, res, next) {
-  console.error(err);
+  if (res.headersSend) return next(err);
+  logger.error("error for", req.path, err);
 
   // Set locals, only providing error in development
   res.locals.message = err.message;

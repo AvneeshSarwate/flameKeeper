@@ -4,6 +4,7 @@ const getMP3Duration = require('get-mp3-duration');
 
 const s3 = require('./s3');
 const constants = require('./constants');
+const { getLogger } = require('./logger');
 
 class State {
     /* Spec:
@@ -39,6 +40,7 @@ class State {
     }
      */
     constructor() {
+        this.logger = getLogger("State");
         // Signals whether the S3 file has been fetched
         this.loaded = false;
         this.load();
@@ -63,7 +65,7 @@ class State {
 
                     // Assign properties from file to this object
                     Object.assign(this, jsonData);
-                    console.log("state loaded");
+                    this.logger.info("state loaded");
                     resolve();
                 })
                 .catch(err => reject(err));
@@ -82,9 +84,9 @@ class State {
         };
         try {
             await s3.upload(uploadParams).promise();
-            console.log(`uploaded ${filename}`);
+            this.logger.info(`uploaded ${filename}`);
         } catch (err) {
-            console.error(`unable to upload ${filename} to S3`, err);
+            this.logger.error(`unable to upload ${filename} to S3`, err);
             return undefined;
         }
 
@@ -118,6 +120,7 @@ class State {
         // Remove properties we don't want to save
         let copy = { ...this };
         delete copy.loaded
+        delete copy.logger
 
         let stateString = JSON.stringify(copy);
         let uploadParams = {
@@ -128,7 +131,7 @@ class State {
         try {
             await s3.upload(uploadParams).promise();
         } catch (err) {
-            console.error("unable to save state to S3", err);
+            this.logger.error("unable to save state to S3", err);
             return false;
         }
 
