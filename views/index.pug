@@ -9,11 +9,15 @@ block content
           img(src='./images/me-logo-wht.png' alt='sample logo')      
       #installation
         - let files = fileInfo.Name;   
-        span(id='control_panel' style='visibility: hidden;')
-          button(id="jump_time_button" ) Jump to time (sec):
-          input 
-          button(id='replace_button' onclick='replaceFile()') Replace selected file
+        span(id='single_control_panel' style='visibility: hidden;')
+          span(id='replace_file_span')
+            label(for='replace_file') Select an audio file
+            input(id='replace_file_input' type='file' onchange='replaceFile(files)')
           button(id='undo_button' onclick='undoReplace()' style='visibility: hidden;') Undo
+          label(for='vol') File Volume: 
+          input(id='vol' type='range' min='0' max='1' step='0.01')
+          button(id="jump_time_button" ) Jump to time (sec):
+          input(id='jump_time') 
         
         button(id="beginButton" onclick="begin()") BEGIN
       
@@ -99,17 +103,18 @@ block content
 
       function undoReplace(){
         document.getElementById('undo_button').style.visibility = 'hidden';
-        document.getElementById('replace_button').style.visibility = ''
+        document.getElementById('replace_file_span').style.visibility = ''
       }
 
-      function replaceFile(){
+      function replaceFile(e){
         document.getElementById('undo_button').style.visibility = '';
-        document.getElementById('replace_button').style.visibility = 'hidden'
+        document.getElementById('replace_file_span').style.visibility = 'hidden';
+        console.log("file replace", e);
       }
       
       function begin() {        
         document.getElementById('beginButton').style.visibility = 'hidden';
-        document.getElementById('control_panel').style.visibility = '';
+        document.getElementById('single_control_panel').style.visibility = '';
         
         audioCtx.resume().then(() => {
           console.log('Playback resumed successfully');
@@ -260,7 +265,7 @@ block content
         }
         container.setAttribute("width", "100%");
         container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
-        document.getElementById("installation").appendChild(container);
+        document.getElementById("installation").prepend(container);
         container.appendChild(createZigZag());
 
         waveforms.forEach((wf, i) => {
