@@ -472,6 +472,10 @@ footer .footerNote {
 }
 
 
+.controls {
+	text-align: left;
+}
+
 /* Daniel's Styles */
 .mutes {
   background-color: darkgray;
