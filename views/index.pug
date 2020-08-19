@@ -8,7 +8,12 @@ block content
         p.logoPlaceholder
           img(src='./images/me-logo-wht.png' alt='sample logo')      
       #installation
-        - let files = fileInfo.Name;         
+        - let files = fileInfo.Name;   
+        span(id='control_panel' style='visibility: hidden;')
+          button(id="jump_time_button" ) Jump to time (sec):
+          input 
+          button(id='replace_button' onclick='replaceFile()') Replace selected file
+          button(id='undo_button' onclick='undoReplace()' style='visibility: hidden;') Undo
         
         button(id="beginButton" onclick="begin()") BEGIN
       
@@ -16,6 +21,11 @@ block content
       section.profileHeader
         //- button(id="btn") Play
         button(id="fullscreen" onclick="goFullScreen()") Fullscreen
+        //- span
+        //-   button(id="fullscreen" onclick="goFullScreen()") Fullscreen
+        //-   label jump to time
+        //-   input 
+        //-   button(id="jumpTime" ) 
         h1 The FlameKeeper
         h3 A LIVE STREAMING ART INSTALLATION&nbsp;
         p
@@ -86,9 +96,20 @@ block content
                   
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
+
+      function undoReplace(){
+        document.getElementById('undo_button').style.visibility = 'hidden';
+        document.getElementById('replace_button').style.visibility = ''
+      }
+
+      function replaceFile(){
+        document.getElementById('undo_button').style.visibility = '';
+        document.getElementById('replace_button').style.visibility = 'hidden'
+      }
       
       function begin() {        
         document.getElementById('beginButton').style.visibility = 'hidden';
+        document.getElementById('control_panel').style.visibility = '';
         
         audioCtx.resume().then(() => {
           console.log('Playback resumed successfully');
@@ -122,6 +143,8 @@ block content
         const TRANSPARENT_COLOR = "#ffffff00";
 
         const DEBUG = false;
+
+        let selected_waveform = null;
 
         // Nice convenient way to describe the waveforms.
         const waveforms = [
@@ -184,7 +207,7 @@ block content
             mirrored: true,
             viewHeight: 30,
             viewWidth: 120,
-            transform: `translate(480 310)`,
+            transform: `translate(480 270)`,
             zIndex: -1,
             panAmount: -0.25
             
@@ -195,7 +218,7 @@ block content
             mirrored: true,
             viewHeight: 30,
             viewWidth: 120,
-            transform: `translate(480 310)`,
+            transform: `translate(380 330)`,
             zIndex: -1,
             panAmount: -0.5
             
@@ -243,8 +266,10 @@ block content
         waveforms.forEach((wf, i) => {
           const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
           group.setAttribute("transform", wf.transform);
+          group.setAttribute("id", "group-"+i);
 
-          drawWaveformBackground(wf, group);
+          drawWaveformBackground(wf, group, i);
+
           drawZeroLine(wf, group);
 
           if (wf.zIndex < 0) {
@@ -253,11 +278,20 @@ block content
             container.appendChild(group);
           }
 
-                              
-          fetch(wf.url)
+          animateAudioData(fetch(wf.url), i);
+          
+          createAudioElement(wf);
+        });
+        //});
+
+        function animateAudioData(audioDataPromise, slotIndex){
+          let wf = waveforms[slotIndex];
+          let group = document.getElementById('group-'+slotIndex);
+
+          audioDataPromise
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
-            .then(audioBuffer => visualize(audioBuffer, wf.viewHeight, "wave-"+i))                    
+            .then(audioBuffer => visualize(audioBuffer, wf.viewHeight, slotIndex))                    
             .then(({ waveformWidth, svg }) => {
               let animateViewHeight = wf.viewHeight * 2;
               if (!wf.mirrored) {
@@ -266,12 +300,14 @@ block content
               }
               group.appendChild(svg);
               animate(svg, waveformWidth, wf.viewWidth, animateViewHeight, wf.speed);
-            })
-          
-          createAudioElement(wf);
-          
-        });
-        //});
+            });
+        }
+
+        function replaceAudioSlotWithFile(file, slotIndex){
+          animateAudioData(Promise.resolve(file), slotIndex)
+
+          audioElements[slotIndex].src = URL.createObjectURL(file);
+        }
 
         function createAudioElement(wf){
           const audio = new Audio();          
@@ -304,18 +340,34 @@ block content
           source.connect(compressor).connect(audioCtx.destination);
         }
 
-        function drawWaveformBackground(wf, group){
+        function drawWaveformBackground(wf, group, i){
           const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
           bgRect.setAttribute("x", 0);
           bgRect.setAttribute("y", 0);
           bgRect.setAttribute("height", wf.viewHeight * 2);
           bgRect.setAttribute("width", wf.viewWidth);
           bgRect.setAttribute("fill", TRANSPARENT_COLOR);
+          bgRect.setAttribute("stroke", 'white');
+          bgRect.setAttribute('stroke-width', '0px');
+          bgRect.setAttribute('id', 'bgRect-'+i);
+
           group.appendChild(bgRect);
+
+          group.onclick = () => {
+            selected_waveform = i;
+            toggleGroupBorders();
+          };
 
           group.onmouseenter = () => {bgRect.setAttribute("fill", HIGHLIGHT_COLOR)};
           group.onmouseleave = () => {bgRect.setAttribute("fill", TRANSPARENT_COLOR)};
         } 
+
+        function toggleGroupBorders(){
+          [0, 1, 2, 3, 4, 5, 6].map(i => {
+            const bgRect = document.getElementById('bgRect-'+i);
+            bgRect.setAttribute("stroke-width", selected_waveform === i ? '3px' : '0px')
+          });
+        }
 
         function drawZeroLine(wf, group){
           // Draw line at zero to make the no-waveform part look better.
@@ -328,7 +380,7 @@ block content
           group.appendChild(line);
         }       
 
-        function visualize(audioBuffer, waveformHeight, id) {
+        function visualize(audioBuffer, waveformHeight, slotIndex) {
           const duration = audioBuffer.duration;
           const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
           const samples = SAMPLES_PER_SECOND * duration;
@@ -367,11 +419,17 @@ block content
             points.push([x, waveformHeight * 2 - y]);
           }
 
+          let oldWave = document.getElementById('wave-'+slotIndex);
+          let group = document.getElementById('group-'+slotIndex);
+          if(oldWave){
+            group.removeChild(oldWave);
+          }
+
           // Create the svg container for the waveform.
           const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
           svg.setAttribute("height", waveformHeight * 2);
           svg.setAttribute("width", width);
-          svg.setAttribute("id", id);
+          svg.setAttribute("id", "wave-"+slotIndex);
 
           // Create the actual polyline.
           const line = document.createElementNS(
