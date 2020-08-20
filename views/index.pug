@@ -12,15 +12,18 @@ block content
 
         //-- todo: multi-control template will be 7 rows like this where mouse over on panel hightlights corresponding wave (and vice versa)
         span(id='single_control_panel' style='visibility: hidden;' class="controls")
+          span(id='jump_span')
+            button(id="jump_time_button" onclick="jumpToTime()" ) Jump to time (sec):
+            input(id='jump_time') 
+          br
           span(id='replace_file_span')
             //- label(for='replace_file') Select an audio file
             input(id='replace_file_input' type='file' onchange='replaceFile(files)')
           button(id='undo_button' onclick='undoReplace()' style='visibility: hidden;') Undo
-          label(for='vol') New File Gain: 
-          input(id='vol' type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
-          span(id='vol_val') 1
-          button(id="jump_time_button" ) Jump to time (sec):
-          input(id='jump_time') 
+          span(id='vol_span' style='visibility: hidden;')
+            label(for='vol') New File Gain: 
+            input(id='vol' type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
+            span(id='vol_val') 1
         
         button(id="beginButton" onclick="begin()") BEGIN
       
@@ -104,38 +107,72 @@ block content
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
 
-      function undoReplace(){
-        document.getElementById('undo_button').style.visibility = 'hidden';
-        document.getElementById('replace_file_span').style.visibility = '';
-
-        file_is_replaced = false;
-        animateAudioData(fetch(waveforms[selected_waveform]), selected_waveform);
-        selected_waveform = null;
-        toggleGroupBorders();
-        resetGains(); //todo - implement stuff around this
-      }
-
       let selected_waveform = null;
       let audioElements = [];
       let waveformGroups = [];
       let gains = [];
       let file_is_replaced = false;
       let multi_replacement_menu = false; //todo - populate this from template
+      let replacement_data = {
+        file: null, 
+        slotId: null, 
+        volume: null
+      };
+
+      function undoReplace(){
+        document.getElementById('undo_button').style.visibility = 'hidden';
+        document.getElementById('vol_span').style.visibility = 'hidden';
+        document.getElementById('replace_file_span').style.visibility = '';
+
+        file_is_replaced = false;
+        animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform);
+        audioElements[selected_waveform].src = waveforms[selected_waveform].url;
+        selected_waveform = null;
+        toggleGroupBorders();
+        audioElements.forEach(ae => { ae.currentTime = 0});
+
+        document.getElementById('replace_file_input').value = '';
+
+        //resetGains(); //todo - implement stuff around this
+      }
+
+      function jumpToTime(){
+        let timeStr = document.getElementById('jump_time').value;
+        try{
+          let secs = parseFloat(timeStr);
+          audioElements.forEach(ae => {
+            ae.currentTime = secs % ae.duration; 
+          })
+        } catch {
+          alert("only numbers can be in the time box")
+        }
+      }
 
       function replaceFile(files){
-        document.getElementById('undo_button').style.visibility = '';
-        document.getElementById('replace_file_span').style.visibility = 'hidden';
         console.log("file replace", files);
 
         if(selected_waveform != null) {
+          document.getElementById('undo_button').style.visibility = '';
+          document.getElementById('vol_span').style.visibility = '';
+          document.getElementById('replace_file_span').style.visibility = 'hidden';
+
           replaceAudioSlotWithFile(files[0], selected_waveform);
           file_is_replaced = true;
+          audioElements.forEach(ae => { ae.currentTime = 0});
+          
+          replacement_data.file = files[0];
+          replacement_data.slotId = selected_waveform;
         }
-        else alert("pick a waveform to replace its audio");
+        else {
+          document.getElementById('replace_file_input').value = '';
+          alert("pick a waveform to replace its audio");
+        }
       }
 
       function changeVol(slider){
         console.log('change vol', slider.value);
+        replacement_data.vol = slider.value;
+        gains[selected_waveform].gain.value = slider.value;
       }
 
       let returns0 = `!{JSON.stringify(fileInfo[0].Name)}`;
