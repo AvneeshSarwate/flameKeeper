@@ -66,7 +66,8 @@ exports.list_function = function (req, res) {
       setTimeout(function () {        
         resolve(res.render('index', {
           audioContext: StandardizedAudioContext,
-          fileInfo: fileInfo
+          fileInfo: fileInfo,
+          fileInfoString: JSON.stringify(fileInfo)
         }));
       }, 2000)
     })

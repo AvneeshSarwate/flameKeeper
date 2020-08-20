@@ -186,14 +186,9 @@ block content
         }
       }
 
-      
-      let returns0 = `!{JSON.stringify(fileInfo[0].Name)}`;
-      let returns1 = `!{JSON.stringify(fileInfo[1].Name)}`;
-      let returns2 = `!{JSON.stringify(fileInfo[2].Name)}`;
-      let returns3 = `!{JSON.stringify(fileInfo[3].Name)}`;
-      let returns4 = `!{JSON.stringify(fileInfo[4].Name)}`;
-      let returns5 = `!{JSON.stringify(fileInfo[5].Name)}`;
-      let returns6 = `!{JSON.stringify(fileInfo[6].Name)}`;  
+      let returns = `!{fileInfoString}`;
+      returns = JSON.parse(returns).map(fi => fi.Name);
+      console.log("returns", returns);
 
       // Configuration.
       const CONTAINER_WIDTH = 600;
@@ -214,7 +209,7 @@ block content
       // Nice convenient way to describe the waveforms.
       const waveforms = [
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns0.slice(1, -1)}`,
+          url: `https://fk-audio.s3.amazonaws.com/${returns[0]}`,
           speed: 10,             
           mirrored: true,
           viewHeight: 30,
@@ -225,7 +220,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns1.slice(1, -1)}`,
+          url: `https://fk-audio.s3.amazonaws.com/${returns[1]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -236,7 +231,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns2.slice(1, -1)}`,
+          url: `https://fk-audio.s3.amazonaws.com/${returns[2]}`,
           speed: 15,
           mirrored: true,
           viewHeight: 30,
@@ -246,7 +241,7 @@ block content
           panAmount: 0.75           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns3.slice(1, -1)}`,
+          url: `https://fk-audio.s3.amazonaws.com/${returns[3]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -256,7 +251,7 @@ block content
           panAmount: 0.25
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns4.slice(1, -1)}`,
+          url: `https://fk-audio.s3.amazonaws.com/${returns[4]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -267,7 +262,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns5.slice(1, -1)}`,
+          url: `https://fk-audio.s3.amazonaws.com/${returns[5]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -278,7 +273,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns6.slice(1, -1)}`,
+          url: `https://fk-audio.s3.amazonaws.com/${returns[6]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
