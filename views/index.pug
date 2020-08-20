@@ -15,9 +15,8 @@ block content
           span(id='jump_span')
             button(id="jump_time_button" onclick="jumpToTime()" ) Jump to time (sec):
             input(id='jump_time') 
-          div(id='single_panel')
+          div(id='single_panel' style='visibility: hidden;')
             span(id='replace_file_span')
-              //- label(for='replace_file') Select an audio file
               input(id='replace_file_input' type='file' onchange='replaceFile(files, this)')
             button(id='undo_button' onclick='undoReplace()' style='visibility: hidden;') Undo
             span(id='vol_span' style='visibility: hidden;')
@@ -25,6 +24,16 @@ block content
               input(id='vol' type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
               span(id='vol_val') 1
           div(id='multi_panel')
+            each val in [0, 1, 2, 3, 4, 5, 6]
+              span(id='control_row-'+val)
+                span(id='replace_file_span-'+val)
+                  input(id='replace_file_input-'+val type='file' onchange='replaceFile(files, this)')
+                span(id='vol_span-'+val)
+                  label(for='vol-'+val) New File Gain: 
+                  input(id='vol-'+val type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
+                  span(id='vol_val-'+val) 1
+              br
+
         
         //-- TODO - change instructions copy depending on whether page is single or multi file replacement
 
@@ -120,7 +129,7 @@ block content
         slotId: null, 
         volume: null
       };
-      let multi_replacement_menu = false; //todo - populate this from template
+      let multi_replacement_menu = true; //todo - populate this from template
 
       function undoReplace(){
         document.getElementById('undo_button').style.visibility = 'hidden';
@@ -396,13 +405,15 @@ block content
         group.onmouseenter = () => {
           bgRect.setAttribute("fill", HIGHLIGHT_COLOR);
           if(multi_replacement_menu){
-
+            let controlRow = document.getElementById('control_row-'+i);
+            controlRow.style.background = HIGHLIGHT_COLOR;
           }
         };
         group.onmouseleave = () => {
           bgRect.setAttribute("fill", TRANSPARENT_COLOR);
           if(multi_replacement_menu){
-            
+            let controlRow = document.getElementById('control_row-'+i);
+            controlRow.style.background = TRANSPARENT_COLOR;
           }
         };
       } 
@@ -562,6 +573,21 @@ block content
           
           createAudioElement(wf);
         });
+
+        if(multi_replacement_menu){
+          [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+            let controlRow = document.getElementById('control_row-'+i);
+            controlRow.addEventListener('mouseenter', () => {
+              console.log('enter row', i);
+              document.getElementById('bgRect-'+i).setAttribute("fill", HIGHLIGHT_COLOR);
+              controlRow.style.background = HIGHLIGHT_COLOR;
+            });
+            controlRow.addEventListener('mouseleave', () => {
+              document.getElementById('bgRect-'+i).setAttribute("fill", TRANSPARENT_COLOR);
+              controlRow.style.background = TRANSPARENT_COLOR;
+            });
+          });
+        }
       }
 
 
