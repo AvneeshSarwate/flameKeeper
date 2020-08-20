@@ -8,23 +8,26 @@ block content
         p.logoPlaceholder
           img(src='./images/me-logo-wht.png' alt='sample logo')      
       #installation
-        - let files = fileInfo.Name;   
+        - let files = fileInfo.Name;
 
         //-- todo: multi-control template will be 7 rows like this where mouse over on panel hightlights corresponding wave (and vice versa)
-        span(id='single_control_panel' style='visibility: hidden;' class="controls")
+        span(id='control_panel' style='visibility: hidden;' class="controls")
           span(id='jump_span')
             button(id="jump_time_button" onclick="jumpToTime()" ) Jump to time (sec):
             input(id='jump_time') 
-          br
-          span(id='replace_file_span')
-            //- label(for='replace_file') Select an audio file
-            input(id='replace_file_input' type='file' onchange='replaceFile(files)')
-          button(id='undo_button' onclick='undoReplace()' style='visibility: hidden;') Undo
-          span(id='vol_span' style='visibility: hidden;')
-            label(for='vol') New File Gain: 
-            input(id='vol' type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
-            span(id='vol_val') 1
+          div(id='single_panel')
+            span(id='replace_file_span')
+              //- label(for='replace_file') Select an audio file
+              input(id='replace_file_input' type='file' onchange='replaceFile(files, this)')
+            button(id='undo_button' onclick='undoReplace()' style='visibility: hidden;') Undo
+            span(id='vol_span' style='visibility: hidden;')
+              label(for='vol') New File Gain: 
+              input(id='vol' type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
+              span(id='vol_val') 1
+          div(id='multi_panel')
         
+        //-- TODO - change instructions copy depending on whether page is single or multi file replacement
+
         button(id="beginButton" onclick="begin()") BEGIN
       
       //- Identity details
@@ -112,12 +115,12 @@ block content
       let waveformGroups = [];
       let gains = [];
       let file_is_replaced = false;
-      let multi_replacement_menu = false; //todo - populate this from template
       let replacement_data = {
         file: null, 
         slotId: null, 
         volume: null
       };
+      let multi_replacement_menu = false; //todo - populate this from template
 
       function undoReplace(){
         document.getElementById('undo_button').style.visibility = 'hidden';
@@ -148,33 +151,42 @@ block content
         }
       }
 
-      function replaceFile(files){
-        console.log("file replace", files);
+      function replaceFile(files, selector){
+        console.log("file replace", files, selector);
+        if(multi_replacement_menu){
 
-        if(selected_waveform != null) {
-          document.getElementById('undo_button').style.visibility = '';
-          document.getElementById('vol_span').style.visibility = '';
-          document.getElementById('replace_file_span').style.visibility = 'hidden';
+        } else {
+          if(selected_waveform != null) {
+            document.getElementById('undo_button').style.visibility = '';
+            document.getElementById('vol_span').style.visibility = '';
+            document.getElementById('replace_file_span').style.visibility = 'hidden';
 
-          replaceAudioSlotWithFile(files[0], selected_waveform);
-          file_is_replaced = true;
-          audioElements.forEach(ae => { ae.currentTime = 0});
-          
-          replacement_data.file = files[0];
-          replacement_data.slotId = selected_waveform;
-        }
-        else {
-          document.getElementById('replace_file_input').value = '';
-          alert("pick a waveform to replace its audio");
+            replaceAudioSlotWithFile(files[0], selected_waveform);
+            file_is_replaced = true;
+            audioElements.forEach(ae => { ae.currentTime = 0});
+            
+            replacement_data.file = files[0];
+            replacement_data.slotId = selected_waveform;
+          }
+          else {
+            document.getElementById('replace_file_input').value = '';
+            alert("pick a waveform to replace its audio");
+          }
         }
       }
 
       function changeVol(slider){
-        console.log('change vol', slider.value);
-        replacement_data.vol = slider.value;
-        gains[selected_waveform].gain.value = slider.value;
+        if(multi_replacement_menu){
+
+        } else {
+          console.log('change vol', slider.value);
+          replacement_data.vol = slider.value;
+          gains[selected_waveform].gain.value = slider.value;
+          document.getElementById('vol_val').innerText = slider.value
+        }
       }
 
+      
       let returns0 = `!{JSON.stringify(fileInfo[0].Name)}`;
       let returns1 = `!{JSON.stringify(fileInfo[1].Name)}`;
       let returns2 = `!{JSON.stringify(fileInfo[2].Name)}`;
@@ -375,17 +387,29 @@ block content
         group.appendChild(bgRect);
 
         group.onclick = () => {
-          if(file_is_replaced && !multi_replacement_menu) {
-            alert("Undo your current file-change before replacing a different file");
-            return
+          if(!multi_replacement_menu) {
+            if(file_is_replaced && !multi_replacement_menu) {
+              alert("Undo your current file-change before replacing a different file");
+              return
+            }
+            selected_waveform = i;
+            toggleGroupBorders();
           }
-          selected_waveform = i;
-          toggleGroupBorders();
         };
 
         //todo - for multi-replacement menu, have these highlight the file-seelctor for that wave (and vice versa)
-        group.onmouseenter = () => {bgRect.setAttribute("fill", HIGHLIGHT_COLOR)};
-        group.onmouseleave = () => {bgRect.setAttribute("fill", TRANSPARENT_COLOR)};
+        group.onmouseenter = () => {
+          bgRect.setAttribute("fill", HIGHLIGHT_COLOR);
+          if(multi_replacement_menu){
+
+          }
+        };
+        group.onmouseleave = () => {
+          bgRect.setAttribute("fill", TRANSPARENT_COLOR);
+          if(multi_replacement_menu){
+            
+          }
+        };
       } 
 
       function toggleGroupBorders(){
@@ -508,7 +532,7 @@ block content
       
       function begin() {        
         document.getElementById('beginButton').style.visibility = 'hidden';
-        document.getElementById('single_control_panel').style.visibility = '';
+        document.getElementById('control_panel').style.visibility = '';
         
         audioCtx.resume().then(() => {
           console.log('Playback resumed successfully');
