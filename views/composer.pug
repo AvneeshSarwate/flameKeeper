@@ -10,7 +10,6 @@ block content
       #installation
         //- - let files = fileInfo.Name;
 
-        //-- todo: multi-control template will be 7 rows like this where mouse over on panel hightlights corresponding wave (and vice versa)
         span(id='control_panel' class="controls hide")
           span(id='jump_span')
             button(id="jump_time_button") Jump to time (sec):
@@ -410,7 +409,6 @@ block content
           }
         };
 
-        //todo - for multi-replacement menu, have these highlight the file-seelctor for that wave (and vice versa)
         group.onmouseenter = () => {
           bgRect.setAttribute("fill", HIGHLIGHT_COLOR);
           if(multi_replacement_menu){
@@ -446,6 +444,8 @@ block content
       }       
 
       function visualize(audioBuffer, waveformHeight, slotIndex) {
+        //- console.log("visializing", slotIndex);
+        //- if(slotIndex == 2) debugger;
         const duration = audioBuffer.duration;
         const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
         const samples = SAMPLES_PER_SECOND * duration;
@@ -463,8 +463,10 @@ block content
         //TODO: - loop-through data again so that viewport skip-back is seamless
 
         // Normalize peaks in data so that the max peak is always 1.
+        //- if(slotIndex == 2) debugger;
+        data = data.filter(n => !isNaN(n)); //todo - might need to make this more rigorous
         if (NORMALIZE_DATA) {
-          data = normalizeData(data);
+          data = normalizeData(data); 
         }
         //waveformHeight = waveformHeight / 2;
         // Create all of the points for our svg.
