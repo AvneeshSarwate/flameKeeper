@@ -8,46 +8,41 @@ block content
         p.logoPlaceholder
           img(src='./images/me-logo-wht.png' alt='sample logo')      
       #installation
-        - let files = fileInfo.Name;
+        //- - let files = fileInfo.Name;
 
         //-- todo: multi-control template will be 7 rows like this where mouse over on panel hightlights corresponding wave (and vice versa)
-        span(id='control_panel' style='visibility: hidden;' class="controls")
+        span(id='control_panel' class="controls hide")
           span(id='jump_span')
-            button(id="jump_time_button" onclick="jumpToTime()" ) Jump to time (sec):
+            button(id="jump_time_button") Jump to time (sec):
             input(id='jump_time') 
-          div(id='single_panel' style='visibility: hidden;')
+          div(id='single_panel' class="")
             span(id='replace_file_span')
-              input(id='replace_file_input' type='file' onchange='replaceFile(files, this)')
-            button(id='undo_button' onclick='undoReplace()' style='visibility: hidden;') Undo
-            span(id='vol_span' style='visibility: hidden;')
+              input(id='replace_file_input' type='file')
+            button(id='undo_button' class="hide") Undo
+            span(id='vol_span' class="hide")
               label(for='vol') New File Gain: 
-              input(id='vol' type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
+              input(id='vol' type='range' min='0' max='2' value='1' step='0.01')
               span(id='vol_val') 1
-          div(id='multi_panel')
+          div(id='multi_panel' class="hide")
             each val in [0, 1, 2, 3, 4, 5, 6]
               span(id='control_row-'+val)
                 span(id='replace_file_span-'+val)
-                  input(id='replace_file_input-'+val type='file' onchange='replaceFile(files, this)')
+                  input(id='replace_file_input-'+val type='file')
                 span(id='vol_span-'+val)
                   label(for='vol-'+val) New File Gain: 
-                  input(id='vol-'+val type='range' min='0' max='2' value='1' step='0.01' oninput="changeVol(this)")
+                  input(id='vol-'+val type='range' min='0' max='2' value='1' step='0.01')
                   span(id='vol_val-'+val) 1
               br
 
         
         //-- TODO - change instructions copy depending on whether page is single or multi file replacement
 
-        button(id="beginButton" onclick="begin()") BEGIN
+        button(id="beginButton") BEGIN
       
       //- Identity details
       section.profileHeader
         //- button(id="btn") Play
-        button(id="fullscreen" onclick="goFullScreen()") Fullscreen
-        //- span
-        //-   button(id="fullscreen" onclick="goFullScreen()") Fullscreen
-        //-   label jump to time
-        //-   input 
-        //-   button(id="jumpTime" ) 
+        button(id="fullscreen") Fullscreen
         h1 The FlameKeeper
         h3 A LIVE STREAMING ART INSTALLATION&nbsp;
         p
@@ -114,10 +109,22 @@ block content
         | Contact Us - 
         span Email / Social
       
-    script.
+    script(nonce=nonce).
                   
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
+
+      document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
+      document.getElementById('undo_button').addEventListener('click', undoReplace);
+      document.getElementById('beginButton').addEventListener('click', begin);
+      document.getElementById('fullscreen').addEventListener('click', goFullScreen);
+      document.getElementById('vol').addEventListener('input', changeVol)
+      document.getElementById('replace_file_input').addEventListener('change', replaceFile)
+
+      for(let i = 0; i < 7; i++) {
+          document.getElementById('vol-'+i).addEventListener('input', changeVol);
+          document.getElementById('replace_file_input-'+i).addEventListener('change', replaceFile);
+      }
 
       let selected_waveform = null;
       let audioElements = [];
@@ -132,9 +139,9 @@ block content
       let multi_replacement_menu = true; //todo - populate this from template
 
       function undoReplace(){
-        document.getElementById('undo_button').style.visibility = 'hidden';
-        document.getElementById('vol_span').style.visibility = 'hidden';
-        document.getElementById('replace_file_span').style.visibility = '';
+        document.getElementById('undo_button').classList.add('hide');
+        document.getElementById('vol_span').classList.add('hide');
+        document.getElementById('replace_file_span').classList.remove('hide');
 
         file_is_replaced = false;
         animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform);
@@ -160,15 +167,17 @@ block content
         }
       }
 
-      function replaceFile(files, selector){
+      function replaceFile(e){
+        let selector = e.target;
+        let files = target.files;
         console.log("file replace", files, selector);
         if(multi_replacement_menu){
 
         } else {
           if(selected_waveform != null) {
-            document.getElementById('undo_button').style.visibility = '';
-            document.getElementById('vol_span').style.visibility = '';
-            document.getElementById('replace_file_span').style.visibility = 'hidden';
+            document.getElementById('undo_button').classList.remove('hide');
+            document.getElementById('vol_span').classList.remove('hide');
+            document.getElementById('replace_file_span').classList.add('hide');
 
             replaceAudioSlotWithFile(files[0], selected_waveform);
             file_is_replaced = true;
@@ -184,7 +193,8 @@ block content
         }
       }
 
-      function changeVol(slider){
+      function changeVol(e){
+        let slider = e.target;
         if(multi_replacement_menu){
 
         } else {
@@ -195,8 +205,7 @@ block content
         }
       }
 
-      let returns = `!{fileInfoString}`;
-      returns = JSON.parse(returns).map(fi => fi.Name);
+      let returns = JSON.parse(`!{fileNames}`);
       console.log("returns", returns);
 
       // Configuration.
@@ -218,7 +227,7 @@ block content
       // Nice convenient way to describe the waveforms.
       const waveforms = [
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns[0]}`,
+          url: `https://flamekeeper.s3.amazonaws.com/${returns[0]}`,
           speed: 10,             
           mirrored: true,
           viewHeight: 30,
@@ -229,7 +238,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns[1]}`,
+          url: `https://flamekeeper.s3.amazonaws.com/${returns[1]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -240,7 +249,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns[2]}`,
+          url: `https://flamekeeper.s3.amazonaws.com/${returns[2]}`,
           speed: 15,
           mirrored: true,
           viewHeight: 30,
@@ -250,7 +259,7 @@ block content
           panAmount: 0.75           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns[3]}`,
+          url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -260,7 +269,7 @@ block content
           panAmount: 0.25
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns[4]}`,
+          url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -271,7 +280,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns[5]}`,
+          url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -282,7 +291,7 @@ block content
           
         },
         {
-          url: `https://fk-audio.s3.amazonaws.com/${returns[6]}`,
+          url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
           speed: 10,
           mirrored: true,
           viewHeight: 30,
@@ -537,8 +546,8 @@ block content
       }
       
       function begin() {        
-        document.getElementById('beginButton').style.visibility = 'hidden';
-        document.getElementById('control_panel').style.visibility = '';
+        document.getElementById('beginButton').classList.add('hide');
+        document.getElementById('control_panel').classList.remove('hide');
         
         audioCtx.resume().then(() => {
           console.log('Playback resumed successfully');

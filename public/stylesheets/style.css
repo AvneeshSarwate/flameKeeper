@@ -483,6 +483,10 @@ footer .footerNote {
   text-transform: uppercase;
 }
 
+.hide {
+	visibility: hidden;
+}
+
 .mutes:hover {
 	cursor: pointer;
 

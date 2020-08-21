@@ -61,4 +61,29 @@ router.get('/history', function (req, res, next) {
     });
 });
 
+router.get('/composer', function (req, res, next) {
+    let currentAudio = [ ...state.currentState.audio ];
+    currentAudio = currentAudio.map(a => {
+        let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
+        if (!audio) {
+            logger.error("unable to find audio for audioID", a.audioID);
+            return undefined;
+        }
+        return {
+            ...audio,
+            ...a
+        }
+    });
+    if (currentAudio.includes(undefined)) {
+        logger.error("unable to find currentState audioID in uploaded audio");
+        res.sendStatus(500);
+    }
+    
+    res.render('composer', {
+        nonce: res.locals.nonce,
+        audio: currentAudio,
+        fileNames: JSON.stringify(currentAudio.map(a => a.filename))
+    });
+});
+
 exports.mainRouter = router;
