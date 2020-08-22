@@ -10,6 +10,8 @@ const logger = getLogger("main");
 const FAR_FUTURE = 999999999999999; // Thu Sep 26 33658 21:46:39 GMT-0400 (Eastern Daylight Time)
 
 router.get('/', function (req, res, next) {
+    //TODO history - add query string val of history timestamp to pull composer info and audio files
+
     let currentAudio = [ ...state.currentState.audio ];
     currentAudio = currentAudio.map(a => {
         let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
@@ -22,6 +24,7 @@ router.get('/', function (req, res, next) {
             ...a
         }
     });
+    
     if (currentAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
