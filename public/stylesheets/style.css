@@ -484,7 +484,7 @@ footer .footerNote {
 }
 
 .hide {
-	visibility: hidden;
+	display: none;
 }
 
 .mutes:hover {

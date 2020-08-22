@@ -8,17 +8,7 @@ block content
           img(src='./images/me-logo-wht.png' alt='sample logo')      
       .installation
         
-        
-        
-        //- div(class="waveform")
-        //- button(class="btn" onclick="startAudio()") Play
-
-        //- each file in files ? files : ['NO!!!']
-        //-   - console.log(file.Key);
-          //- - let audioSrc = `https://fk-audio.s3.amazonaws.com/${file.Key}`           
-          //- p= file.Key
-          //- p= file.LastModified
-          //-   audio(controls="", type="audio/mpeg" src=audioSrc)            
+                 
         section.profileHeader
           h1 The FlameKeeper
           h3 A LIVE STREAMING ART INSTALLATION&nbsp;
@@ -29,8 +19,8 @@ block content
         br
         br
         br
-        - let files = fileInfo; 
-        - let composers = composerInfo;                
+        - let composers = composerInfo;
+        - let histories = composerHistories;                
         each composer in composers ? composers : ['NO!!!']                                 
           if (composer.id != '0')
             - let photoSrc = composer.photo                           
@@ -45,6 +35,12 @@ block content
                 | #{composer.bio}
               p            
               br
+            span
+                each h in composer.history
+                    span ay
+                //- - for(var i = 0; i < histories[composer.composerID].length; i++)
+                //-   div yo
+
             //- TODO history - populate history timestamps by composer
             //- TODO history - figure out elegant UI for picking snapshot
             

@@ -14,7 +14,7 @@ block content
           span(id='jump_span')
             button(id="jump_time_button") Jump to time (sec):
             input(id='jump_time') 
-          div(id='single_panel' class="")
+          div(id='single_panel' class="hide")
             span(id='replace_file_span')
               input(id='replace_file_input' type='file')
             button(id='undo_button' class="hide") Undo
@@ -113,6 +113,13 @@ block content
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
 
+      let multi_replacement_menu = !{isMultiFile};
+      if(multi_replacement_menu){
+        document.getElementById('multi_panel').classList.remove('hide')
+      } else {
+        document.getElementById('single_panel').classList.remove('hide')
+      }
+
       document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
       document.getElementById('undo_button').addEventListener('click', undoReplace);
       document.getElementById('beginButton').addEventListener('click', begin);
@@ -135,7 +142,6 @@ block content
         slotId: null, 
         volume: null
       };
-      let multi_replacement_menu = true; //todo - populate this from template
 
       function undoReplace(){
         document.getElementById('undo_button').classList.add('hide');
