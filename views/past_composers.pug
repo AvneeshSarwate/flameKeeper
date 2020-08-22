@@ -1,0 +1,81 @@
+extends layout
+block content
+  body(class='css-selector')
+    header
+      .profileLogo
+        //-- Profile logo. Add a img tag in place of <span>.
+        p.logoPlaceholder
+          img(src='./images/me-logo-wht.png' alt='sample logo')      
+      .installation
+        
+        
+        
+        //- div(class="waveform")
+        //- button(class="btn" onclick="startAudio()") Play
+
+        //- each file in files ? files : ['NO!!!']
+        //-   - console.log(file.Key);
+          //- - let audioSrc = `https://fk-audio.s3.amazonaws.com/${file.Key}`           
+          //- p= file.Key
+          //- p= file.LastModified
+          //-   audio(controls="", type="audio/mpeg" src=audioSrc)            
+        section.profileHeader
+          h1 The FlameKeeper
+          h3 A LIVE STREAMING ART INSTALLATION&nbsp;
+          p
+            | Introductory text about the project goes here. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in.
+          br
+        hr
+        br
+        br
+        br
+        - let files = fileInfo; 
+        - let composers = composerInfo;                
+        each composer in composers ? composers : ['NO!!!']                                 
+          if (composer.id != '0')
+            - let photoSrc = composer.photo                           
+            .profilePhoto
+              //- Profile photo
+              img(src=`${photoSrc}` alt='sample logo')
+            //- Identity details
+            section.profileHeader
+              h3 
+              h1 #{composer.name}
+              p
+                | #{composer.bio}
+              p            
+              br
+            //-   p Select a past snapshot:                      
+            //-     //- - let sliceCount = parseInt(file.EndSlice) - parseInt(file.StartSlice) + 1
+            //-     - let sliceStart = parseInt(file.StartSlice)
+            //-     - let sliceEnd = parseInt(file.EndSlice)
+            //-     - let sliceArr = []                
+            //-     - for (let i=sliceStart; i<=sliceEnd; i++) {sliceArr.push(i);}
+                
+            //-     //- form(action=`/history/${val}` method="post")                                      
+            //-     //- //-   select(name=val id=val)           
+            //-     //- //-   each val in sliceArr                                                              
+            //-     //- //-     option(value=val) #{val}                                            
+
+            //-     form(id=`historyForm${file.id}` method="post")                                     
+            //-     select(id=`selectBox${file.id}` onchange=`submitForm(${file.id})`)
+            //-       each val in sliceArr
+            //-         option(id="snapOp" value=val)= val                
+
+  script.
+            
+    //- function submitForm(form) {      
+    //-   const snapValue = document.getElementById(`selectBox${form}`).value   
+    //-   const snapForm = document.getElementById(`historyForm${form}`);                   
+    //-   snapForm.action = `/history/${snapValue}`
+    //-   snapForm.submit();
+
+    //- }
+                        
+          
+          
+                        
+              
+
+              
+                

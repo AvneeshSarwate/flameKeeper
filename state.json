@@ -73,11 +73,11 @@
 	],
 	"currentState": {
 		"composerID": "6ff99cc4-61f0-4007-aa25-a2e5121b9d1d",
-		"timestamp": 1598010745008,
+		"timestamp": 1598061158260,
 		"audio": [
 			{
 				"audioID": "42733c15-5cb1-4ba0-a7ea-c3818bd96ae9",
-				"offset": 1.838800441541813
+				"offset": 8.848312345030259
 			},
 			{
 				"audioID": "9cac31d4-4e60-4a3d-b87c-cfc9149f82c6",
@@ -513,7 +513,41 @@
 					"offset": 0.7284928679862038
 				}
 			]
+		},
+		{
+			"composerID": "6ff99cc4-61f0-4007-aa25-a2e5121b9d1d",
+			"timestamp": 1598010745008,
+			"audio": [
+				{
+					"audioID": "42733c15-5cb1-4ba0-a7ea-c3818bd96ae9",
+					"offset": 1.838800441541813
+				},
+				{
+					"audioID": "9cac31d4-4e60-4a3d-b87c-cfc9149f82c6",
+					"offset": 24.02619682668534
+				},
+				{
+					"audioID": "c886dd70-0a31-424c-a094-e050852facb4",
+					"offset": 0.6290757921640313
+				},
+				{
+					"audioID": "1b3556f1-733f-4a47-a38f-6e60c7c76755",
+					"offset": 15.74544093325826
+				},
+				{
+					"audioID": "20655c41-22bf-40f4-ae79-381a798fb96e",
+					"offset": 12.444875542897528
+				},
+				{
+					"audioID": "1a4dea42-195f-4b97-8ba6-9855a081c4bd",
+					"offset": 4.672326046363532
+				},
+				{
+					"audioID": "dcfd6fa3-2e1e-4f57-aaa5-ff3c27521c1e",
+					"offset": 0.7284928679862038
+				}
+			]
 		}
 	],
-	"lastEdit": 1598010745008
+	"lastEdit": 1598061158260
 }
