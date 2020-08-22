@@ -11,9 +11,11 @@ const FAR_FUTURE = 999999999999999; // Thu Sep 26 33658 21:46:39 GMT-0400 (Easte
 
 router.get('/', function (req, res, next) {
     //TODO history - add query string val of history timestamp to pull composer info and audio files
+    let historyTimestamp = parseInt(req.query.history) || 0;
+    let historySlot = state.history.filter(h => h.timestamp === historyTimestamp)[0];
 
-    let currentAudio = [ ...state.currentState.audio ];
-    currentAudio = currentAudio.map(a => {
+    let loadedAudio = historySlot ? historySlot.audio : [ ...state.currentState.audio ];
+    loadedAudio = loadedAudio.map(a => {
         let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
         if (!audio) {
             logger.error("unable to find audio for audioID", a.audioID);
@@ -24,15 +26,19 @@ router.get('/', function (req, res, next) {
             ...a
         }
     });
-    
-    if (currentAudio.includes(undefined)) {
+
+    let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
+    let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
+
+    if (loadedAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
     }
     
     res.render('index', {
         nonce: res.locals.nonce,
-        audio: currentAudio
+        audio: loadedAudio,
+        composerInfo: composer
     });
 });
 

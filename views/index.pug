@@ -26,14 +26,15 @@ block content
       br
       .profilePhoto
         //- Profile photo
-        img(src='./images/profilephoto.png' alt='sample')
+        img(src="!{composer.photo}" alt='sample')
       //- Identity details
       //- TODO history - populate profile info from template
+      - let composer = composerInfo;
       section.profileHeader
         h3 This Week&apos;s Curator
-        h1 Composer Name Here
+        h1 !{composer.name}
         p
-          | Short bio goes here. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          | !{composer.bio}
         p
           a(href='/past-composers') See all our past curators &raquo;
     //- content
