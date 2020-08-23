@@ -33,35 +33,16 @@ block content
               h1 #{composer.name}
               p
                 | #{composer.bio}
-              p            
-              br
-            span
-                each h in composer.history
-                    span ay
-                //- - for(var i = 0; i < histories[composer.composerID].length; i++)
-                //-   div yo
+                span(class='snapshot-selector')
+                    span Select a snapshot to jump back to:
+                    select(id='selector-!{composer.composerID}')
+                        option(value="Snapshots") Snapshots:
+                        each h in composer.history
+                            option(value=h[0]) !{h[1]}
+                    button(id='button-!{composer.composerID}') Jump to Snapshot
+              p
 
-            //- TODO history - populate history timestamps by composer
-            //- TODO history - figure out elegant UI for picking snapshot
-            
-            //-   p Select a past snapshot:                      
-            //-     //- - let sliceCount = parseInt(file.EndSlice) - parseInt(file.StartSlice) + 1
-            //-     - let sliceStart = parseInt(file.StartSlice)
-            //-     - let sliceEnd = parseInt(file.EndSlice)
-            //-     - let sliceArr = []                
-            //-     - for (let i=sliceStart; i<=sliceEnd; i++) {sliceArr.push(i);}
-                
-            //-     //- form(action=`/history/${val}` method="post")                                      
-            //-     //- //-   select(name=val id=val)           
-            //-     //- //-   each val in sliceArr                                                              
-            //-     //- //-     option(value=val) #{val}                                            
-
-            //-     form(id=`historyForm${file.id}` method="post")                                     
-            //-     select(id=`selectBox${file.id}` onchange=`submitForm(${file.id})`)
-            //-       each val in sliceArr
-            //-         option(id="snapOp" value=val)= val                
-
-  script.
+  script(nonce=nonce).
             
     //- function submitForm(form) {      
     //-   const snapValue = document.getElementById(`selectBox${form}`).value   

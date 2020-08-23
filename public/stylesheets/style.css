@@ -491,4 +491,7 @@ footer .footerNote {
 	cursor: pointer;
 
 }
-
+ .snapshot-selector {
+	display:table;
+	margin:0 auto;
+ }

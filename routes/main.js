@@ -81,7 +81,10 @@ router.get('/past-composers', function (req, res, next) {
     console.log("compoesr histories", composerHistories)
 
     composers.forEach(c => {
-        if(composerHistories[c.composerID])composerHistories[c.composerID].sort();
+        if(composerHistories[c.composerID]) {
+            composerHistories[c.composerID].sort();
+            composerHistories[c.composerID] = composerHistories[c.composerID].map((e, i) => [e, i]);
+        }
         c.history = composerHistories[c.composerID] || [];
         console.log("c", c);
     });
@@ -90,7 +93,8 @@ router.get('/past-composers', function (req, res, next) {
 
     res.render("past_composers", {
         composerInfo: composers,
-        composerHistories
+        composerHistories,
+        nonce: res.locals.nonce
     }, 
     (err, html) => {
         console.log("error:", err);

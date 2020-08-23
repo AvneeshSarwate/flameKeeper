@@ -8,13 +8,13 @@ block content
         p.logoPlaceholder
           img(src='./images/me-logo-wht.png' alt='sample logo')      
       #installation        
-        
+        button(id="fullscreen" onclick="goFullScreen()" class='hide') Fullscreen
+
         button(id="beginButton") BEGIN
       
       //- Identity details
       section.profileHeader
         //- button(id="btn") Play
-        button(id="fullscreen" onclick="goFullScreen()") Fullscreen
         h1 The FlameKeeper
         h3 A LIVE STREAMING ART INSTALLATION&nbsp;
         p
@@ -88,7 +88,9 @@ block content
       const audioCtx = new AudioContext();
       
       function begin() {        
-        document.getElementById('beginButton').style.visibility = 'hidden';
+        document.getElementById('beginButton').classList.add('hide');
+        document.getElementById('fullscreen').classList.remove('hide');
+
         
         audioCtx.resume().then(() => {
           console.log('Playback resumed successfully');
@@ -231,7 +233,7 @@ block content
         }
         container.setAttribute("width", "100%");
         container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
-        document.getElementById("installation").appendChild(container);
+        document.getElementById("installation").prepend(container);
         container.appendChild(createZigZag());
 
         waveforms.forEach(wf => {
@@ -398,6 +400,7 @@ block content
       }
 
       document.getElementById("beginButton").addEventListener("click", begin);
+      document.getElementById("fullscreen").addEventListener("click", goFullScreen);
 
 
         function goFullScreen(){
