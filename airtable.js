@@ -28,7 +28,7 @@ class Composers {
                 }
                 else this.composers.push(composer);
             });
-            this.logger.info("composers loaded");
+            this.logger.debug("composers loaded");
         } catch (err) {
             this.logger.error("unable to get composers", err);
         }
@@ -61,8 +61,6 @@ class Composers {
     }
 }
 
-exports.Composers = new Composers();
-
 class Admins {
     constructor() {
         this.logger = getLogger("Admins");
@@ -81,7 +79,7 @@ class Admins {
                 let admin = this.parseAdmin(record);
                 this.admins.push(admin);
             });
-            this.logger.info("admins loaded");
+            this.logger.debug("admins loaded");
         } catch (err) {
             this.logger.error("unable to get admins", err);
         }
@@ -97,4 +95,37 @@ class Admins {
     }
 }
 
-exports.Admins = new Admins();
+class AirtableManager {
+    constructor() {
+        this.logger = getLogger("AirtableManager");
+        this.composers = new Composers();
+        this.admins = new Admins();
+        this.updateFreq = 2000;
+        this.start();
+    }
+
+    start() {
+        this.logger.info(`starting airtable sync every ${this.updateFreq / 1000}s`);
+        this.interval = setInterval(this.sync.bind(this), this.updateFreq);
+    }
+
+    stop() {
+        clearInterval(this.interval);
+    }
+
+    async sync() {
+        try {
+            await this.composers.getComposers();
+            await this.admins.getAdmins();
+            this.logger.debug("successfully re-synced airtable data");
+        } catch (err) {
+            logger.error(err);
+        }
+    }
+}
+
+let airtableManager = new AirtableManager();
+
+exports.Composers = airtableManager.composers;
+exports.Admins = airtableManager.admins;
+exports.AirtableManager = airtableManager;
