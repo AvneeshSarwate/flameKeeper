@@ -108,7 +108,7 @@ block content
         | Contact Us - 
         span Email / Social
       
-    script(nonce=nonce).
+    script.
                   
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
@@ -142,22 +142,44 @@ block content
         slotId: null, 
         volume: null
       };
+      let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
+      let undoState = JSON.parse(`!{undoState}`);
 
       function undoReplace(){
         document.getElementById('undo_button').classList.add('hide');
         document.getElementById('vol_span').classList.add('hide');
         document.getElementById('replace_file_span').classList.remove('hide');
 
-        file_is_replaced = false;
+        // if "undoable" in single file mode, the first undo will replace the most recently edited 
+        // file to the one in undoState. afterwards, edit/undo interactions happen as normal
+        if(undoState.length > 0){
+          let undoFileUrl = `https://flamekeeper.s3.amazonaws.com/${undoState[selected_waveform].filename}`;
+          undoState = [];
+          waveforms[selected_waveform].url = undoFileUrl;
+        } 
+
         animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform);
         audioElements[selected_waveform].src = waveforms[selected_waveform].url;
-        selected_waveform = null;
-        toggleGroupBorders();
-        audioElements.forEach(ae => { ae.currentTime = 0});
 
+        file_is_replaced = false;
+        selected_waveform = null;
+        toggleGroupBorders();        
+
+        audioElements.forEach(ae => { ae.currentTime = 0});
         document.getElementById('replace_file_input').value = '';
 
-        //resetGains(); //todo - implement stuff around this
+        resetGains(); 
+      }
+
+      function resetGains() {
+        let lastGain = null;
+        if(undoState.length > 0){
+          lastGain = audioState[selected_waveform].vol;
+          undoState = [];
+        } else {
+          lastGain = lastVolume;
+        }
+        gains[selected_waveform].gain.value = lastGain;
       }
 
       function jumpToTime(){
@@ -177,7 +199,7 @@ block content
         let files = target.files;
         console.log("file replace", files, selector);
         if(multi_replacement_menu){
-
+          //todo - implement this
         } else {
           if(selected_waveform != null) {
             document.getElementById('undo_button').classList.remove('hide');
@@ -187,6 +209,7 @@ block content
             replaceAudioSlotWithFile(files[0], selected_waveform);
             file_is_replaced = true;
             audioElements.forEach(ae => { ae.currentTime = 0});
+            lastVolume = gains[selected_waveform].gain.value;
             
             replacement_data.file = files[0];
             replacement_data.slotId = selected_waveform;
@@ -210,6 +233,7 @@ block content
         }
       }
 
+      let audioState = JSON.parse(`!{audio}`)
       let returns = JSON.parse(`!{fileNames}`);
       console.log("returns", returns);
 
@@ -355,13 +379,14 @@ block content
       function replaceAudioSlotWithFile(file, slotIndex){
         animateAudioData(Promise.resolve(file), slotIndex)
 
+        //todo - make sure auto-play happens here from canplaythrough handler or otherwise
         audioElements[slotIndex].src = URL.createObjectURL(file);
       }
 
       function createAudioElement(wf){
         const audio = new Audio();          
         audio.crossOrigin = 'anonymous';
-        audio.src = wf.url;
+        if(returns.length > 0) audio.src = wf.url;
         audio.loop = true;
         
         //- setTimeout(function() {
@@ -384,7 +409,8 @@ block content
         compressor.knee.setValueAtTime(40, audioCtx.currentTime);
         compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
         compressor.attack.setValueAtTime(0, audioCtx.currentTime);
-        compressor.release.setValueAtTime(0.25, audioCtx.currentTime)
+        compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+        //todo - initialize gain from state data
         
         //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
         //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
@@ -586,7 +612,8 @@ block content
             container.appendChild(group);
           }
 
-          animateAudioData(fetch(wf.url), i);
+          
+          if(returns.length > 0) animateAudioData(fetch(wf.url), i);
           
           createAudioElement(wf);
         });
@@ -604,6 +631,19 @@ block content
               controlRow.style.background = TRANSPARENT_COLOR;
             });
           });
+        }
+
+        if(undoState.length > 0){
+          document.getElementById('undo_button').classList.remove('hide');
+          document.getElementById('vol_span').classList.remove('hide');
+          document.getElementById('replace_file_span').classList.add('hide');
+
+          
+          for(let i = 0; i < undoState.length; i++){
+            if(undoState[i].filename != audioState[i].filename) selected_waveform = i;
+          }
+          toggleGroupBorders();
+          file_is_replaced = true;
         }
       }
 
