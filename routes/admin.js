@@ -83,7 +83,10 @@ router.get('/dashboard', requiresLogin, function (req, res, next) {
     });
 });
 
-
+// todo - post data will be an object with fields "vol-i","file-i", where this psuedo-diff
+// is applied to the current state to generate the new state.
+// Also, it will contain an "is-replace" field so multiple edits within an edit window dont 
+// create multiple history entries
 router.post('/upload', requiresLogin, async function (req, res, next) {
     try {
         await new Promise((resolve, reject) => {

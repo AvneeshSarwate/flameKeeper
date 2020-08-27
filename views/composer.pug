@@ -137,13 +137,10 @@ block content
       let waveformGroups = [];
       let gains = [];
       let file_is_replaced = false;
-      let replacement_data = {
-        file: null, 
-        slotId: null, 
-        volume: null
-      };
       let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
       let undoState = JSON.parse(`!{undoState}`);
+      let isReplacementLoad = undoState.length > 1;
+      let submissionData = {};
 
       function undoReplace(){
         document.getElementById('undo_button').classList.add('hide');
@@ -169,6 +166,24 @@ block content
         document.getElementById('replace_file_input').value = '';
 
         resetGains(); 
+        submissionData = {};
+      }
+
+      function submit(){
+        let formData = new FromData();
+        formData.append('is-replace', isReplacementLoad);
+        for(k in submissionData) {
+          form.append(k, submissionData[k]);
+        }
+        fetch('submissionurl', {
+          method: 'POST', // *GET, POST, PUT, DELETE, etc.
+          mode: 'cors', // no-cors, *cors, same-origin
+          credentials: 'same-origin', // include, *same-origin, omit
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formData
+        })
       }
 
       function resetGains() {
@@ -200,6 +215,8 @@ block content
         console.log("file replace", files, selector);
         if(multi_replacement_menu){
           //todo - implement this
+          let slotIndex = selector.id.split("-");
+          submissionData['file-'+slotIndex] = files[0];
         } else {
           if(selected_waveform != null) {
             document.getElementById('undo_button').classList.remove('hide');
@@ -211,8 +228,7 @@ block content
             audioElements.forEach(ae => { ae.currentTime = 0});
             lastVolume = gains[selected_waveform].gain.value;
             
-            replacement_data.file = files[0];
-            replacement_data.slotId = selected_waveform;
+            submissionData['file-'+selected_waveform] = files[0];
           }
           else {
             document.getElementById('replace_file_input').value = '';
@@ -221,15 +237,23 @@ block content
         }
       }
 
+      function submitChanges() {
+
+      }
+
       function changeVol(e){
         let slider = e.target;
+        let vol = e.target.value;
         if(multi_replacement_menu){
-
+          let slotIndex = slider.id.split("-");
+          submissionData['vol-'+selected_waveform] = vol;
+          gains[parseInt(slotIndex)].gain.value = vol;
         } else {
-          console.log('change vol', slider.value);
-          replacement_data.vol = slider.value;
-          gains[selected_waveform].gain.value = slider.value;
-          document.getElementById('vol_val').innerText = slider.value
+          console.log('change vol', vol);
+          replacement_data.vol = vol;
+          gains[selected_waveform].gain.value = vol;
+          document.getElementById('vol_val').innerText = vol;
+          submissionData['vol-'+selected_waveform] = vol;
         }
       }
 
