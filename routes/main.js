@@ -38,7 +38,11 @@ router.get('/', function (req, res, next) {
     res.render('index', {
         nonce: res.locals.nonce,
         audio: loadedAudio,
+        fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer
+    }, (err, html) => {
+        console.log("error:", err);
+        res.send(html);
     });
 });
 
