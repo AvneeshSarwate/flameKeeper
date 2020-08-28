@@ -83,9 +83,111 @@ block content
         | Contact Us - 
         span Email / Social
       
-    script(nonce=nonce).
+    script.
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
+
+      let audioFilename0 = `!{audio[0].filename}`;
+      let audioFilename1 = `!{audio[1].filename}`;
+      let audioFilename2 = `!{audio[2].filename}`;
+      let audioFilename3 = `!{audio[3].filename}`;
+      let audioFilename4 = `!{audio[4].filename}`;
+      let audioFilename5 = `!{audio[5].filename}`;
+      let audioFilename6 = `!{audio[6].filename}`;
+      
+
+      // Configuration.
+      const CONTAINER_WIDTH = 600;
+      const CONTAINER_HEIGHT = 400;
+      const HPAD = 100;
+      const VPAD = 20;
+      const ZIGZAG_COLOR = "red";
+      const ZIGZAG_WIDTH = 1;
+      const SAMPLES_PER_SECOND = 120;
+      const PIXELS_PER_SECOND = 50;
+      const NORMALIZE_DATA = true;
+      const WAVEFORM_COLOR = "gray";
+
+      const DEBUG = false;
+
+      // Nice convenient way to describe the waveforms.
+      const waveforms = [
+        {
+          url: `https://flamekeeper.s3.amazonaws.com/${audioFilename0}`,
+          speed: 10,             
+          mirrored: true,
+          viewHeight: 30,
+          viewWidth: 290,
+          transform: `translate(10 40)`,
+          zIndex: -1,
+          panAmount: -0.75
+          
+        },
+        {
+          url: `https://flamekeeper.s3.amazonaws.com/${audioFilename1}`,
+          speed: 10,
+          mirrored: true,
+          viewHeight: 30,
+          viewWidth: 190,
+          transform: `translate(180 110) rotate(90)`,
+          zIndex: -1,
+          panAmount: 0.5
+          
+        },
+        {
+          url: `https://flamekeeper.s3.amazonaws.com/${audioFilename2}`,
+          speed: 15,
+          mirrored: true,
+          viewHeight: 30,
+          viewWidth: 200,
+          transform: `translate(400 200) rotate(180)`,
+          zIndex: -1,
+          panAmount: 0.75           
+        },
+        {
+          url: `https://flamekeeper.s3.amazonaws.com/${audioFilename3}`,
+          speed: 10,
+          mirrored: true,
+          viewHeight: 30,
+          viewWidth: 200,
+          transform: `translate(400 260) rotate(180)`,
+          zIndex: 1,
+          panAmount: 0.25
+        },
+        {
+          url: `https://flamekeeper.s3.amazonaws.com/${audioFilename4}`,
+          speed: 10,
+          mirrored: true,
+          viewHeight: 30,
+          viewWidth: 190,
+          transform: `translate(420 300) rotate(270)`,
+          zIndex: -1,
+          panAmount: 0
+          
+        },
+        {
+          url: `https://flamekeeper.s3.amazonaws.com/${audioFilename5}`,
+          speed: 10,
+          mirrored: true,
+          viewHeight: 30,
+          viewWidth: 120,
+          transform: `translate(480 270)`,
+          zIndex: -1,
+          panAmount: -0.25
+          
+        },
+        {
+          url: `https://flamekeeper.s3.amazonaws.com/${audioFilename6}`,
+          speed: 10,
+          mirrored: true,
+          viewHeight: 30,
+          viewWidth: 120,
+          transform: `translate(380 330)`,
+          zIndex: -1,
+          panAmount: -0.5
+          
+        }
+      ];
       
       function begin() {        
         document.getElementById('beginButton').classList.add('hide');
@@ -96,110 +198,6 @@ block content
           console.log('Playback resumed successfully');
         });
       
-
-        let audioFilename0 = `!{audio[0].filename}`;
-        let audioFilename1 = `!{audio[1].filename}`;
-        let audioFilename2 = `!{audio[2].filename}`;
-        let audioFilename3 = `!{audio[3].filename}`;
-        let audioFilename4 = `!{audio[4].filename}`;
-        let audioFilename5 = `!{audio[5].filename}`;
-        let audioFilename6 = `!{audio[6].filename}`;
-        
-        //- import "./index.css";
-        //- import { AudioContext } from "standardized-audio-context";
-
-        // Configuration.
-        const CONTAINER_WIDTH = 600;
-        const CONTAINER_HEIGHT = 400;
-        const HPAD = 100;
-        const VPAD = 20;
-        const ZIGZAG_COLOR = "red";
-        const ZIGZAG_WIDTH = 1;
-        const SAMPLES_PER_SECOND = 120;
-        const PIXELS_PER_SECOND = 50;
-        const NORMALIZE_DATA = true;
-        const WAVEFORM_COLOR = "gray";
-
-        const DEBUG = false;
-
-        // Nice convenient way to describe the waveforms.
-        const waveforms = [
-          {
-            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename0}`,
-            speed: 10,             
-            mirrored: true,
-            viewHeight: 30,
-            viewWidth: 290,
-            transform: `translate(10 40)`,
-            zIndex: -1,
-            panAmount: -0.75
-            
-          },
-          {
-            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename1}`,
-            speed: 10,
-            mirrored: true,
-            viewHeight: 30,
-            viewWidth: 190,
-            transform: `translate(180 110) rotate(90)`,
-            zIndex: -1,
-            panAmount: 0.5
-            
-          },
-          {
-            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename2}`,
-            speed: 15,
-            mirrored: true,
-            viewHeight: 30,
-            viewWidth: 200,
-            transform: `translate(400 200) rotate(180)`,
-            zIndex: -1,
-            panAmount: 0.75           
-          },
-          {
-            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename3}`,
-            speed: 10,
-            mirrored: true,
-            viewHeight: 30,
-            viewWidth: 200,
-            transform: `translate(400 260) rotate(180)`,
-            zIndex: 1,
-            panAmount: 0.25
-          },
-          {
-            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename4}`,
-            speed: 10,
-            mirrored: true,
-            viewHeight: 30,
-            viewWidth: 190,
-            transform: `translate(420 300) rotate(270)`,
-            zIndex: -1,
-            panAmount: 0
-            
-          },
-          {
-            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename5}`,
-            speed: 10,
-            mirrored: true,
-            viewHeight: 30,
-            viewWidth: 120,
-            transform: `translate(480 310)`,
-            zIndex: -1,
-            panAmount: -0.25
-            
-          },
-          {
-            url: `https://flamekeeper.s3.amazonaws.com/${audioFilename6}`,
-            speed: 10,
-            mirrored: true,
-            viewHeight: 30,
-            viewWidth: 120,
-            transform: `translate(480 310)`,
-            zIndex: -1,
-            panAmount: -0.5
-            
-          }
-        ];
 
         function createZigZag() {
           const vlength = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
@@ -325,6 +323,7 @@ block content
           }
 
           // Normalize peaks in data so that the max peak is always 1.
+          data = data.filter(n => !isNaN(n)); //todo - might need to make this more rigorous
           if (NORMALIZE_DATA) {
             data = normalizeData(data);
           }
@@ -374,7 +373,7 @@ block content
           return filteredData.map(n => n * multiplier);
         }
 
-        function animate(svg, waveformWidth, viewWidth, viewHeight, speed) {
+        function animate(svg, waveformWidth, viewWidth, viewHeight, speed, index) {
           let offset = -1 * viewWidth;
           let time = null;
           svg.setAttribute("width", viewWidth.toString());

@@ -22,15 +22,6 @@ block content
               label(for='vol') New File Gain: 
               input(id='vol' type='range' min='0' max='2' value='1' step='0.01')
               span(id='vol_val') 1
-          div(id='multi_panel' class="hide")
-            each val in [0, 1, 2, 3, 4, 5, 6]
-              span(id='control_row-'+val)
-                span(id='replace_file_span-'+val)
-                  input(id='replace_file_input-'+val type='file')
-                span(id='vol_span-'+val)
-                  label(for='vol-'+val) New File Gain: 
-                  input(id='vol-'+val type='range' min='0' max='2' value='1' step='0.01')
-                  span(id='vol_val-'+val) 1
               br
 
         
@@ -108,17 +99,10 @@ block content
         | Contact Us - 
         span Email / Social
       
-    script.
+    script(nonce=nonce).
                   
       const AudioContext = window.AudioContext || window.webkitAudioContext
       const audioCtx = new AudioContext();
-
-      let multi_replacement_menu = !{isMultiFile};
-      if(multi_replacement_menu){
-        document.getElementById('multi_panel').classList.remove('hide')
-      } else {
-        document.getElementById('single_panel').classList.remove('hide')
-      }
 
       document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
       document.getElementById('undo_button').addEventListener('click', undoReplace);
@@ -127,33 +111,18 @@ block content
       document.getElementById('vol').addEventListener('input', changeVol)
       document.getElementById('replace_file_input').addEventListener('change', replaceFile)
 
-      for(let i = 0; i < 7; i++) {
-          document.getElementById('vol-'+i).addEventListener('input', changeVol);
-          document.getElementById('replace_file_input-'+i).addEventListener('change', replaceFile);
-      }
-
       let selected_waveform = null;
       let audioElements = [];
       let waveformGroups = [];
       let gains = [];
       let file_is_replaced = false;
       let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
-      let undoState = JSON.parse(`!{undoState}`);
-      let isReplacementLoad = undoState.length > 1;
       let submissionData = {};
 
       function undoReplace(){
         document.getElementById('undo_button').classList.add('hide');
         document.getElementById('vol_span').classList.add('hide');
         document.getElementById('replace_file_span').classList.remove('hide');
-
-        // if "undoable" in single file mode, the first undo will replace the most recently edited 
-        // file to the one in undoState. afterwards, edit/undo interactions happen as normal
-        if(undoState.length > 0){
-          let undoFileUrl = `https://flamekeeper.s3.amazonaws.com/${undoState[selected_waveform].filename}`;
-          undoState = [];
-          waveforms[selected_waveform].url = undoFileUrl;
-        } 
 
         animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform);
         audioElements[selected_waveform].src = waveforms[selected_waveform].url;
@@ -171,7 +140,6 @@ block content
 
       function submit(){
         let formData = new FromData();
-        formData.append('is-replace', isReplacementLoad);
         for(k in submissionData) {
           form.append(k, submissionData[k]);
         }
@@ -187,14 +155,7 @@ block content
       }
 
       function resetGains() {
-        let lastGain = null;
-        if(undoState.length > 0){
-          lastGain = audioState[selected_waveform].vol;
-          undoState = [];
-        } else {
-          lastGain = lastVolume;
-        }
-        gains[selected_waveform].gain.value = lastGain;
+        gains[selected_waveform].gain.value = lastVolume;
       }
 
       function jumpToTime(){
@@ -213,27 +174,23 @@ block content
         let selector = e.target;
         let files = target.files;
         console.log("file replace", files, selector);
-        if(multi_replacement_menu){
-          //todo - implement this
-          let slotIndex = selector.id.split("-");
-          submissionData['file-'+slotIndex] = files[0];
-        } else {
-          if(selected_waveform != null) {
-            document.getElementById('undo_button').classList.remove('hide');
-            document.getElementById('vol_span').classList.remove('hide');
-            document.getElementById('replace_file_span').classList.add('hide');
+        if(selected_waveform != null) {
+          document.getElementById('undo_button').classList.remove('hide');
+          document.getElementById('vol_span').classList.remove('hide');
+          document.getElementById('replace_file_span').classList.add('hide');
 
-            replaceAudioSlotWithFile(files[0], selected_waveform);
-            file_is_replaced = true;
-            audioElements.forEach(ae => { ae.currentTime = 0});
-            lastVolume = gains[selected_waveform].gain.value;
-            
-            submissionData['file-'+selected_waveform] = files[0];
-          }
-          else {
-            document.getElementById('replace_file_input').value = '';
-            alert("pick a waveform to replace its audio");
-          }
+          replaceAudioSlotWithFile(files[0], selected_waveform);
+          file_is_replaced = true;
+          audioElements.forEach(ae => { ae.currentTime = 0});
+          lastVolume = gains[selected_waveform].gain.value;
+          
+          submissionData['file'] = files[0];
+          submissionData['index'] = selected_waveform;
+          submissionData['volume'] = 1;
+        }
+        else {
+          document.getElementById('replace_file_input').value = '';
+          alert("pick a waveform to replace its audio");
         }
       }
 
@@ -244,20 +201,13 @@ block content
       function changeVol(e){
         let slider = e.target;
         let vol = e.target.value;
-        if(multi_replacement_menu){
-          let slotIndex = slider.id.split("-");
-          submissionData['vol-'+selected_waveform] = vol;
-          gains[parseInt(slotIndex)].gain.value = vol;
-        } else {
-          console.log('change vol', vol);
-          replacement_data.vol = vol;
-          gains[selected_waveform].gain.value = vol;
-          document.getElementById('vol_val').innerText = vol;
-          submissionData['vol-'+selected_waveform] = vol;
-        }
+        console.log('change vol', selected_waveform, vol);
+        replacement_data.vol = vol;
+        gains[selected_waveform].gain.value = vol;
+        document.getElementById('vol_val').innerText = vol;
+        submissionData['volume'] = vol;
       }
 
-      let audioState = JSON.parse(`!{audio}`)
       let returns = JSON.parse(`!{fileNames}`);
       console.log("returns", returns);
 
@@ -455,38 +405,16 @@ block content
         group.appendChild(bgRect);
 
         group.onclick = () => {
-          if(!multi_replacement_menu) {
-            if(file_is_replaced && !multi_replacement_menu) {
-              alert("Undo your current file-change before replacing a different file");
-              return
-            }
-            selected_waveform = i;
-            toggleGroupBorders();
+          if(file_is_replaced) {
+            alert("Undo your current file-change before replacing a different file");
+            return
           }
+          selected_waveform = i;
         };
 
-        group.onmouseenter = () => {
-          bgRect.setAttribute("fill", HIGHLIGHT_COLOR);
-          if(multi_replacement_menu){
-            let controlRow = document.getElementById('control_row-'+i);
-            controlRow.style.background = HIGHLIGHT_COLOR;
-          }
-        };
-        group.onmouseleave = () => {
-          bgRect.setAttribute("fill", TRANSPARENT_COLOR);
-          if(multi_replacement_menu){
-            let controlRow = document.getElementById('control_row-'+i);
-            controlRow.style.background = TRANSPARENT_COLOR;
-          }
-        };
+        group.onmouseenter = () => { bgRect.setAttribute("fill", HIGHLIGHT_COLOR) };
+        group.onmouseleave = () => { bgRect.setAttribute("fill", TRANSPARENT_COLOR) };
       } 
-
-      function toggleGroupBorders(){
-        [0, 1, 2, 3, 4, 5, 6].map(i => {
-          const bgRect = document.getElementById('bgRect-'+i);
-          bgRect.setAttribute("stroke-width", selected_waveform === i ? '3px' : '0px')
-        });
-      }
 
       function drawZeroLine(wf, group){
         // Draw line at zero to make the no-waveform part look better.
@@ -635,40 +563,11 @@ block content
           } else {
             container.appendChild(group);
           }
-
           
-          if(returns.length > 0) animateAudioData(fetch(wf.url), i);
+          animateAudioData(fetch(wf.url), i);
           
           createAudioElement(wf);
         });
-
-        if(multi_replacement_menu){
-          [0, 1, 2, 3, 4, 5, 6].forEach(i => {
-            let controlRow = document.getElementById('control_row-'+i);
-            controlRow.addEventListener('mouseenter', () => {
-              console.log('enter row', i);
-              document.getElementById('bgRect-'+i).setAttribute("fill", HIGHLIGHT_COLOR);
-              controlRow.style.background = HIGHLIGHT_COLOR;
-            });
-            controlRow.addEventListener('mouseleave', () => {
-              document.getElementById('bgRect-'+i).setAttribute("fill", TRANSPARENT_COLOR);
-              controlRow.style.background = TRANSPARENT_COLOR;
-            });
-          });
-        }
-
-        if(undoState.length > 0){
-          document.getElementById('undo_button').classList.remove('hide');
-          document.getElementById('vol_span').classList.remove('hide');
-          document.getElementById('replace_file_span').classList.add('hide');
-
-          
-          for(let i = 0; i < undoState.length; i++){
-            if(undoState[i].filename != audioState[i].filename) selected_waveform = i;
-          }
-          toggleGroupBorders();
-          file_is_replaced = true;
-        }
       }
 
 
