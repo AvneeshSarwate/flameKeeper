@@ -87,15 +87,39 @@ router.get('/dashboard', requiresLogin, function (req, res, next) {
 router.post('/upload', requiresLogin, async function (req, res, next) {
     try {
         await new Promise((resolve, reject) => {
-            new IncomingForm().parse(req)
-                .on('file', (_, file) => {
-                    state.addAudio(file.name, file.path)
-                        .then(ok => {
-                            if (ok) resolve();
-                            else reject("unable to add audio");
-                        })
-                        .catch(err => reject("unable to add audio", err));
-                });
+            new IncomingForm().parse(req, async (err, fields, files) => {
+                if (err) {
+                    reject(`form parsing error: ${err}`);
+                }
+                try {
+                    if (!files.file) {
+                        reject("no file found");
+                        return;
+                    }
+                    let file = files.file;
+                    let index = parseInt(fields.index);
+                    if (!index || index < 0 || index > 6) {
+                        reject("index must be 0-6");
+                        return;
+                    }
+                    let volume = parseFloat(fields.volume);
+                    if (!volume || volume < 0 || volume > 1) {
+                        reject("volume must be 0-1");
+                        return;
+                    }
+                    let audioID = await state.addAudio(file.name, file.path);
+                    let newAudio = [ ...state.currentState.audio ];
+                    newAudio[index] = {
+                        "audioID": audioID,
+                        "volume": volume
+                    };
+                    await state.editCurrentState(req.session.composer.id, newAudio);
+                } catch (err) {
+                    reject(err);
+                    return;
+                }
+                resolve();
+            });
         });
         res.redirect('/dashboard');
     } catch (err) {
