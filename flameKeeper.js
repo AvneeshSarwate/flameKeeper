@@ -54,12 +54,12 @@ class FlameKeeper {
         if (state.audio.length > 0 && state.currentState.audio && state.currentState.audio.length > 0) {
             this.logger.info("FlameKeeper: composer window closed without edit, making ghost edit");
             let randomAudio = state.audio[Math.floor(Math.random() * state.audio.length)];
-            let newOffset = Math.random() * randomAudio.lengthSeconds;
+            let newVolume = 0.1 + Math.random() * 0.8; // Random between 0.1-0.9
             let newAudio = [...state.currentState.audio];
             let newIndex = Math.floor(Math.random() * newAudio.length);
             newAudio[newIndex] = {
                 "audioID": randomAudio.audioID,
-                "offset": newOffset
+                "volume": newVolume
             }
             try {
                 let edited = await state.editCurrentState(this.ghostComposerID, newAudio);

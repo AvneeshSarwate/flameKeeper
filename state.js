@@ -24,7 +24,7 @@ class State {
             "audio": [
                 {
                     "audioID": "<guid>",
-                    "offset": 0.0
+                    "volume": 1.0
                 },
                 ... (x7)
             ]
@@ -82,6 +82,7 @@ class State {
             Body: file,
             ACL: 'public-read',
         };
+
         try {
             await s3.upload(uploadParams).promise();
             this.logger.info(`uploaded ${filename}`);
@@ -98,7 +99,9 @@ class State {
             "uploadedAt": Date.now()
         };
         this.audio.push(audio);
-        return await this.save();
+        let saved = await this.save();
+        if (!saved) throw new Error("unable to save state");
+        return id;
     }
 
     async editCurrentState(composerID, newAudio) {
@@ -112,8 +115,9 @@ class State {
             timestamp: now,
             audio: newAudio
         };
-        this.lastEdit = now;
-        return await this.save();
+        let saved = await this.save();
+        if (!saved) throw new Error("unable to save state");
+        return this.currentState
     }
 
     async save() {
