@@ -24,12 +24,12 @@ block content
       br
       br
       br
+      - let composer = composerInfo;
       .profilePhoto
         //- Profile photo
-        img(src="!{composer.photo}" alt='sample')
+        img(src=composer.photo alt='sample')
       //- Identity details
       //- TODO history - populate profile info from template
-      - let composer = composerInfo;
       section.profileHeader
         h3 This Week&apos;s Curator
         h1 !{composer.name}
@@ -436,7 +436,3 @@ block content
         document.addEventListener('webkitfullscreenchange', exitFullScreen);
         document.addEventListener('mozfullscreenchange', exitFullScreen);
         document.addEventListener('MSFullscreenChange', exitFullScreen);
-        
-        
-      
-      

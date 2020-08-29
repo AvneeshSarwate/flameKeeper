@@ -115,6 +115,7 @@ class State {
             timestamp: now,
             audio: newAudio
         };
+        this.lastEdit = now;
         let saved = await this.save();
         if (!saved) throw new Error("unable to save state");
         return this.currentState
