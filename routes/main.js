@@ -27,6 +27,8 @@ router.get('/', function (req, res, next) {
         }
     });
 
+    let loadedSlotTimestamp = historySlot ? historySlot.timestamp : state.currentState.timestamp
+
     let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
     let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
     // console.log("composer", composer);
@@ -39,11 +41,42 @@ router.get('/', function (req, res, next) {
         nonce: res.locals.nonce,
         audio: JSON.stringify(loadedAudio),
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
-        composerInfo: composer
+        composerInfo: composer,
+        timestamp
     }, (err, html) => {
         console.log("error:", err);
         res.send(html);
     });
+});
+
+
+router.get('/getInfo', function (req, res, next) {
+    //TODO history - add query string val of history timestamp to pull composer info and audio files
+    let historyTimestamp = parseInt(req.query.history) || 0;
+    let historySlot = state.history.filter(h => h.timestamp === historyTimestamp)[0];
+
+    let loadedAudio = historySlot ? historySlot.audio : [ ...state.currentState.audio ];
+    loadedAudio = loadedAudio.map(a => {
+        let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
+        if (!audio) {
+            logger.error("unable to find audio for audioID", a.audioID);
+            return undefined;
+        }
+        return {
+            ...audio,
+            ...a
+        }
+    });
+
+    let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
+    let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
+    // console.log("composer", composer);
+    if (loadedAudio.includes(undefined)) {
+        logger.error("unable to find currentState audioID in uploaded audio");
+        res.sendStatus(500);
+    }
+    
+    res.send({loadedAudio, composer, timestamp: historySlot.timestamp});
 });
 
 router.get('/history', function (req, res, next) {

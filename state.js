@@ -24,26 +24,24 @@ class State {
             "audio": [
                 {
                     "audioID": "<guid>",
-                    "volume": 1.0
+                    "volume": float
                 },
                 ... (x7)
             ]
         },
         "history": [
-            {
-                "composerID": "<guid>"
-                "timestamp": <timestamp>,
-                "audio": [<audio>]
-            }
+            <currentStates>
         ],
         "lastEdit": <timestamp>
     }
      */
-    constructor() {
+    constructor(localStatePath) {
         this.logger = getLogger("State");
         // Signals whether the S3 file has been fetched
         this.loaded = false;
-        this.load();
+        this.localStatePath = localStatePath;
+        if(this.localStatePath) this.loadFromFile();
+        else this.load();
     }
 
     load() {
@@ -70,6 +68,24 @@ class State {
                 })
                 .catch(err => reject(err));
         });
+    }
+
+    loadFromFile(){
+        if (this.loaded) return true;
+        let stateString = fs.readFileSync(this.localStatePath).toString();
+        let jsonData = JSON.parse(stateString);
+        Object.assign(this, jsonData);
+        this.loaded = true;
+    }
+
+    saveToFile(){
+        let copy = { ...this };
+        delete copy.loaded
+        delete copy.logger
+        let stateString = JSON.stringify(copy);
+
+        fs.writeFileSync(this.localStatePath, stateString);
+        return true;
     }
 
     async addAudio(name, path) {
@@ -99,7 +115,7 @@ class State {
             "uploadedAt": Date.now()
         };
         this.audio.push(audio);
-        let saved = await this.save();
+        let saved = this.localStatePath ? this.saveToFile() : await this.save();
         if (!saved) throw new Error("unable to save state");
         return id;
     }
@@ -116,7 +132,7 @@ class State {
             audio: newAudio
         };
         this.lastEdit = now;
-        let saved = await this.save();
+        let saved = this.localStatePath ? this.saveToFile() : await this.save();
         if (!saved) throw new Error("unable to save state");
         return this.currentState
     }

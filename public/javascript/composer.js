@@ -1,12 +1,15 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
-document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
-document.getElementById('undo_button').addEventListener('click', undoReplace);
+if(isComposer) {
+    document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
+    document.getElementById('undo_button').addEventListener('click', undoReplace);
+    document.getElementById('vol').addEventListener('input', changeVol);
+    document.getElementById('replace_file_input').addEventListener('change', replaceFile);
+}
+
 document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
-document.getElementById('vol').addEventListener('input', changeVol)
-document.getElementById('replace_file_input').addEventListener('change', replaceFile)
 
 let selected_waveform = null;
 let audioElements = [];
@@ -124,6 +127,7 @@ const TRANSPARENT_COLOR = "#ffffff00";
 const DEBUG = false;
 
 // Nice convenient way to describe the waveforms.
+// Nice convenient way to describe the waveforms.
 const waveforms = [
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[0]}`,
@@ -133,7 +137,8 @@ const waveforms = [
         viewWidth: 290,
         transform: `translate(10 40)`,
         zIndex: -1,
-        panAmount: -0.75
+        panAmount: -0.75,
+        delay: 0
 
     },
     {
@@ -144,7 +149,8 @@ const waveforms = [
         viewWidth: 190,
         transform: `translate(180 110) rotate(90)`,
         zIndex: -1,
-        panAmount: 0.5
+        panAmount: 0.5,
+        delay: 0
 
     },
     {
@@ -155,7 +161,8 @@ const waveforms = [
         viewWidth: 200,
         transform: `translate(400 200) rotate(180)`,
         zIndex: -1,
-        panAmount: 0.75
+        panAmount: 0.75,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
@@ -165,7 +172,8 @@ const waveforms = [
         viewWidth: 200,
         transform: `translate(400 260) rotate(180)`,
         zIndex: 1,
-        panAmount: 0.25
+        panAmount: 0.25,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
@@ -175,8 +183,8 @@ const waveforms = [
         viewWidth: 190,
         transform: `translate(420 300) rotate(270)`,
         zIndex: -1,
-        panAmount: 0
-
+        panAmount: 0,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
@@ -186,8 +194,8 @@ const waveforms = [
         viewWidth: 120,
         transform: `translate(480 270)`,
         zIndex: -1,
-        panAmount: -0.25
-
+        panAmount: -0.25,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
@@ -197,8 +205,8 @@ const waveforms = [
         viewWidth: 120,
         transform: `translate(380 330)`,
         zIndex: -1,
-        panAmount: -0.5
-
+        panAmount: -0.5,
+        delay: 0
     }
 ];
 
@@ -253,7 +261,7 @@ function replaceAudioSlotWithFile(file, slotIndex) {
     audioElements[slotIndex].src = URL.createObjectURL(file);
 }
 
-function createAudioElement(wf) {
+function createAudioElement(wf, slotIndex) {
     const audio = new Audio();
     audio.crossOrigin = 'anonymous';
     if (returns.length > 0) audio.src = wf.url;
@@ -274,6 +282,7 @@ function createAudioElement(wf) {
 
     const compressor = audioCtx.createDynamicsCompressor();
     const gain = audioCtx.createGain();
+    gain.gain.value = audioData[slotIndex].volume;
     gains.push(gain);
     compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
     compressor.knee.setValueAtTime(40, audioCtx.currentTime);
@@ -300,16 +309,18 @@ function drawWaveformBackground(wf, group, i) {
 
     group.appendChild(bgRect);
 
-    group.onclick = () => {
-        if (file_is_replaced) {
-            alert("Undo your current file-change before replacing a different file");
-            return
-        }
-        selected_waveform = i;
-    };
+    if(isComposer) {
+        group.onclick = () => {
+            if (file_is_replaced) {
+                alert("Undo your current file-change before replacing a different file");
+                return
+            }
+            selected_waveform = i;
+        };
 
-    group.onmouseenter = () => { bgRect.setAttribute("fill", HIGHLIGHT_COLOR) };
-    group.onmouseleave = () => { bgRect.setAttribute("fill", TRANSPARENT_COLOR) };
+        group.onmouseenter = () => { bgRect.setAttribute("fill", HIGHLIGHT_COLOR) };
+        group.onmouseleave = () => { bgRect.setAttribute("fill", TRANSPARENT_COLOR) };
+    }
 }
 
 function drawZeroLine(wf, group) {
@@ -428,8 +439,10 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed) {
 }
 
 function begin() {
-    document.getElementById('beginButton').classList.add('hide');
-    document.getElementById('control_panel').classList.remove('hide');
+    if(isComposer){ 
+        document.getElementById('beginButton').classList.add('hide');
+        document.getElementById('control_panel').classList.remove('hide');
+    }
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
@@ -462,7 +475,7 @@ function begin() {
 
         animateAudioData(fetch(wf.url), i);
 
-        createAudioElement(wf);
+        createAudioElement(wf, i);
     });
 }
 

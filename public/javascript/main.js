@@ -37,7 +37,8 @@ const waveforms = [
         viewWidth: 290,
         transform: `translate(10 40)`,
         zIndex: -1,
-        panAmount: -0.75
+        panAmount: -0.75,
+        delay: 0
 
     },
     {
@@ -48,7 +49,8 @@ const waveforms = [
         viewWidth: 190,
         transform: `translate(180 110) rotate(90)`,
         zIndex: -1,
-        panAmount: 0.5
+        panAmount: 0.5,
+        delay: 0
 
     },
     {
@@ -59,7 +61,8 @@ const waveforms = [
         viewWidth: 200,
         transform: `translate(400 200) rotate(180)`,
         zIndex: -1,
-        panAmount: 0.75
+        panAmount: 0.75,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
@@ -69,7 +72,8 @@ const waveforms = [
         viewWidth: 200,
         transform: `translate(400 260) rotate(180)`,
         zIndex: 1,
-        panAmount: 0.25
+        panAmount: 0.25,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
@@ -79,8 +83,8 @@ const waveforms = [
         viewWidth: 190,
         transform: `translate(420 300) rotate(270)`,
         zIndex: -1,
-        panAmount: 0
-
+        panAmount: 0,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
@@ -90,8 +94,8 @@ const waveforms = [
         viewWidth: 120,
         transform: `translate(480 270)`,
         zIndex: -1,
-        panAmount: -0.25
-
+        panAmount: -0.25,
+        delay: 0
     },
     {
         url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
@@ -101,8 +105,8 @@ const waveforms = [
         viewWidth: 120,
         transform: `translate(380 330)`,
         zIndex: -1,
-        panAmount: -0.5
-
+        panAmount: -0.5,
+        delay: 0
     }
 ];
 
@@ -131,6 +135,10 @@ function createZigZag() {
     return line;
 }
 
+function setDataFromHistory(historyObj){
+
+}
+
 function animateAudioData(audioDataPromise, slotIndex) {
     let wf = waveforms[slotIndex];
     let group = document.getElementById('group-' + slotIndex);
@@ -150,7 +158,7 @@ function animateAudioData(audioDataPromise, slotIndex) {
         });
 }
 
-function createAudioElement(wf) {
+function createAudioElement(wf, slotIndex) {
     const audio = new Audio();
     audio.crossOrigin = 'anonymous';
     if (returns.length > 0) audio.src = wf.url;
@@ -171,6 +179,7 @@ function createAudioElement(wf) {
 
     const compressor = audioCtx.createDynamicsCompressor();
     const gain = audioCtx.createGain();
+    gain.gain.value = audio[slotIndex].volume;
     gains.push(gain);
     compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
     compressor.knee.setValueAtTime(40, audioCtx.currentTime);
@@ -351,7 +360,7 @@ function begin() {
 
         animateAudioData(fetch(wf.url), i);
 
-        createAudioElement(wf);
+        createAudioElement(wf, i);
     });
 }
 

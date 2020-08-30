@@ -27,13 +27,13 @@ block content
       - let composer = composerInfo;
       .profilePhoto
         //- Profile photo
-        img(src=composer.photo alt='sample')
+        img(src=composer.photo alt='sample' id='composer-photo')
       //- Identity details
       //- TODO history - populate profile info from template
       section.profileHeader
         h3 This Week&apos;s Curator
-        h1 !{composer.name}
-        p
+        h1(id='composer-name') !{composer.name}
+        p(id='composer-bio')
           | !{composer.bio}
         p
           a(href='/past-composers') See all our past curators &raquo;
@@ -86,6 +86,7 @@ block content
     //- expose server provided variables to main script
     script(nonce=nonce).
       let returns = JSON.parse(`!{fileNames}`);
-      let audio = JSON.parse(`!{audio}`);
+      let audioData = JSON.parse(`!{audio}`);
+      let isComposer = document.location.pathname == "/composer";
 
-    script(nonce=nonce src='./javascript/main.js')
+    script(nonce=nonce src='./javascript/composer.js')
