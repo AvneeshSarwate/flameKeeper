@@ -13,8 +13,10 @@ document.getElementById('fullscreen').addEventListener('click', goFullScreen);
 
 let selected_waveform = null;
 let audioElements = [];
+let audioElementPromises = [];
 let waveformGroups = [];
 let gains = [];
+let delays = [];
 let file_is_replaced = false;
 let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
 let submissionData = {};
@@ -137,7 +139,8 @@ const waveforms = [
         transform: `translate(10 40)`,
         zIndex: -1,
         panAmount: -0.75,
-        delay: 0
+        delay: 0, 
+        waveZoom: 1
 
     },
     {//Wave-1
@@ -149,7 +152,8 @@ const waveforms = [
         transform: `translate(180 110) rotate(90)`,
         zIndex: -1,
         panAmount: 0.5,
-        delay: 0
+        delay: 0, 
+        waveZoom: 1
 
     },
     {//Wave-2
@@ -161,7 +165,8 @@ const waveforms = [
         transform: `translate(400 200) rotate(180)`,
         zIndex: -1,
         panAmount: 0.75,
-        delay: 0
+        delay: 0, 
+        waveZoom: 1
     },
     {//Wave-3
         url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
@@ -172,7 +177,8 @@ const waveforms = [
         transform: `translate(400 260) rotate(180)`,
         zIndex: 1,
         panAmount: 0.25,
-        delay: 0
+        delay: 0, 
+        waveZoom: 1
     },
     {//Wave-4
         url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
@@ -183,7 +189,8 @@ const waveforms = [
         transform: `translate(420 300) rotate(270)`,
         zIndex: -1,
         panAmount: 0,
-        delay: 0
+        delay: 0, 
+        waveZoom: 1
     },
     {//Wave-5
         url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
@@ -194,7 +201,8 @@ const waveforms = [
         transform: `rotate(90 95 15) translate(190 -370)`,
         zIndex: -1,
         panAmount: -0.25,
-        delay: 0
+        delay: 0, 
+        waveZoom: 1
     },
     {//Wave-6
         url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
@@ -205,7 +213,8 @@ const waveforms = [
         transform: `translate(380 330)`,
         zIndex: -1,
         panAmount: -0.5,
-        delay: 0
+        delay: 0, 
+        waveZoom: 1
     }
 ];
 
@@ -249,7 +258,7 @@ function animateAudioData(audioDataPromise, slotIndex) {
                 animateViewHeight = wf.viewHeight;
             }
             group.appendChild(svg);
-            animate(svg, waveformWidth, wf.viewWidth, animateViewHeight, wf.speed);
+            animate(svg, waveformWidth, wf.viewWidth, animateViewHeight, wf.speed, slotIndex);
         });
 }
 
@@ -270,7 +279,16 @@ function createAudioElement(wf, slotIndex) {
     //-   audio.play();
     //- }, 5000);
 
-    audio.addEventListener("canplaythrough", () => { audio.play() });
+    // audio.addEventListener("canplaythrough", () => { audio.play() });
+
+    let audioPromise = new Promise((resolve) => {
+        audio.oncanplaythrough = () => resolve(audio);
+    }).then(audio => new Promise((resolve) => {
+        audio.currentTime = 0 % audio.duration; //todo fill in time function
+        audio.onseeked = () => resolve(audio);
+    }));
+
+    audioElementPromises.push(audioPromise);
 
     audioElements.push(audio);
 
@@ -283,6 +301,11 @@ function createAudioElement(wf, slotIndex) {
     const gain = audioCtx.createGain();
     gain.gain.value = audioData[slotIndex].volume;
     gains.push(gain);
+
+    const delay = audioCtx.createDelay();
+    delay.delayTime.value = waveforms[slotIndex].delay;
+    delays.push(delay);
+    
     compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
     compressor.knee.setValueAtTime(40, audioCtx.currentTime);
     compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
@@ -395,6 +418,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     svg.setAttribute("height", waveformHeight * 2);
     svg.setAttribute("width", width);
     svg.setAttribute("id", "wave-" + slotIndex);
+    svg.setAttribute("preserveAspectRatio", "none");
 
     // Create the actual polyline.
     const line = document.createElementNS(
@@ -419,12 +443,14 @@ function normalizeData(filteredData) {
     return filteredData.map(n => n * multiplier);
 }
 
-function animate(svg, waveformWidth, viewWidth, viewHeight, speed) {
+function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
+    let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
     let time = null;
     svg.setAttribute("width", viewWidth.toString());
-    svg.setAttribute("viewBox", `${offset} 0 ${viewWidth} ${viewHeight}`);
+    svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
     function draw(ts) {
+        let waveZoom = waveforms[slotIndex].waveZoom;
         if (time === null) {
             time = ts;
             requestAnimationFrame(draw);
@@ -438,7 +464,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed) {
         if (offset > waveformWidth + viewWidth) {
             offset = -1 * viewWidth;
         }
-        svg.setAttribute("viewBox", `${offset} 0 ${viewWidth} ${viewHeight}`);
+        svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
         time = ts;
         requestAnimationFrame(draw);
     }
@@ -483,6 +509,11 @@ function begin() {
         animateAudioData(fetch(wf.url), i);
 
         createAudioElement(wf, i);
+    });
+
+    Promise.all(audioElementPromises).then(audioElems => {
+        console.log("ready to play");
+        audioElems.map(a => a.play())
     });
 }
 

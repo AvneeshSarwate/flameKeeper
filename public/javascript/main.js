@@ -26,6 +26,7 @@ const DEBUG = false;
 let audioElements = [];
 let waveformGroups = [];
 let gains = [];
+let delays = [];
 
 // Nice convenient way to describe the waveforms.
 const waveforms = [

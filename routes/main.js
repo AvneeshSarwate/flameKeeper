@@ -42,7 +42,7 @@ router.get('/', function (req, res, next) {
         audio: JSON.stringify(loadedAudio),
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer,
-        timestamp
+        timestamp: loadedSlotTimestamp
     }, (err, html) => {
         console.log("error:", err);
         res.send(html);

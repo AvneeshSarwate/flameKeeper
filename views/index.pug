@@ -88,5 +88,6 @@ block content
       let returns = JSON.parse(`!{fileNames}`);
       let audioData = JSON.parse(`!{audio}`);
       let isComposer = document.location.pathname == "/composer";
+      let timestamp = !{timestamp};
 
     script(nonce=nonce src='./javascript/composer.js')
