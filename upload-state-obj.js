@@ -1,6 +1,9 @@
+const dotenv = require('dotenv');
+dotenv.config();
 const s3 = require('./s3');
 const fs = require('fs');
 const constants = require('./constants');
+// const AWS = require('aws-sdk');
 
 async function upload() {
     let filename = `state.json`;
@@ -20,3 +23,11 @@ async function upload() {
 }
 
 upload()
+// AWS.config.getCredentials(function(err) {
+//     if (err) console.log(err.stack);
+//     // credentials not loaded
+//     else {
+//       console.log("Access key:", AWS.config.credentials.accessKeyId);
+//     }
+//   });
+  
