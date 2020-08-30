@@ -106,8 +106,8 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                         return;
                     }
                     let volume = parseFloat(fields.volume);
-                    if (!volume || volume < 0 || volume > 1) {
-                        reject("volume must be 0-1");
+                    if (!volume || volume < 0 || volume > 2) {
+                        reject("volume must be 0-2");
                         return;
                     }
                     let audioID = await state.addAudio(file.name, file.path);

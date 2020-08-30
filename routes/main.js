@@ -29,7 +29,7 @@ router.get('/', function (req, res, next) {
 
     let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
     let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
-
+    // console.log("composer", composer);
     if (loadedAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
@@ -37,7 +37,7 @@ router.get('/', function (req, res, next) {
     
     res.render('index', {
         nonce: res.locals.nonce,
-        audio: loadedAudio,
+        audio: JSON.stringify(loadedAudio),
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer
     }, (err, html) => {
@@ -126,21 +126,21 @@ router.get('/composer', function (req, res, next) {
         res.sendStatus(500);
     }
 
-    let currentComposerHistory = state.history.filter(h => h.composerID === state.currentState.composerID);
-    let showMultiFile = currentComposerHistory.length === 0 || (currentComposerHistory.length === 1 && withinEditTimeWindow)
-    let lastState = currentComposerHistory.sort((a, b) => a.timestamp-b.timestamp).slice(-1)[0] || [];
-    let withinEditTimeWindow = req.query.inWindow === 'true'; //todo avneesh - add this - both in time AND lastState is in window
-    let undoState = withinEditTimeWindow ? lastState : []; //if within edit time window, provide a state to undo to
+    // let currentComposerHistory = state.history.filter(h => h.composerID === state.currentState.composerID);
+    // let showMultiFile = currentComposerHistory.length === 0 || (currentComposerHistory.length === 1 && withinEditTimeWindow)
+    // let lastState = currentComposerHistory.sort((a, b) => a.timestamp-b.timestamp).slice(-1)[0] || [];
+    // let withinEditTimeWindow = req.query.inWindow === 'true'; //todo avneesh - add this - both in time AND lastState is in window
+    // let undoState = withinEditTimeWindow ? lastState : []; //if within edit time window, provide a state to undo to
 
     //todo - see if history contains latest uploaded state
-    currentAudio = lastState.audio;
+    // currentAudio = lastState.audio;
 
     res.render('composer', {
         nonce: res.locals.nonce,
         audio: JSON.stringify(currentAudio),
         fileNames: JSON.stringify(currentAudio.map(a => a.filename)),
-        isMultiFile: showMultiFile || req.query.multi === 'true',
-        undoState: JSON.stringify(undoState)
+        // isMultiFile: showMultiFile || req.query.multi === 'true',
+        // undoState: JSON.stringify(undoState)
     });
 });
 

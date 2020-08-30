@@ -86,5 +86,6 @@ block content
     //- expose server provided variables to main script
     script(nonce=nonce).
       let returns = JSON.parse(`!{fileNames}`);
+      let audio = JSON.parse(`!{audio}`);
 
     script(nonce=nonce src='./javascript/main.js')
