@@ -172,6 +172,7 @@ router.get('/composer', function (req, res, next) {
         nonce: res.locals.nonce,
         audio: JSON.stringify(currentAudio),
         fileNames: JSON.stringify(currentAudio.map(a => a.filename)),
+        timestamp: state.currentState.timestamp
         // isMultiFile: showMultiFile || req.query.multi === 'true',
         // undoState: JSON.stringify(undoState)
     });

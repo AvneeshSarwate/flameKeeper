@@ -26,17 +26,26 @@ function undoReplace() {
     document.getElementById('vol_span').classList.add('hide');
     document.getElementById('replace_file_span').classList.remove('hide');
 
+    
     animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform);
     audioElements[selected_waveform].src = waveforms[selected_waveform].url;
+
+    audioElements.forEach(ae => { ae.currentTime = 0 });
+    const undoWave = selected_waveform;
+    audioElements[undoWave].oncanplaythrough = () => {
+        audioElements[undoWave].play().then(() => {
+            audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
+            audioElements.forEach(a => {a.currentTime = 0});
+        });
+    }
+    resetGains();
 
     file_is_replaced = false;
     selected_waveform = null;
     toggleGroupBorders();
 
-    audioElements.forEach(ae => { ae.currentTime = 0 });
     document.getElementById('replace_file_input').value = '';
 
-    resetGains();
     submissionData = {};
 }
 
@@ -58,6 +67,7 @@ function submit() {
 
 function resetGains() {
     gains[selected_waveform].gain.value = lastVolume;
+    document.getElementById('vol').value = lastVolume;
 }
 
 function jumpToTime() {
@@ -74,7 +84,7 @@ function jumpToTime() {
 
 function replaceFile(e) {
     let selector = e.target;
-    let files = target.files;
+    let files = e.target.files;
     console.log("file replace", files, selector);
     if (selected_waveform != null) {
         document.getElementById('undo_button').classList.remove('hide');
@@ -83,7 +93,6 @@ function replaceFile(e) {
 
         replaceAudioSlotWithFile(files[0], selected_waveform);
         file_is_replaced = true;
-        audioElements.forEach(ae => { ae.currentTime = 0 });
         lastVolume = gains[selected_waveform].gain.value;
 
         submissionData['file'] = files[0];
@@ -102,9 +111,8 @@ function submitChanges() {
 
 function changeVol(e) {
     let slider = e.target;
-    let vol = e.target.value;
-    console.log('change vol', selected_waveform, vol);
-    replacement_data.vol = vol;
+    let vol = parseFloat(e.target.value);
+    // console.log('change vol', selected_waveform, vol, typeof vol);
     gains[selected_waveform].gain.value = vol;
     document.getElementById('vol_val').innerText = vol;
     submissionData['volume'] = vol;
@@ -265,8 +273,16 @@ function animateAudioData(audioDataPromise, slotIndex) {
 function replaceAudioSlotWithFile(file, slotIndex) {
     animateAudioData(Promise.resolve(file), slotIndex)
 
-    //todo - make sure auto-play happens here from canplaythrough handler or otherwise
+    //todo - double check that this doesn't have wierd latencies
     audioElements[slotIndex].src = URL.createObjectURL(file);
+    audioElements[slotIndex].oncanplaythrough = () => {
+        // audioElements.forEach(a => {a.currentTime = 0});
+        console.log("play thru", slotIndex);
+        audioElements[slotIndex].play().then(() => {
+            audioElements[slotIndex].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
+            audioElements.forEach(a => {a.currentTime = 0});
+        });
+    }
 }
 
 function createAudioElement(wf, slotIndex) {
@@ -284,7 +300,7 @@ function createAudioElement(wf, slotIndex) {
     let audioPromise = new Promise((resolve) => {
         audio.oncanplaythrough = () => resolve(audio);
     }).then(audio => new Promise((resolve) => {
-        audio.currentTime = 0 % audio.duration; //todo fill in time function
+        audio.currentTime = ((Date.now() - timestamp) / 1000) % audio.duration; //todo fill in time function
         audio.onseeked = () => resolve(audio);
     }));
 

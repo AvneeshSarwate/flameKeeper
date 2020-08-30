@@ -14,7 +14,7 @@ block content
           span(id='jump_span')
             button(id="jump_time_button") Jump to time (sec):
             input(id='jump_time') 
-          div(id='single_panel' class="hide")
+          div(id='single_panel')
             span(id='replace_file_span')
               input(id='replace_file_input' type='file')
             button(id='undo_button' class="hide") Undo
@@ -102,5 +102,6 @@ block content
       let returns = JSON.parse(`!{fileNames}`);
       let audioData = JSON.parse(`!{audio}`);
       let isComposer = document.location.pathname == "/composer";
+      let timestamp = !{timestamp};
 
     script(nonce=nonce src='./javascript/composer.js')
