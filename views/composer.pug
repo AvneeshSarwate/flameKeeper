@@ -101,5 +101,6 @@ block content
     script(nonce=nonce).
       let returns = JSON.parse(`!{fileNames}`);
       let audioData = JSON.parse(`!{audio}`);
+      let isComposer = document.location.pathname == "/composer";
 
     script(nonce=nonce src='./javascript/composer.js')
