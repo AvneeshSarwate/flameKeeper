@@ -495,3 +495,7 @@ footer .footerNote {
 	display:table;
 	margin:0 auto;
  }
+
+ #time_slider {
+	 width: 100%;
+ }

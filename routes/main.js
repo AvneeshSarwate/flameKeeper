@@ -36,13 +36,19 @@ router.get('/', function (req, res, next) {
         logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
     }
+
+    let historyTimes = state.history.map(h => h.timestamp);
+    historyTimes.sort();
+    let firstEntry = historyTimes[0];
+    // console.log("aa", firstEntry);
     
     res.render('index', {
         nonce: res.locals.nonce,
         audio: JSON.stringify(loadedAudio),
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer,
-        timestamp: loadedSlotTimestamp
+        timestamp: loadedSlotTimestamp,
+        firstEntry
     }, (err, html) => {
         console.log("error:", err);
         res.send(html);
@@ -53,7 +59,7 @@ router.get('/', function (req, res, next) {
 router.get('/getInfo', function (req, res, next) {
     //TODO history - add query string val of history timestamp to pull composer info and audio files
     let historyTimestamp = parseInt(req.query.history) || 0;
-    let historySlot = state.history.filter(h => historyTimestamp < h.timestamp).slice(-1)[0];
+    let historySlot = state.history.filter(h => h.timestamp < historyTimestamp ).slice(-1)[0];
     // console.log("history info", historySlot);
 
     let loadedAudio = historySlot ? historySlot.audio : [ ...state.currentState.audio ];

@@ -6,6 +6,10 @@ if (isComposer) {
     document.getElementById('undo_button').addEventListener('click', undoReplace);
     document.getElementById('vol').addEventListener('input', changeVol);
     document.getElementById('replace_file_input').addEventListener('change', replaceFile);
+} else {
+    document.getElementById('text_slider_display').innerHTML = new Date().toLocaleString();
+    document.getElementById('time_slider').addEventListener('input', changeTime);
+    document.getElementById('jump_to_history').addEventListener('click', jumpToHistory);
 }
 
 document.getElementById('beginButton').addEventListener('click', begin);
@@ -116,6 +120,18 @@ function changeVol(e) {
     gains[selected_waveform].gain.value = vol;
     document.getElementById('vol_val').innerText = vol;
     submissionData['volume'] = vol;
+}
+
+function changeTime(e) {
+    let newTimeStamp = (Date.now() - firstEntry) * parseFloat(e.target.value) + firstEntry;
+    let newTimeString = new Date(newTimeStamp).toLocaleString();
+    document.getElementById('text_slider_display').innerHTML = newTimeString;
+}
+
+function jumpToHistory() {
+    let sliderVal = parseFloat(document.getElementById('time_slider').value);
+    let newTimeStamp = (Date.now() - firstEntry) * sliderVal + firstEntry;
+    getInstallationByTimestamp(newTimeStamp);
 }
 
 function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
@@ -533,9 +549,12 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 function begin() {
     if (isComposer) {
         document.getElementById('control_panel').classList.remove('hide');
+    } else {
+        document.getElementById('time_slider_div').classList.remove('hide');
     }
 
     document.getElementById('beginButton').classList.add('hide');
+    document.getElementById('fullscreen').classList.remove('hide');
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
