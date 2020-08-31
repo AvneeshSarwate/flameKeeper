@@ -118,6 +118,44 @@ function changeVol(e) {
     submissionData['volume'] = vol;
 }
 
+function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
+    let audio = audioElements[slotIndex];
+    let url = `https://flamekeeper.s3.amazonaws.com/${filename}`;
+    
+    gains[slotIndex].gain.value = gainVal;
+    audio.src = url;
+    animateAudioData(fetch(url), slotIndex);
+
+    let audioPromise = new Promise((resolve) => {
+        audio.oncanplaythrough = () => resolve(audio);
+    }).then(audio => new Promise((resolve) => {
+        audio.currentTime = (audioTime / 1000) % audio.duration; //todo fill in time function
+        audio.onseeked = () => resolve(audio);
+    }));
+
+    return audioPromise;
+}
+
+function getInstallationByTimestamp(timestamp) {
+    fetch(document.location.origin + '/getInfo?history=' + timestamp)
+        .then(response => response.json())
+        .then(jsonData => {
+            console.log(jsonData);
+
+            document.getElementById('composer-name').innerText = jsonData.composer.name;
+            document.getElementById('composer-bio').innerText = jsonData.composer.bio;
+            document.getElementById('composer-photo').src = jsonData.composer.photo;
+            document.getElementById('time-header').innerText = 'The Curator At ' + new Date(timestamp).toLocaleString();
+
+            audioData = jsonData.loadedAudio;
+            
+            let newAudioPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i));
+            Promise.all(newAudioPromises).then(() => {
+                audioElements.forEach(ae => ae.play());
+            })
+        });
+}
+
 console.log("returns", returns);
 
 // Configuration.
@@ -480,11 +518,13 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         //have offset be determined buy currentTime on audio element
         offset += move;
         offset = audioProg * (waveformWidth + viewWidth*2) - viewWidth;
-        if (offset > waveformWidth + viewWidth) {
-            offset = -1 * viewWidth;
+        if(!isNaN(offset)) {
+            if (offset > waveformWidth + viewWidth) {
+                offset = -1 * viewWidth;
+            }
+            svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
+            time = ts;
         }
-        svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
-        time = ts;
         requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
@@ -492,9 +532,10 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 
 function begin() {
     if (isComposer) {
-        document.getElementById('beginButton').classList.add('hide');
         document.getElementById('control_panel').classList.remove('hide');
     }
+
+    document.getElementById('beginButton').classList.add('hide');
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
