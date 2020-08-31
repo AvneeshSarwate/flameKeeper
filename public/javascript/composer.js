@@ -467,6 +467,8 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
     function draw(ts) {
         let waveZoom = waveforms[slotIndex].waveZoom;
+        let audio = audioElements[slotIndex];
+        let audioProg = audio.currentTime / audio.duration;
         if (time === null) {
             time = ts;
             requestAnimationFrame(draw);
@@ -477,6 +479,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         const move = (diff / 1000) * speed;
         //have offset be determined buy currentTime on audio element
         offset += move;
+        offset = audioProg * (waveformWidth + viewWidth*2) - viewWidth;
         if (offset > waveformWidth + viewWidth) {
             offset = -1 * viewWidth;
         }
