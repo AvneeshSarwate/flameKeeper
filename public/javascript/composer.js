@@ -203,7 +203,7 @@ const waveforms = [
         panAmount: -0.75,
         delay: 2.155, 
         waveZoom: 1,
-        linePercent: 1
+        linePercent: 0.69
     },
     {//Wave-1
         url: `https://flamekeeper.s3.amazonaws.com/${returns[1]}`,
@@ -216,7 +216,7 @@ const waveforms = [
         panAmount: 0.5,
         delay: 2.48, 
         waveZoom: 1,
-        linePercent: 1
+        linePercent: 0.85
     },
     {//Wave-2
         url: `https://flamekeeper.s3.amazonaws.com/${returns[2]}`,
@@ -229,7 +229,7 @@ const waveforms = [
         panAmount: 0.75,
         delay: 1.53, 
         waveZoom: 1,
-        linePercent: 1
+        linePercent: 0.51
     },
     {//Wave-3
         url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
@@ -242,7 +242,7 @@ const waveforms = [
         panAmount: 0.25,
         delay: 1.35, 
         waveZoom: 1,
-        linePercent: 1
+        linePercent: 0.51
     },
     {//Wave-4
         url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
@@ -255,7 +255,7 @@ const waveforms = [
         panAmount: 0,
         delay: 2.27, 
         waveZoom: 1,
-        linePercent: 1
+        linePercent: 0.79
     },
     {//Wave-5
         url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
@@ -268,7 +268,7 @@ const waveforms = [
         panAmount: -0.25,
         delay: 0.47, 
         waveZoom: 1,
-        linePercent: 1
+        linePercent: 0.215
     },
     {//Wave-6
         url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
@@ -281,7 +281,7 @@ const waveforms = [
         panAmount: -0.5,
         delay: 0, 
         waveZoom: 1,
-        linePercent: 1
+        linePercent: 0
     }
 ];
 
@@ -523,8 +523,8 @@ function normalizeData(filteredData) {
 function getVisualSyncDelay(slotIndex) {
     let wf = waveforms[slotIndex];
     let aed = audioElements[slotIndex].duration;
-    let lineFrac = wf.lineFrac; //todo fill these in for each waveform
-    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*2) * aed;
+    let lineFrac = wf.linePercent; //todo fill these in for each waveform
+    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*2) * aed * lineFrac;
 }
 
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
