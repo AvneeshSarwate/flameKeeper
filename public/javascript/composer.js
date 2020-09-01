@@ -201,9 +201,9 @@ const waveforms = [
         transform: `translate(10 40)`,
         zIndex: -1,
         panAmount: -0.75,
-        delay: 0, 
-        waveZoom: 1
-
+        delay: 2.155, 
+        waveZoom: 1,
+        linePercent: 1
     },
     {//Wave-1
         url: `https://flamekeeper.s3.amazonaws.com/${returns[1]}`,
@@ -214,9 +214,9 @@ const waveforms = [
         transform: `translate(180 110) rotate(90)`,
         zIndex: -1,
         panAmount: 0.5,
-        delay: 0, 
-        waveZoom: 1
-
+        delay: 2.48, 
+        waveZoom: 1,
+        linePercent: 1
     },
     {//Wave-2
         url: `https://flamekeeper.s3.amazonaws.com/${returns[2]}`,
@@ -227,8 +227,9 @@ const waveforms = [
         transform: `translate(400 200) rotate(180)`,
         zIndex: -1,
         panAmount: 0.75,
-        delay: 0, 
-        waveZoom: 1
+        delay: 1.53, 
+        waveZoom: 1,
+        linePercent: 1
     },
     {//Wave-3
         url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
@@ -239,8 +240,9 @@ const waveforms = [
         transform: `translate(400 260) rotate(180)`,
         zIndex: 1,
         panAmount: 0.25,
-        delay: 0, 
-        waveZoom: 1
+        delay: 1.35, 
+        waveZoom: 1,
+        linePercent: 1
     },
     {//Wave-4
         url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
@@ -251,8 +253,9 @@ const waveforms = [
         transform: `translate(420 300) rotate(270)`,
         zIndex: -1,
         panAmount: 0,
-        delay: 0, 
-        waveZoom: 1
+        delay: 2.27, 
+        waveZoom: 1,
+        linePercent: 1
     },
     {//Wave-5
         url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
@@ -263,8 +266,9 @@ const waveforms = [
         transform: `rotate(90 95 15) translate(190 -370)`,
         zIndex: -1,
         panAmount: -0.25,
-        delay: 0, 
-        waveZoom: 1
+        delay: 0.47, 
+        waveZoom: 1,
+        linePercent: 1
     },
     {//Wave-6
         url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
@@ -276,7 +280,8 @@ const waveforms = [
         zIndex: -1,
         panAmount: -0.5,
         delay: 0, 
-        waveZoom: 1
+        waveZoom: 1,
+        linePercent: 1
     }
 ];
 
@@ -372,7 +377,7 @@ function createAudioElement(wf, slotIndex) {
     gain.gain.value = audioData[slotIndex].volume;
     gains.push(gain);
 
-    const delay = audioCtx.createDelay();
+    const delay = audioCtx.createDelay(5);
     delay.delayTime.value = waveforms[slotIndex].delay;
     delays.push(delay);
     
@@ -385,7 +390,7 @@ function createAudioElement(wf, slotIndex) {
 
     //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
     //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
-    source.connect(gain).connect(compressor).connect(audioCtx.destination);
+    source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
 }
 
 function toggleGroupBorders() {
@@ -505,12 +510,21 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     line.setAttribute("points", pointsJoined);
     svg.appendChild(line);
 
+    waveforms[slotIndex].width = width;
+
     return { waveformWidth: width, svg };
 }
 
 function normalizeData(filteredData) {
     const multiplier = Math.pow(Math.max(...filteredData), -1);
     return filteredData.map(n => n * multiplier);
+}
+
+function getVisualSyncDelay(slotIndex) {
+    let wf = waveforms[slotIndex];
+    let aed = audioElements[slotIndex].duration;
+    let lineFrac = wf.lineFrac; //todo fill these in for each waveform
+    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*2) * aed;
 }
 
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
@@ -521,6 +535,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
     function draw(ts) {
         let waveZoom = waveforms[slotIndex].waveZoom;
+        let zoomedViewWidth = viewWidth*waveZoom;
         let audio = audioElements[slotIndex];
         let audioProg = audio.currentTime / audio.duration;
         if (time === null) {
@@ -533,17 +548,22 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         const move = (diff / 1000) * speed;
         //have offset be determined buy currentTime on audio element
         offset += move;
-        offset = audioProg * (waveformWidth + viewWidth*2) - viewWidth;
+        offset = audioProg * (waveformWidth + zoomedViewWidth*2) - zoomedViewWidth;
         if(!isNaN(offset)) {
-            if (offset > waveformWidth + viewWidth) {
-                offset = -1 * viewWidth;
-            }
-            svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
+            // if (offset > waveformWidth + zoomedViewWidth) {
+            //     offset = -1 * zoomedViewWidth;
+            // }
+            svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
             time = ts;
         }
         requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
+}
+
+function pauseAll(){
+    audioElements.forEach(a => a.pause());
+    audioElements.forEach(a => {a.currentTime = 0});
 }
 
 function begin() {
