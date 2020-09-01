@@ -70,7 +70,7 @@ app.use((req, res, next) => {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "*.amazonaws.com", `'nonce-${res.locals.nonce}'`],
-      styleSrc: ["'self'", "fonts.googleapis.com"],
+      styleSrc: ["'self'", "fonts.googleapis.com", "'unsafe-inline'"],
       fontSrc: ["'self'", "fonts.gstatic.com"],
       connectSrc: ["'self'", "*.amazonaws.com"],
       mediaSrc: ["'self'", "*.amazonaws.com"],
