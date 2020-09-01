@@ -1,6 +1,25 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
+var gui = new dat.GUI();
+let zooms = {
+    zoom0: 1,
+    zoom1: 1,
+    zoom2: 1,
+    zoom3: 1,
+    zoom4: 1,
+    zoom5: 1,
+    zoom6: 1
+};
+
+[0, 1, 2, 3, 4, 5, 6].forEach(i => {
+    gui.add(zooms, 'zoom'+i, 0, 3, 0.01).onFinishChange(v => {
+        waveforms[i].waveZoom = v;
+        delays[i].delayTime.value = getVisualSyncDelay(i);
+    });
+})
+
+
 if (isComposer) {
     document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
     document.getElementById('undo_button').addEventListener('click', undoReplace);
