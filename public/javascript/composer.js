@@ -185,9 +185,11 @@ function getInstallationByTimestamp(timestamp) {
             audioData = jsonData.loadedAudio;
             
             let newAudioPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i));
-            Promise.all(newAudioPromises).then(() => {
-                //todo - set all delays according to duration of audio elements
-                audioElements.forEach(ae => ae.play());
+            Promise.all(newAudioPromises).then(audioElems => {
+                audioElems.map((a, i) => {
+                    a.play();
+                    delays[i].delayTime.value = getVisualSyncDelay(i);
+                });
             })
         });
 }
@@ -629,8 +631,10 @@ function begin() {
 
     Promise.all(audioElementPromises).then(audioElems => {
         console.log("ready to play");
-        //todo - set all delays according to duration of audio elements
-        audioElems.map(a => a.play())
+        audioElems.map((a, i) => {
+            a.play();
+            delays[i].delayTime.value = getVisualSyncDelay(i);
+        });
     });
 }
 
