@@ -164,7 +164,7 @@ function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
     let audioPromise = new Promise((resolve) => {
         audio.oncanplaythrough = () => resolve(audio);
     }).then(audio => new Promise((resolve) => {
-        audio.currentTime = (audioTime / 1000) % audio.duration; //todo fill in time function
+        audio.currentTime = (audioTime / 1000) % audio.duration; 
         audio.onseeked = () => resolve(audio);
     }));
 
@@ -186,6 +186,7 @@ function getInstallationByTimestamp(timestamp) {
             
             let newAudioPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i));
             Promise.all(newAudioPromises).then(() => {
+                //todo - set all delays according to duration of audio elements
                 audioElements.forEach(ae => ae.play());
             })
         });
@@ -378,7 +379,7 @@ function createAudioElement(wf, slotIndex) {
     let audioPromise = new Promise((resolve) => {
         audio.oncanplaythrough = () => resolve(audio);
     }).then(audio => new Promise((resolve) => {
-        audio.currentTime = ((Date.now() - timestamp) / 1000) % audio.duration; //todo fill in time function
+        audio.currentTime = ((Date.now() - timestamp) / 1000) % audio.duration; 
         audio.onseeked = () => resolve(audio);
     }));
 
@@ -405,7 +406,6 @@ function createAudioElement(wf, slotIndex) {
     compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
     compressor.attack.setValueAtTime(0, audioCtx.currentTime);
     compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
-    //todo - initialize gain from state data
 
     //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
     //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
@@ -475,8 +475,6 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         data.push(sum / blockSize); // divide the sum by the block size to get the average
     }
 
-    //TODO: - loop-through data again so that viewport skip-back is seamless
-
     // Normalize peaks in data so that the max peak is always 1.
     //- if(slotIndex == 2) debugger;
     data = data.filter(n => !isNaN(n)); //todo - might need to make this more rigorous
@@ -542,7 +540,7 @@ function normalizeData(filteredData) {
 function getVisualSyncDelay(slotIndex) {
     let wf = waveforms[slotIndex];
     let aed = audioElements[slotIndex].duration;
-    let lineFrac = wf.linePercent; //todo fill these in for each waveform
+    let lineFrac = wf.linePercent; 
     return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*2) * aed * lineFrac;
 }
 
@@ -631,6 +629,7 @@ function begin() {
 
     Promise.all(audioElementPromises).then(audioElems => {
         console.log("ready to play");
+        //todo - set all delays according to duration of audio elements
         audioElems.map(a => a.play())
     });
 }
