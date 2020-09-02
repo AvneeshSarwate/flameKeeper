@@ -43,6 +43,7 @@ let delays = [];
 let file_is_replaced = false;
 let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
 let submissionData = {};
+let candidateFileUrl = null;
 
 function undoReplace() {
     document.getElementById('undo_button').classList.add('hide');
@@ -50,17 +51,18 @@ function undoReplace() {
     document.getElementById('replace_file_span').classList.remove('hide');
 
     
-    animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform);
-    audioElements[selected_waveform].src = waveforms[selected_waveform].url;
+    animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform).then(() => {
+        audioElements[selected_waveform].src = waveforms[selected_waveform].url;
 
-    audioElements.forEach(ae => { ae.currentTime = 0 });
-    const undoWave = selected_waveform;
-    audioElements[undoWave].oncanplaythrough = () => {
-        audioElements[undoWave].play().then(() => {
-            audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
-            audioElements.forEach(a => {a.currentTime = 0});
-        });
-    }
+        const undoWave = selected_waveform;
+        audioElements[undoWave].oncanplaythrough = () => {
+            audioElements[undoWave].play().then(() => {
+                audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
+                delays[undoWave].delayTime.value = getVisualSyncDelay(undoWave);
+                audioElements.forEach(a => {a.currentTime = 0});
+            });
+        };
+    });
     resetGains();
 
     file_is_replaced = false;
@@ -114,6 +116,7 @@ function replaceFile(e) {
         document.getElementById('vol_span').classList.remove('hide');
         document.getElementById('replace_file_span').classList.add('hide');
 
+        candidateFileUrl = URL.createObjectURL(files[0])
         replaceAudioSlotWithFile(files[0], selected_waveform);
         file_is_replaced = true;
         lastVolume = gains[selected_waveform].gain.value;
@@ -336,7 +339,7 @@ function animateAudioData(audioDataPromise, slotIndex) {
     let wf = waveforms[slotIndex];
     let group = document.getElementById('group-' + slotIndex);
 
-    audioDataPromise
+    return audioDataPromise
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
         .then(audioBuffer => visualize(audioBuffer, wf.viewHeight, slotIndex))
@@ -351,19 +354,23 @@ function animateAudioData(audioDataPromise, slotIndex) {
         });
 }
 
-function replaceAudioSlotWithFile(file, slotIndex) {
-    animateAudioData(Promise.resolve(file), slotIndex)
+function muteAll(){gains.forEach(g => {g.gain.value = 0})};
 
-    //todo - double check that this doesn't have wierd latencies
-    audioElements[slotIndex].src = URL.createObjectURL(file);
-    audioElements[slotIndex].oncanplaythrough = () => {
-        // audioElements.forEach(a => {a.currentTime = 0});
-        console.log("play thru", slotIndex);
-        audioElements[slotIndex].play().then(() => {
-            audioElements[slotIndex].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
-            audioElements.forEach(a => {a.currentTime = 0});
-        });
-    }
+function replaceAudioSlotWithFile(file, slotIndex) {
+    animateAudioData(Promise.resolve(file), slotIndex).then(() => {
+
+        //todo - double check that this doesn't have wierd latencies
+        audioElements[slotIndex].src = URL.createObjectURL(file);
+        audioElements[slotIndex].oncanplaythrough = () => {
+            // audioElements.forEach(a => {a.currentTime = 0});
+            console.log("play thru", slotIndex);
+            audioElements[slotIndex].play().then(() => {
+                audioElements[slotIndex].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
+                delays[slotIndex].delayTime.value = getVisualSyncDelay(slotIndex);
+                audioElements.forEach(a => {a.currentTime = 0});
+            });
+        }
+    });
 }
 
 function createAudioElement(wf, slotIndex) {
@@ -463,6 +470,7 @@ function drawZeroLine(wf, group) {
 function visualize(audioBuffer, waveformHeight, slotIndex) {
     //- console.log("visializing", slotIndex);
     //- if(slotIndex == 2) debugger;
+    let visDataLogging = {};
     const duration = audioBuffer.duration;
     const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
     const samples = SAMPLES_PER_SECOND * duration;
@@ -476,6 +484,11 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         }
         data.push(sum / blockSize); // divide the sum by the block size to get the average
     }
+
+    visDataLogging.rawDataLen = rawData.length;
+    visDataLogging.samples = samples;
+    visDataLogging.blockSize = blockSize;
+    
 
     // Normalize peaks in data so that the max peak is always 1.
     //- if(slotIndex == 2) debugger;
@@ -543,7 +556,7 @@ function getVisualSyncDelay(slotIndex) {
     let wf = waveforms[slotIndex];
     let aed = audioElements[slotIndex].duration;
     let lineFrac = wf.linePercent; 
-    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*2) * aed * lineFrac;
+    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*0) * aed * lineFrac;
 }
 
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
@@ -567,7 +580,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         const move = (diff / 1000) * speed;
         //have offset be determined buy currentTime on audio element
         offset += move;
-        offset = audioProg * (waveformWidth + zoomedViewWidth*2) - zoomedViewWidth;
+        offset = audioProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
         if(!isNaN(offset)) {
             // if (offset > waveformWidth + zoomedViewWidth) {
             //     offset = -1 * zoomedViewWidth;
