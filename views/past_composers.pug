@@ -19,8 +19,7 @@ block content
         br
         br
         br
-        - let composers = composerInfo;
-        - let histories = composerHistories;                
+        - let composers = composerInfo;             
         each composer in composers ? composers : ['NO!!!']                                 
           if (composer.id != '0')
             - let photoSrc = composer.photo                           

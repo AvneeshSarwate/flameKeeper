@@ -70,10 +70,10 @@ app.use((req, res, next) => {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "*.amazonaws.com", `'nonce-${res.locals.nonce}'`],
-      styleSrc: ["'self'", "fonts.googleapis.com", "'unsafe-inline'"],
+      styleSrc: ["'self'", "fonts.googleapis.com", "'unsafe-inline'"], // TODO: remove 'unsafe-inline' once dat.gui is removed
       fontSrc: ["'self'", "fonts.gstatic.com"],
       connectSrc: ["'self'", "*.amazonaws.com"],
-      mediaSrc: ["'self'", "*.amazonaws.com"],
+      mediaSrc: ["'self'", "*.amazonaws.com", "blob:"],
       imgSrc: ["'self'", "*.airtable.com", "data:"]
     }
   })(req, res, next);
@@ -97,7 +97,7 @@ app.use(function (req, res, next) {
 // Error handler
 app.use(function (err, req, res, next) {
   if (res.headersSend) return next(err);
-  logger.error("error for", req.path, err);
+  logger.error(`error for ${req.path}: ${err}`);
 
   // Set locals, only providing error in development
   res.locals.message = err.message;
