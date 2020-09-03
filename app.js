@@ -39,7 +39,7 @@ exports.sessionStore = sessionStore;
 const sess = {
   store: sessionStore,
   secret: process.env.EXPRESS_SESSION_SECRET,
-  cookie: {maxAge: 60000},
+  cookie: {maxAge: 24 * 60 * 60 * 1000}, // 24hr duration
   resave: false,
   saveUninitialized: true
 };

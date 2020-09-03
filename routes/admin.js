@@ -9,7 +9,7 @@ const { getLogger } = require('../logger');
 
 const logger = getLogger("admin");
 
-// Middleware for checking if a session is authorized..
+// Middleware for checking if a session is authorized
 const requiresLogin = function (req, res, next) {
     if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
         return next();
@@ -23,7 +23,7 @@ exports.requiresLogin = requiresLogin;
 
 router.get('/login', function (req, res, next) {
     if (req.session.composerAuthenticated || req.session.adminAuthenticated) {
-        res.redirect('/dashboard');
+        res.redirect(req.session.returnTo || '/composer');
         return;
     }
 
@@ -43,7 +43,7 @@ router.post('/login', function (req, res, next) {
         if (admin.active) {
             req.session.adminAuthenticated = true;
             req.session.admin = admin;
-            res.redirect('/dashboard');
+            res.redirect(req.session.returnTo || '/composer');
             return
         }
     }
@@ -56,7 +56,7 @@ router.post('/login', function (req, res, next) {
         if (composer.active) {
             req.session.composerAuthenticated = true;
             req.session.composer = composer;
-            res.redirect('/dashboard');
+            res.redirect(req.session.returnTo || '/composer');
             return
         }
         err = "The access code provided is no longer valid.";
@@ -73,6 +73,46 @@ router.get('/logout', requiresLogin, function (req, res, next) {
     req.session.adminAuthenticated = false;
     req.session.admin = undefined;
     res.redirect('/login');
+});
+
+
+router.get('/composer', requiresLogin, function (req, res, next) {
+    let currentAudio = [...state.currentState.audio];
+    currentAudio = currentAudio.map(a => {
+        let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
+        if (!audio) {
+            logger.error("unable to find audio for audioID", a.audioID);
+            return undefined;
+        }
+        return {
+            ...audio,
+            ...a
+        }
+    });
+    if (currentAudio.includes(undefined)) {
+        logger.error("unable to find currentState audioID in uploaded audio");
+        res.sendStatus(500);
+    }
+
+    // let currentComposerHistory = state.history.filter(h => h.composerID === state.currentState.composerID);
+    // let showMultiFile = currentComposerHistory.length === 0 || (currentComposerHistory.length === 1 && withinEditTimeWindow)
+    // let lastState = currentComposerHistory.sort((a, b) => a.timestamp-b.timestamp).slice(-1)[0] || [];
+    // let withinEditTimeWindow = req.query.inWindow === 'true'; //todo avneesh - add this - both in time AND lastState is in window
+    // let undoState = withinEditTimeWindow ? lastState : []; //if within edit time window, provide a state to undo to
+
+    //todo - see if history contains latest uploaded state
+    // currentAudio = lastState.audio;
+
+    res.render('composer', {
+        nonce: res.locals.nonce,
+        admin: req.session.admin,  // Admin ID if an admin is logged in
+        composer: req.session.composer,  // Composer ID if a composer is logged in
+        audio: JSON.stringify(currentAudio),
+        fileNames: JSON.stringify(currentAudio.map(a => a.filename)),
+        timestamp: state.currentState.timestamp
+        // isMultiFile: showMultiFile || req.query.multi === 'true',
+        // undoState: JSON.stringify(undoState)
+    });
 });
 
 
@@ -101,13 +141,13 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                     }
                     let file = files.file;
                     let index = parseInt(fields.index);
-                    if (!index || index < 0 || index > 6) {
-                        reject("index must be 0-6");
+                    if (!index == null || index < 0 || index > 6) {
+                        reject(`index must be 0-6, received ${index}`);
                         return;
                     }
                     let volume = parseFloat(fields.volume);
-                    if (!volume || volume < 0 || volume > 2) {
-                        reject("volume must be 0-2");
+                    if (!volume == null || volume < 0 || volume > 2) {
+                        reject(`volume must be 0-2, received ${volume}`);
                         return;
                     }
                     let audioID = await state.addAudio(file.name, file.path);

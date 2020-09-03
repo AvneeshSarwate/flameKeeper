@@ -27,6 +27,7 @@ if (isComposer) {
     document.getElementById('undo_button').addEventListener('click', undoReplace);
     document.getElementById('vol').addEventListener('input', changeVol);
     document.getElementById('replace_file_input').addEventListener('change', replaceFile);
+    document.getElementById('replace_file_submit').addEventListener('click', submit);
 } else {
     document.getElementById('text_slider_display').innerHTML = new Date().toLocaleString();
     document.getElementById('time_slider').addEventListener('input', changeTime);
@@ -49,6 +50,7 @@ let candidateFileUrl = null;
 
 function undoReplace() {
     document.getElementById('undo_button').classList.add('hide');
+    document.getElementById('replace_file_button').classList.add('hide');
     document.getElementById('vol_span').classList.add('hide');
     document.getElementById('replace_file_span').classList.remove('hide');
 
@@ -77,19 +79,23 @@ function undoReplace() {
 }
 
 function submit() {
-    let formData = new FromData();
-    for (k in submissionData) {
-        form.append(k, submissionData[k]);
+    let formData = new FormData();
+    if (Object.keys(submissionData).length > 0) {
+        for (k in submissionData) {
+            formData.append(k, submissionData[k]);
+        }
+        fetch('/upload', {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            credentials: 'same-origin', // include, *same-origin, omit
+            body: formData
+        }).then(res => {
+            console.log("updated successfully");
+            // TODO: lock out
+        }).catch(err => {
+            console.error("unable to upload", err);
+        });
     }
-    fetch('submissionurl', {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData
-    })
 }
 
 function resetGains() {
@@ -115,6 +121,7 @@ function replaceFile(e) {
     console.log("file replace", files, selector);
     if (selected_waveform != null) {
         document.getElementById('undo_button').classList.remove('hide');
+        document.getElementById('replace_file_submit').classList.remove('hide');
         document.getElementById('vol_span').classList.remove('hide');
         document.getElementById('replace_file_span').classList.add('hide');
 
