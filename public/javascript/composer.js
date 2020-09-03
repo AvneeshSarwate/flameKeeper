@@ -50,11 +50,11 @@ function undoReplace() {
     document.getElementById('vol_span').classList.add('hide');
     document.getElementById('replace_file_span').classList.remove('hide');
 
-    
-    animateAudioData(fetch(waveforms[selected_waveform].url), selected_waveform).then(() => {
-        audioElements[selected_waveform].src = waveforms[selected_waveform].url;
 
-        const undoWave = selected_waveform;
+    const undoWave = selected_waveform;
+    animateAudioData(fetch(waveforms[undoWave].url), undoWave).then(() => {
+        audioElements[undoWave].src = waveforms[undoWave].url;
+
         audioElements[undoWave].oncanplaythrough = () => {
             audioElements[undoWave].play().then(() => {
                 audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
@@ -475,19 +475,24 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
     const samples = SAMPLES_PER_SECOND * duration;
     const blockSize = Math.max(Math.floor(rawData.length / samples), 1); // Number of samples in each subdivision
+    let lastSamp = 0;
     let data = [];
     for (let i = 0; i < samples; i++) {
         let blockStart = blockSize * i; // the location of the first sample in the block
         let sum = 0;
         for (let j = 0; j < blockSize; j++) {
             sum = sum + Math.abs(rawData[blockStart + j]); // find the sum of all the samples in the block
+            lastSamp = blockStart + j;
         }
         data.push(sum / blockSize); // divide the sum by the block size to get the average
     }
 
     visDataLogging.rawDataLen = rawData.length;
+    visDataLogging.lastSamp = lastSamp;
     visDataLogging.samples = samples;
     visDataLogging.blockSize = blockSize;
+    visDataLogging.missingSec = (rawData.length - lastSamp) /audioCtx.sampleRate;
+    console.log("visData", slotIndex, visDataLogging);
     
 
     // Normalize peaks in data so that the max peak is always 1.
@@ -622,6 +627,8 @@ function begin() {
     document.getElementById("installation").prepend(container);
     container.appendChild(createZigZag());
 
+    let drawPromises = [];
+
     waveforms.forEach((wf, i) => {
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.setAttribute("transform", wf.transform);
@@ -637,14 +644,14 @@ function begin() {
             container.appendChild(group);
         }
 
-        animateAudioData(fetch(wf.url), i);
+        drawPromises.push(animateAudioData(fetch(wf.url), i));
 
         createAudioElement(wf, i);
     });
 
-    Promise.all(audioElementPromises).then(audioElems => {
+    Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
         console.log("ready to play");
-        audioElems.map((a, i) => {
+        audioElements.map((a, i) => {
             a.play();
             delays[i].delayTime.value = getVisualSyncDelay(i);
         });
