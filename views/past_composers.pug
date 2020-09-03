@@ -34,22 +34,30 @@ block content
                 | #{composer.bio}
                 span(class='snapshot-selector')
                     span Select a snapshot to jump back to:
-                    select(id='selector-!{composer.composerID}')
+                    select(id='selector_'+composer.composerID)
                         option(value="Snapshots") Snapshots:
                         each h in composer.history
                             option(value=h[0]) !{h[1]}
-                    button(id='button-!{composer.composerID}') Jump to Snapshot
+                    button(id='button_'+composer.composerID) Jump to Snapshot
               p
 
   script(nonce=nonce).
-            
-    //- function submitForm(form) {      
-    //-   const snapValue = document.getElementById(`selectBox${form}`).value   
-    //-   const snapForm = document.getElementById(`historyForm${form}`);                   
-    //-   snapForm.action = `/history/${snapValue}`
-    //-   snapForm.submit();
 
-    //- }
+    function jumpToSnapshot(e) {
+      let composerId = e.target.id.split("_")[1];
+      let selector = document.getElementById("selector_"+composerId);
+      let timeValue = selector.value;
+      if(timeValue == "Snapshots") {
+        alert("Please pick a snapshot to jump to!")
+      } else {
+        let historyURL = document.location.origin + "?history="+timeValue;
+        document.location = historyURL;
+      }
+    }
+    let buttons = document.getElementsByTagName('button');
+    for(button of buttons) {
+      button.addEventListener('click', jumpToSnapshot);
+    }
                         
           
           

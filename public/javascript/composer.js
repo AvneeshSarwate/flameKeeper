@@ -34,6 +34,12 @@ if (isComposer) {
     document.getElementById('jump_to_history').addEventListener('click', jumpToHistory);
 }
 
+let urlHistory = new URLSearchParams(document.location.search).get('history');
+if(urlHistory){
+    document.getElementById('time-header').innerText = 
+        'The Curator At ' + new Date(parseInt(timestamp)).toLocaleString();    
+}
+
 document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
 
