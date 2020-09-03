@@ -3,3 +3,7 @@ exports.asyncForEach = async function asyncForEach(array, callback) {
         await callback(array[index], index, array);
     }
 }
+
+exports.isEmptyObject = function(obj) {
+    return !Object.keys(obj).length;
+}
