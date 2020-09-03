@@ -31,7 +31,6 @@ router.get('/', function (req, res, next) {
 
     let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
     let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
-    // console.log("composer", composer);
     if (loadedAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
@@ -40,7 +39,6 @@ router.get('/', function (req, res, next) {
     let historyTimes = state.history.map(h => h.timestamp);
     historyTimes.sort();
     let firstEntry = historyTimes[0];
-    // console.log("aa", firstEntry);
     
     res.render('index', {
         nonce: res.locals.nonce,
@@ -49,9 +47,6 @@ router.get('/', function (req, res, next) {
         composerInfo: composer,
         timestamp: loadedSlotTimestamp,
         firstEntry
-    }, (err, html) => {
-        console.log("error:", err);
-        res.send(html);
     });
 });
 
@@ -60,10 +55,8 @@ router.get('/getInfo', function (req, res, next) {
     //TODO history - add query string val of history timestamp to pull composer info and audio files
     let historyTimestamp = parseInt(req.query.history) || 0;
     let historySlot = state.history.filter(h => h.timestamp < historyTimestamp ).slice(-1)[0];
-    // console.log("history info", historySlot);
 
     let loadedAudio = historySlot ? historySlot.audio : [ ...state.currentState.audio ];
-    // console.log("history info", loadedAudio);
     loadedAudio = loadedAudio.map(a => {
         let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
         if (!audio) {
@@ -78,7 +71,6 @@ router.get('/getInfo', function (req, res, next) {
 
     let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
     let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
-    // console.log("composer", composer);
     if (loadedAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
@@ -118,37 +110,23 @@ router.get('/history', function (req, res, next) {
 });
 
 router.get('/past-composers', function (req, res, next) {
-    let composers = Composers.composers.map(c => Object.assign({}, c));
-    let composerHistories = {};
-    state.history.forEach(h => {
-        if(!composerHistories[h.composerID]) composerHistories[h.composerID] = [];
-        composerHistories[h.composerID].push(h.timestamp);
-    }); 
+    // Copy composers object
+    let composers = [ ...Composers.composers ];
 
-    console.log("compoesr histories", composerHistories)
-
+    // For each composer, chronologically enumerate each timestamp of composer's historical states
+    //  and add them to the composer object
     composers.forEach(c => {
-        if(composerHistories[c.composerID]) {
-            composerHistories[c.composerID].sort();
-            composerHistories[c.composerID] = composerHistories[c.composerID].map((e, i) => [e, i]);
-        }
-        c.history = composerHistories[c.composerID] || [];
-        console.log("c", c);
+        let sortedComposerStates = state.history
+                                    .filter(s => s.composerID == c.composerID)
+                                    .sort((s1, s2) => s1.timestamp < s2.timestamp)
+        let enumeratedComposerTimestamps = sortedComposerStates.map((s, i) => [s.timestamp, i]);
+        c.history = enumeratedComposerTimestamps || [];
     });
-
-    
 
     res.render("past_composers", {
         composerInfo: composers,
-        composerHistories,
         nonce: res.locals.nonce
-    }, 
-    (err, html) => {
-        console.log("error:", err);
-        res.send(html);
     });
-
-    console.log("yo")
 });
 
 router.get('/composer', function (req, res, next) {

@@ -11,11 +11,12 @@ class Composers {
         this.logger = getLogger("Composers");
         this.tableName = "Composers";
         this.composerTable = base(this.tableName);
+        this.composers = [];
         this.getComposers();
     }
 
     async getComposers() {
-        this.composers = [];
+        let composers = [];
         try {
             let records = await this.composerTable.select({
                 view: 'Grid view'
@@ -24,14 +25,15 @@ class Composers {
                 let composer = this.parseComposer(record);
                 if (!composer.key) {
                     composer = await this.setComposerKey(composer)
-                    this.composers.push(composer);
+                    composers.push(composer);
                 }
-                else this.composers.push(composer);
+                else composers.push(composer);
             });
             this.logger.debug("composers loaded");
         } catch (err) {
             this.logger.error("unable to get composers", err);
         }
+        this.composers = composers;
         return this.composers;
     }
 
@@ -66,11 +68,12 @@ class Admins {
         this.logger = getLogger("Admins");
         this.tableName = "Admins";
         this.adminTable = base(this.tableName);
+        this.admins = [];
         this.getAdmins();
     }
 
     async getAdmins() {
-        this.admins = [];
+        let admins = [];
         try {
             let records = await this.adminTable.select({
                 view: 'Grid view'
@@ -83,7 +86,8 @@ class Admins {
         } catch (err) {
             this.logger.error("unable to get admins", err);
         }
-        return this.composers;
+        this.admins = admins;
+        return this.admins;
     }
 
     parseAdmin(record) {
