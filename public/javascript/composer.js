@@ -343,7 +343,12 @@ function animateAudioData(audioDataPromise, slotIndex) {
 
     return audioDataPromise
         .then(response => response.arrayBuffer())
-        .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+        .then(arrayBuffer => {
+            let bufferPromise = new Promise(resolve => {
+                audioCtx.decodeAudioData(arrayBuffer, resolve);
+            });
+            return bufferPromise
+        })
         .then(audioBuffer => visualize(audioBuffer, wf.viewHeight, slotIndex))
         .then(({ waveformWidth, svg }) => {
             let animateViewHeight = wf.viewHeight * 2;
