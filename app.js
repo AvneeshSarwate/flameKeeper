@@ -74,7 +74,7 @@ app.use((req, res, next) => {
       fontSrc: ["'self'", "fonts.gstatic.com"],
       connectSrc: ["'self'", "*.amazonaws.com"],
       mediaSrc: ["'self'", "*.amazonaws.com", "blob:"],
-      imgSrc: ["'self'", "*.airtable.com"]
+      imgSrc: ["'self'", "*.airtable.com", "data:"]
     }
   })(req, res, next);
 });
