@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { state } = require('../state');
-const { Composers } = require('../airtable');
+const { Composers, Admins, Copy } = require('../airtable');
 const { getLogger } = require('../logger');
 const { compose } = require('async');
 
@@ -43,6 +43,8 @@ router.get('/', function (req, res, next) {
     
     res.render('index', {
         nonce: res.locals.nonce,
+        copy: Copy.copy,
+        admins: Admins.admins.filter(a => a.active),
         audio: JSON.stringify(loadedAudio),
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer,
