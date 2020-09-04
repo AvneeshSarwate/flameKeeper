@@ -4,6 +4,7 @@ const router = express.Router();
 const { state } = require('../state');
 const { Composers } = require('../airtable');
 const { getLogger } = require('../logger');
+const { compose } = require('async');
 
 const logger = getLogger("main");
 

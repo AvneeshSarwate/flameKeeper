@@ -61,6 +61,20 @@ class Composers {
             "active": record.get("active") || false
         };
     }
+
+    isValidAccessCode(accessCode) {
+        let composer = this.composers.find(c => c.key == accessCode);
+        if (composer) {
+            if (composer.active) return { composer };
+            return { error: "The access code provided is no longer valid." };
+        } else return { error: "The access code provided was not recognized." };
+    }
+
+    isActive(composerID) {
+        let composer = this.composers.find(c => c.composerID == composerID);
+        if (composer && composer.active) return true;
+        return false;
+    }
 }
 
 class Admins {
@@ -96,6 +110,20 @@ class Admins {
             "key": record.get("key"),
             "active": record.get("active") || false
         };
+    }
+
+    isValidAccessCode(accessCode) {
+        let admin = this.admins.find(c => c.key == accessCode);
+        if (admin) {
+            if (admin.active) return { admin };
+            return { error: "The access code provided is no longer valid." };
+        } else return { error: "The access code provided was not recognized." };
+    }
+
+    isActive(composerID) {
+        let composer = composers.find(c => c.composerID == composerID);
+        if (composer && composer.active) return true;
+        return false;
     }
 }
 
