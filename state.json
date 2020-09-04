@@ -69,21 +69,14 @@
 			"filename": "ac5f0d01-bdd9-4623-81c1-c63855cdd5be-rimshot.mp3",
 			"lengthSeconds": 0.418,
 			"uploadedAt": 1597375100649
-		},
-		{
-			"audioID": "4d1eb66a-4625-4990-92e3-09733c2c6a83",
-			"name": "intensity.mp3",
-			"filename": "4d1eb66a-4625-4990-92e3-09733c2c6a83-intensity.mp3",
-			"lengthSeconds": 62.25,
-			"uploadedAt": 1599157112579
 		}
 	],
 	"currentState": {
-		"composerID": "rec4XSKYYT84Ehmnn",
-		"timestamp": 1599157112835,
+		"composerID": "6ff99cc4-61f0-4007-aa25-a2e5121b9d1d",
+		"timestamp": 1599226571209,
 		"audio": [
 			{
-				"audioID": "4d1eb66a-4625-4990-92e3-09733c2c6a83",
+				"audioID": "20655c41-22bf-40f4-ae79-381a798fb96e",
 				"volume": 1
 			},
 			{
@@ -95,8 +88,8 @@
 				"volume": 1
 			},
 			{
-				"audioID": "ac5f0d01-bdd9-4623-81c1-c63855cdd5be",
-				"volume": 0.37621981819275896
+				"audioID": "1a4dea42-195f-4b97-8ba6-9855a081c4bd",
+				"volume": 0.8359933622887095
 			},
 			{
 				"audioID": "1b3556f1-733f-4a47-a38f-6e60c7c76755",
@@ -1098,41 +1091,7 @@
 					"volume": 1
 				}
 			]
-		},
-		{
-			"composerID": "6ff99cc4-61f0-4007-aa25-a2e5121b9d1d",
-			"timestamp": 1599154165269,
-			"audio": [
-				{
-					"audioID": "20655c41-22bf-40f4-ae79-381a798fb96e",
-					"volume": 1
-				},
-				{
-					"audioID": "9cac31d4-4e60-4a3d-b87c-cfc9149f82c6",
-					"volume": 1
-				},
-				{
-					"audioID": "9cac31d4-4e60-4a3d-b87c-cfc9149f82c6",
-					"volume": 1
-				},
-				{
-					"audioID": "ac5f0d01-bdd9-4623-81c1-c63855cdd5be",
-					"volume": 0.37621981819275896
-				},
-				{
-					"audioID": "1b3556f1-733f-4a47-a38f-6e60c7c76755",
-					"volume": 1
-				},
-				{
-					"audioID": "42733c15-5cb1-4ba0-a7ea-c3818bd96ae9",
-					"volume": 1
-				},
-				{
-					"audioID": "42733c15-5cb1-4ba0-a7ea-c3818bd96ae9",
-					"volume": 1
-				}
-			]
 		}
 	],
-	"lastEdit": 1599157112835
+	"lastEdit": 1599226571209
 }
