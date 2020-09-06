@@ -42,6 +42,7 @@ if(urlHistory){
 
 document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
+document.getElementById('playAudio').addEventListener('click', playAudio);
 
 let selected_waveform = null;
 let audioElements = [];
@@ -53,6 +54,13 @@ let file_is_replaced = false;
 let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
 let submissionData = {};
 let candidateFileUrl = null;
+
+[0, 1, 2, 3, 4, 5, 6].forEach(() => createSingleAudioElement());
+
+function playAudio() {
+    audioElements.map(a => a.play());
+    console.log("audio elements played");
+}
 
 function undoReplace() {
     document.getElementById('undo_button').classList.add('hide');
@@ -393,17 +401,18 @@ function replaceAudioSlotWithFile(file, slotIndex) {
     });
 }
 
-function createAudioElement(wf, slotIndex) {
+function createSingleAudioElement() {
     const audio = new Audio();
+    audio.autoplay = false;
     audio.crossOrigin = 'anonymous';
+    audioElements.push(audio);
+    document.body.appendChild(audio);
+}
+
+function createAudioElement(wf, slotIndex) {
+    const audio = audioElements[slotIndex];
     if (returns.length > 0) audio.src = wf.url;
     audio.loop = true;
-
-    //- setTimeout(function() {
-    //-   audio.play();
-    //- }, 5000);
-
-    // audio.addEventListener("canplaythrough", () => { audio.play() });
 
     let audioPromise = new Promise((resolve) => {
         audio.oncanplaythrough = () => resolve(audio);
@@ -414,9 +423,6 @@ function createAudioElement(wf, slotIndex) {
 
     audioElementPromises.push(audioPromise);
 
-    audioElements.push(audio);
-
-    document.body.appendChild(audio);
     const source = audioCtx.createMediaElementSource(audio);
 
     //- const panner = new PannerNode(audioCtx);
@@ -654,6 +660,7 @@ function begin() {
 
     document.getElementById('beginButton').classList.add('hide');
     document.getElementById('fullscreen').classList.remove('hide');
+    document.getElementById('playAudio').classList.remove('hide');
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
