@@ -123,7 +123,7 @@ class Admins {
     }
 
     isActive(composerID) {
-        let composer = composers.find(c => c.composerID == composerID);
+        let composer = this.admins.find(c => c.composerID == composerID);
         if (composer && composer.active) return true;
         return false;
     }
