@@ -664,45 +664,45 @@ function begin() {
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
-    });
 
-    //document.addEventListener("DOMContentLoaded", function() {
-    const container = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    if (DEBUG) {
-        container.setAttribute("style", "border: 1px solid black;"); // just for visualization
-    }
-    container.setAttribute("width", "100%");
-    container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
-    document.getElementById("installation").prepend(container);
-    container.appendChild(createZigZag());
-
-    let drawPromises = [];
-
-    waveforms.forEach((wf, i) => {
-        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        group.setAttribute("transform", wf.transform);
-        group.setAttribute("id", "group-" + i);
-
-        drawWaveformBackground(wf, group, i);
-
-        drawZeroLine(wf, group);
-
-        if (wf.zIndex < 0) {
-            container.prepend(group);
-        } else {
-            container.appendChild(group);
+        //document.addEventListener("DOMContentLoaded", function() {
+        const container = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        if (DEBUG) {
+            container.setAttribute("style", "border: 1px solid black;"); // just for visualization
         }
+        container.setAttribute("width", "100%");
+        container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
+        document.getElementById("installation").prepend(container);
+        container.appendChild(createZigZag());
 
-        drawPromises.push(animateAudioData(fetch(wf.url), i));
+        let drawPromises = [];
 
-        createAudioElement(wf, i);
-    });
+        waveforms.forEach((wf, i) => {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute("transform", wf.transform);
+            group.setAttribute("id", "group-" + i);
 
-    Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
-        console.log("ready to play");
-        audioElements.map((a, i) => {
-            a.play();
-            delays[i].delayTime.value = getVisualSyncDelay(i);
+            drawWaveformBackground(wf, group, i);
+
+            drawZeroLine(wf, group);
+
+            if (wf.zIndex < 0) {
+                container.prepend(group);
+            } else {
+                container.appendChild(group);
+            }
+
+            drawPromises.push(animateAudioData(fetch(wf.url), i));
+
+            createAudioElement(wf, i);
+        });
+
+        Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
+            console.log("ready to play");
+            audioElements.map((a, i) => {
+                // a.play();
+                delays[i].delayTime.value = getVisualSyncDelay(i);
+            });
         });
     });
 }

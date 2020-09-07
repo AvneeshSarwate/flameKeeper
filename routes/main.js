@@ -53,6 +53,10 @@ router.get('/', function (req, res, next) {
     });
 });
 
+router.get('/ios_test', function (req, res, next) {
+    res.render('ios_test');
+});
+
 
 router.get('/getInfo', function (req, res, next) {
     //TODO history - add query string val of history timestamp to pull composer info and audio files
