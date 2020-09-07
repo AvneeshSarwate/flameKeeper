@@ -1,6 +1,7 @@
 let audioElements = [];
 let gains = []; 
 let delays = []; 
+let oscillators = [];
 
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
@@ -15,6 +16,19 @@ function createSingleAudioElement() {
 
 createSingleAudioElement();
 
+
+/*
+ORDER OF TESTING EVENTS - 
+1. click begin button (text, "load audio")
+2. click test-play button (text, "play audio element")
+
+Observed behavior
+- Audio elements fail to play when USE_WEB_AUDIO is true.
+- However, oscillator still plays when USE_WEB_AUDIO is true.
+- Unexpected: Oscillator doesn't play after first click, but after second. 
+- Unexpected: Oscillator only plays after both buttons have been pressed (IN EITHER ORDER)
+*/ 
+
 document.getElementById('begin').addEventListener('click', setUpAudio);
 document.getElementById('test-play').addEventListener('click', playAudio);
 
@@ -27,6 +41,7 @@ function setUpAudio(){
 }
 
 let USE_WEB_AUDIO = true;
+let CREATE_DEBUG_OSCILLATOR = true;
 
 function setURLToElement(slotIndex){
     const audio = audioElements[slotIndex];
@@ -52,6 +67,13 @@ function setURLToElement(slotIndex){
         compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
 
         source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
+
+        if(CREATE_DEBUG_OSCILLATOR){
+            let osc = audioCtx.createOscillator();
+            osc.connect(audioCtx.destination);
+            osc.start();
+            oscillators.push(osc);
+        }
     }
 }
 
@@ -60,36 +82,3 @@ function playAudio() {
     console.log("audio elements played");
     document.getElementById('message').innerText = "play button hit";
 }
-
-
-(function() {
-	window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	if (window.AudioContext) {
-		window.audioContext = new window.AudioContext();
-	}
-	var fixAudioContext = function (e) {
-		if (window.audioContext) {
-			// Create empty buffer
-			var buffer = window.audioContext.createBuffer(1, 1, 22050);
-			var source = window.audioContext.createBufferSource();
-			source.buffer = buffer;
-			// Connect to output (speakers)
-			source.connect(window.audioContext.destination);
-			// Play sound
-			if (source.start) {
-				source.start(0);
-			} else if (source.play) {
-				source.play(0);
-			} else if (source.noteOn) {
-				source.noteOn(0);
-			}
-		}
-		// Remove events
-		document.removeEventListener('touchstart', fixAudioContext);
-		document.removeEventListener('touchend', fixAudioContext);
-	};
-	// iOS 6-8
-	document.addEventListener('touchstart', fixAudioContext);
-	// iOS 9
-	document.addEventListener('touchend', fixAudioContext);
-})();
