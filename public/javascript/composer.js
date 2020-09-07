@@ -425,8 +425,6 @@ function createAudioElement(wf, slotIndex) {
 
     const source = audioCtx.createMediaElementSource(audio);
 
-    //- const panner = new PannerNode(audioCtx);
-
     const compressor = audioCtx.createDynamicsCompressor();
     const gain = audioCtx.createGain();
     gain.gain.value = audioData[slotIndex].volume;
@@ -442,8 +440,6 @@ function createAudioElement(wf, slotIndex) {
     compressor.attack.setValueAtTime(0, audioCtx.currentTime);
     compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
 
-    //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
-    //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
     source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
 }
 
