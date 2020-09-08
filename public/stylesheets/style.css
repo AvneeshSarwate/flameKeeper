@@ -1,14 +1,18 @@
 @charset "utf-8";
 /* Global Styles */
 
+:root {
+	--gradient-speed: 259s;
+  }
+
 .css-selector {
     background: linear-gradient(234deg, #195646, #203558, #45541e, #3b165a, #5f3d1b, #691636, #175867, #564f15, #1a4352, #1c4a5c, #5c411c, #5c1c54, #193b63);
     background-size: 1600% 100000%;
 
-    -webkit-animation: AnimationName 259s ease infinite;
-    -moz-animation: AnimationName 259s ease infinite;
-    -o-animation: AnimationName 259s ease infinite;
-    animation: AnimationName 259s ease infinite;
+    -webkit-animation: AnimationName var(--gradient-speed) ease infinite;
+    -moz-animation: AnimationName var(--gradient-speed) ease infinite;
+    -o-animation: AnimationName var(--gradient-speed) ease infinite;
+    animation: AnimationName var(--gradient-speed) ease infinite;
 }
 
 @-webkit-keyframes AnimationName {

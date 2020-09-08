@@ -2,24 +2,52 @@ const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
 var gui = new dat.GUI();
-let zooms = {
+let swapClick = i => document.getElementById('fileSwap-'+i).click();
+let controllerProps = {
     zoom0: 1,
     zoom1: 1,
     zoom2: 1,
     zoom3: 1,
     zoom4: 1,
     zoom5: 1,
-    zoom6: 1
+    zoom6: 1,
+    color1: [ 0, 128, 255 ],
+    color2: [ 0, 128, 255 ],
+    colorSpeed: 259,
+    swap_file_0: () => {swapClick(0)},
+    swap_file_1: () => {swapClick(1)},
+    swap_file_2: () => {swapClick(2)},
+    swap_file_3: () => {swapClick(3)},
+    swap_file_4: () => {swapClick(4)},
+    swap_file_5: () => {swapClick(5)},
+    swap_file_6: () => {swapClick(6)},
+    show_wave_numbers: true
 };
 
 const MAX_ZOOM_OUT = 3;
 
 [0, 1, 2, 3, 4, 5, 6].forEach(i => {
-    gui.add(zooms, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
+    gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
         waveforms[i].waveZoom = v;
         delays[i].delayTime.value = getVisualSyncDelay(i);
     });
-})
+});
+// gui.addColor(controllerProps, 'color1');
+// gui.addColor(controllerProps, 'color2');
+
+[0, 1, 2, 3, 4, 5, 6].forEach(i => {
+    gui.add(controllerProps, 'swap_file_'+i);
+    document.getElementById('fileSwap-'+i).addEventListener('change', (e) => {
+        replaceAudioSlotWithFile(e.target.files[0], i);
+    });
+});
+
+gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
+    let visibility = v ? 'visible' : 'hidden';
+    let labels = document.getElementsByTagNameNS("http://www.w3.org/2000/svg", "text");
+    [0, 1, 2, 3, 4, 5, 6].forEach(i => {labels[i].style.visibility = visibility});
+});
+
 
 
 if (isComposer) {
@@ -450,15 +478,23 @@ function toggleGroupBorders() {
 
 function drawWaveformBackground(wf, group, i) {
     const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    const view_height = wf.viewHeight * (wf.mirrored ? 2 : 1);
     bgRect.setAttribute("x", 0);
     bgRect.setAttribute("y", 0);
-    bgRect.setAttribute("height", wf.viewHeight * (wf.mirrored ? 2 : 1));
+    bgRect.setAttribute("height", view_height);
     bgRect.setAttribute("width", wf.viewWidth);
     bgRect.setAttribute("fill", TRANSPARENT_COLOR);
     bgRect.setAttribute("stroke", 'white');
     bgRect.setAttribute('stroke-width', '0px');
     bgRect.setAttribute('id', 'bgRect-' + i);
 
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.textContent = "" + i;
+    label.setAttribute("x", wf.viewWidth/2);
+    label.setAttribute("y", view_height/2);
+    label.setAttribute("fill", "red");
+
+    group.appendChild(label);
     group.appendChild(bgRect);
 
     if (isComposer) {
