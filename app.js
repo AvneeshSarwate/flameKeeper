@@ -39,7 +39,7 @@ exports.sessionStore = sessionStore;
 const sess = {
   store: sessionStore,
   secret: process.env.EXPRESS_SESSION_SECRET,
-  cookie: {maxAge: 60000},
+  cookie: {maxAge: 24 * 60 * 60 * 1000}, // 24hr duration
   resave: false,
   saveUninitialized: true
 };
@@ -89,9 +89,9 @@ app.use('/', mainRouter);
 const { adminRouter } = require('./routes/admin');
 app.use('/', adminRouter);
 
-// Redirect 404 to main page
+// Redirect 404 HTML requests to main page
 app.use(function (req, res, next) {
-  res.redirect('/');
+  if (req.accepts("html")) res.redirect('/');
 });
 
 // Error handler

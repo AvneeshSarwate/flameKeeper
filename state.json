@@ -73,7 +73,7 @@
 	],
 	"currentState": {
 		"composerID": "6ff99cc4-61f0-4007-aa25-a2e5121b9d1d",
-		"timestamp": 1598852299935,
+		"timestamp": 1599226571209,
 		"audio": [
 			{
 				"audioID": "20655c41-22bf-40f4-ae79-381a798fb96e",
@@ -88,8 +88,8 @@
 				"volume": 1
 			},
 			{
-				"audioID": "1b3556f1-733f-4a47-a38f-6e60c7c76755",
-				"volume": 1
+				"audioID": "1a4dea42-195f-4b97-8ba6-9855a081c4bd",
+				"volume": 0.8359933622887095
 			},
 			{
 				"audioID": "1b3556f1-733f-4a47-a38f-6e60c7c76755",
@@ -1057,7 +1057,41 @@
 					"volume": 1
 				}
 			]
+		},
+		{
+			"composerID": "6ff99cc4-61f0-4007-aa25-a2e5121b9d1d",
+			"timestamp": 1598852299935,
+			"audio": [
+				{
+					"audioID": "20655c41-22bf-40f4-ae79-381a798fb96e",
+					"volume": 1
+				},
+				{
+					"audioID": "9cac31d4-4e60-4a3d-b87c-cfc9149f82c6",
+					"volume": 1
+				},
+				{
+					"audioID": "9cac31d4-4e60-4a3d-b87c-cfc9149f82c6",
+					"volume": 1
+				},
+				{
+					"audioID": "1b3556f1-733f-4a47-a38f-6e60c7c76755",
+					"volume": 1
+				},
+				{
+					"audioID": "1b3556f1-733f-4a47-a38f-6e60c7c76755",
+					"volume": 1
+				},
+				{
+					"audioID": "42733c15-5cb1-4ba0-a7ea-c3818bd96ae9",
+					"volume": 1
+				},
+				{
+					"audioID": "42733c15-5cb1-4ba0-a7ea-c3818bd96ae9",
+					"volume": 1
+				}
+			]
 		}
 	],
-	"lastEdit": 1598852299935
+	"lastEdit": 1599226571209
 }

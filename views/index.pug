@@ -1,6 +1,6 @@
 extends layout
 block content  
-  body(class='css-selector')               
+  body(class='css-selector')
     //-- Header content
     header
       .profileLogo
@@ -17,13 +17,12 @@ block content
 
         button(id="beginButton") BEGIN
       
-      //- Identity details
+      //- Header
       section.profileHeader
-        //- button(id="btn") Play
-        h1 The FlameKeeper
-        h3 A LIVE STREAMING ART INSTALLATION&nbsp;
-        p
-          | Introductory text about the project goes here. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in.
+        h1 #{copy.title[0]}
+        h3 #{copy.subtitle[0].toUpperCase()}
+        for paragraph in copy.introduction
+          p #{paragraph}
         br
       hr
       br
@@ -33,52 +32,38 @@ block content
       .profilePhoto
         //- Profile photo
         img(src=composer.photo alt='sample' id='composer-photo')
-      //- Identity details
+      
       //- TODO history - populate profile info from template
       section.profileHeader
         h3(id='time-header') This Week&apos;s Curator
-        h1(id='composer-name') !{composer.name}
-        p(id='composer-bio')
-          | !{composer.bio}
+        h1(id='composer-name') #{composer.name}
+        p(id='composer-bio') #{composer.bio}
         p
           a(href='/past-composers') See all our past curators &raquo;
     //- content
     section.mainContent
-      //- Contact details
+      //- Detailed description of the installation
       section.section1
         h2.sectionTitle How It Works
         hr.sectionTitleRule
         hr.sectionTitleRule2
         .section1Content
-          
-          h2.sectionContentTitle Our FlameKeepers
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Nam liber tempor cum soluta nobis eleifend option congue ihil imperdiet doming id quod mazim placerat facer possim assum.
-          h2.sectionContentTitle The 7-Hour Lockdown
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-          h2.sectionContentTitle Ghosts from the Past
-          p.sectionContent
-            | Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
-      
-      //- Previous experience details
+          for paragraph, i in copy['how-it-works']
+            //- expects subtitle, paragraph, empty line
+            if i % 3 === 0
+              p.sectionContentTitle #{paragraph}
+            else
+              p.sectionContent #{paragraph}
+      //- Contributors to the installation
       section.section2
-        h2.sectionTitle Meet the  TEAM
+        h2.sectionTitle Meet The Team
         hr.sectionTitleRule
         hr.sectionTitleRule2
-        //- First Title & company details
-        article.section2Content
-          h2.sectionContentTitle Full Name
-          h3.sectionContentSubTitle Role on Project, Professional Role
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-        //- Second Title & company details
-        article.section2Content
-          h2.sectionContentTitle Full Name
-          h3.sectionContentSubTitle Role on Project, Professional Role
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-        //- Replicate the above Div block to add more title and company details
+        for admin in admins
+          article.section2Content
+            h2.sectionContentTitle #{admin.name}
+            h3.sectionContentSubTitle #{admin.role}
+            p.sectionContent #{admin.description}
     footer
       hr
       p.footerDisclaimer

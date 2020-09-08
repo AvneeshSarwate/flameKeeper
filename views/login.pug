@@ -1,9 +1,27 @@
 extends layout
 block content
-	p Please submit the access code provided to you by Metropolis Ensemble.
-	form(method="POST" action=`/login` id="loginForm")
-		label(for="accessCode" class="sr-only") Access Code
-		input(type="password" name="accessCode" id="accessCode" class="form-control" placeholder="Access Code" required)
-		button(type="submit") Submit
-		if error
-			p= error
+	body(class='css-selector')
+		//-- Header content
+	header
+		.profileLogo
+		//-- Profile logo. Add a img tag in place of <span>.
+		p.logoPlaceholder
+			img(src='./images/me-logo-wht.png' alt='sample logo')            
+	//- content
+	section.mainContent
+		section.section1
+			.section1Content
+				p Please submit the access code provided to you by Metropolis Ensemble.
+				form(method="POST" action=`/login` id="loginForm")
+					input(type="password" name="accessCode" id="accessCode" class="form-control" placeholder="Access Code" required)
+					button(type="submit" style="margin-left: 10px") Submit
+					if error
+						p= error
+	footer
+		hr
+		p.footerDisclaimer
+			| &copy; 2020 Metropolis Ensemble - 
+			span All Rights Reserved
+		p.footerNote
+			| Contact Us - 
+			span Email / Social

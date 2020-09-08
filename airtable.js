@@ -61,6 +61,20 @@ class Composers {
             "active": record.get("active") || false
         };
     }
+
+    isValidAccessCode(accessCode) {
+        let composer = this.composers.find(c => c.key == accessCode);
+        if (composer) {
+            if (composer.active) return { composer };
+            return { error: "The access code provided is no longer valid." };
+        } else return { error: "The access code provided was not recognized." };
+    }
+
+    isActive(composerID) {
+        let composer = this.composers.find(c => c.composerID == composerID);
+        if (composer && composer.active) return true;
+        return false;
+    }
 }
 
 class Admins {
@@ -80,7 +94,7 @@ class Admins {
             }).all();
             await asyncForEach(records, async record => {
                 let admin = this.parseAdmin(record);
-                this.admins.push(admin);
+                admins.push(admin);
             });
             this.logger.debug("admins loaded");
         } catch (err) {
@@ -93,9 +107,53 @@ class Admins {
     parseAdmin(record) {
         return {
             "name": record.get("name"),
+            "role": record.get("role"),
+            "description": record.get("description"),
             "key": record.get("key"),
             "active": record.get("active") || false
         };
+    }
+
+    isValidAccessCode(accessCode) {
+        let admin = this.admins.find(c => c.key == accessCode);
+        if (admin) {
+            if (admin.active) return { admin };
+            return { error: "The access code provided is no longer valid." };
+        } else return { error: "The access code provided was not recognized." };
+    }
+
+    isActive(composerID) {
+        let composer = this.admins.find(c => c.composerID == composerID);
+        if (composer && composer.active) return true;
+        return false;
+    }
+}
+
+class Copy {
+    constructor() {
+        this.logger = getLogger("Copy");
+        this.tableName = "Copy";
+        this.copyTable = base(this.tableName);
+        this.copy = {};
+        this.getCopy();
+    }
+
+    async getCopy() {
+        let copy = {};
+        try {
+            let records = await this.copyTable.select({
+                view: 'Grid view'
+            }).all();
+            await asyncForEach(records, async record => {
+                let section = record.get("section");
+                let sectionCopy = record.get("copy").split('\n');
+                if (section) copy[section] = sectionCopy;
+            });
+        } catch (err) {
+            this.logger.error("unable to get copy", err);
+        }
+        this.copy = copy;
+        return this.copy;
     }
 }
 
@@ -104,6 +162,7 @@ class AirtableManager {
         this.logger = getLogger("AirtableManager");
         this.composers = new Composers();
         this.admins = new Admins();
+        this.copy = new Copy();
         this.updateFreq = 2000;
         this.start();
     }
@@ -121,6 +180,7 @@ class AirtableManager {
         try {
             await this.composers.getComposers();
             await this.admins.getAdmins();
+            await this.copy.getCopy();
             this.logger.debug("successfully re-synced airtable data");
         } catch (err) {
             logger.error(err);
@@ -132,4 +192,5 @@ let airtableManager = new AirtableManager();
 
 exports.Composers = airtableManager.composers;
 exports.Admins = airtableManager.admins;
+exports.Copy = airtableManager.copy;
 exports.AirtableManager = airtableManager;

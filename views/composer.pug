@@ -17,13 +17,13 @@ block content
           div(id='single_panel')
             span(id='replace_file_span')
               input(id='replace_file_input' type='file')
-            button(id='undo_button' class="hide") Undo
             span(id='vol_span' class="hide")
               label(for='vol') New File Gain: 
               input(id='vol' type='range' min='0' max='2' value='1' step='0.01')
               span(id='vol_val') 1
               br
-
+            button(id='undo_button' class="hide") Undo
+            button(id='replace_file_submit' class="hide") Submit
         
         //-- TODO - change instructions copy depending on whether page is single or multi file replacement
 

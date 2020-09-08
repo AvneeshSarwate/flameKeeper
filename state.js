@@ -5,6 +5,7 @@ const getMP3Duration = require('get-mp3-duration');
 const s3 = require('./s3');
 const constants = require('./constants');
 const { getLogger } = require('./logger');
+const { isEmptyObject } = require('./util');
 
 class State {
     /* Spec:
@@ -123,7 +124,7 @@ class State {
     async editCurrentState(composerID, newAudio) {
         if (this.currentState) {
             let currentState = { ...this.currentState };
-            this.history.push(currentState);
+            if (!isEmptyObject(currentState)) this.history.push(currentState);
         }
         let now = Date.now();
         this.currentState = {
