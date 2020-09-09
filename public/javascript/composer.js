@@ -82,7 +82,7 @@ function playAudio() {
         players.map((p, i) => {
             let audioDur = p.buffer.length * p.sampleTime;
             let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
-            loopTrackers[i] = new Tone.Loop(() => {}, audioDur);
+            loopTrackers[i] = new Tone.Loop(() => {p.start()}, audioDur+0.0002);
             loopOffsets[i] = seekTime / audioDur;
             p.seek(seekTime);
             p.start(nowTime);
@@ -497,7 +497,7 @@ function createAudioElement(wf, slotIndex) {
 
 function createTonePlayer(wf, slotIndex) {
     let player = new Tone.Player();
-    player.loop = true;
+    // player.loop = true;
     let playerPromise = player.load(wf.url);
 
     players.push(player);
