@@ -62,22 +62,22 @@ app.use((req, res, next) => {
   next();
 })
 
-app.use(helmet({
-  contentSecurityPolicy: false
-}));
-app.use((req, res, next) => {
-  csp({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "*.amazonaws.com", `'nonce-${res.locals.nonce}'`],
-      styleSrc: ["'self'", "fonts.googleapis.com", "'unsafe-inline'"], // TODO: remove 'unsafe-inline' once dat.gui is removed
-      fontSrc: ["'self'", "fonts.gstatic.com"],
-      connectSrc: ["'self'", "*.amazonaws.com"],
-      mediaSrc: ["'self'", "*.amazonaws.com", "blob:"],
-      imgSrc: ["'self'", "*.airtable.com", "data:"]
-    }
-  })(req, res, next);
-});
+// app.use(helmet({
+//   contentSecurityPolicy: false
+// }));
+// app.use((req, res, next) => {
+//   csp({
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: ["'self'", "*.amazonaws.com", `'nonce-${res.locals.nonce}'`],
+//       styleSrc: ["'self'", "fonts.googleapis.com", "'unsafe-inline'"], // TODO: remove 'unsafe-inline' once dat.gui is removed
+//       fontSrc: ["'self'", "fonts.gstatic.com"],
+//       connectSrc: ["'self'", "*.amazonaws.com"],
+//       mediaSrc: ["'self'", "*.amazonaws.com", "blob:"],
+//       imgSrc: ["'self'", "*.airtable.com", "data:"]
+//     }
+//   })(req, res, next);
+// });
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());

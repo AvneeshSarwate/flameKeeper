@@ -74,6 +74,10 @@ document.getElementById('fullscreen').addEventListener('click', goFullScreen);
 let selected_waveform = null;
 let audioElements = [];
 let audioElementPromises = [];
+let players = [];
+let playerPromises = [];
+let loopOffsets = [];
+let loopTrackers = [];
 let waveformGroups = [];
 let gains = [];
 let delays = [];
@@ -469,6 +473,29 @@ function createAudioElement(wf, slotIndex) {
     source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
 }
 
+function createTonePlayer(wf, slotIndex) {
+    let player = new Tone.Player();
+    player.loop = true;
+    let playerPromise = player.load(wf.url);
+
+    players.push(player);
+    playerPromises.push(playerPromise);
+
+    const compressor = new Tone.Compressor(-10, 12);
+    compressor.knee.value = 40;
+    compressor.attack.value = 0;
+    compressor.release.value = 0.25;
+
+    const delay = new Tone.Delay(0, 10);
+    const gain = new Tone.Gain(audioData[slotIndex].volume);
+
+    delays.push(delay);
+    gains.push(gain);
+
+    player.chain(gain,delay, compressor, Tone.Destination);
+
+}
+
 function toggleGroupBorders() {
     [0, 1, 2, 3, 4, 5, 6].map(i => {
         const bgRect = document.getElementById('bgRect-' + i);
@@ -637,37 +664,28 @@ function normalizeData(filteredData) {
 
 function getVisualSyncDelay(slotIndex) {
     let wf = waveforms[slotIndex];
-    let aed = audioElements[slotIndex].duration;
+    let p = players[slotIndex];
+    let audioDur = p.buffer.length * p.sampleTime;
     let lineFrac = wf.linePercent; 
-    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*0) * aed * lineFrac;
+    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*0) * audioDur * lineFrac;
 }
 
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
-    let time = null;
     svg.setAttribute("width", viewWidth.toString());
     svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
     function draw(ts) {
         let waveZoom = waveforms[slotIndex].waveZoom;
         let zoomedViewWidth = viewWidth*waveZoom;
-        let audio = audioElements[slotIndex];
-        let audioProg = audio.currentTime / audio.duration;
-        if (time === null) {
-            time = ts;
+        if (!loopTrackers[slotIndex]) {
             requestAnimationFrame(draw);
             return;
         }
+        let audioProg = (loopTrackers[slotIndex].progress + loopOffsets[slotIndex]) % 1;
         if (!svg.parentElement) return; //if this wave has been removed, don't requeue animation for it
-        const diff = ts - time;
-        const move = (diff / 1000) * speed;
-        //have offset be determined buy currentTime on audio element
-        offset += move;
         offset = audioProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
         if(!isNaN(offset)) {
-            // if (offset > waveformWidth + zoomedViewWidth) {
-            //     offset = -1 * zoomedViewWidth;
-            // }
             svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
             time = ts;
         }
@@ -724,13 +742,31 @@ function begin() {
 
         drawPromises.push(animateAudioData(fetch(wf.url), i));
 
-        createAudioElement(wf, i);
+        createTonePlayer(wf, i);
     });
 
-    Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
+    // Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
+    //     console.log("ready to play");
+    //     audioElements.map((a, i) => {
+    //         a.play();
+    //         delays[i].delayTime.value = getVisualSyncDelay(i);
+    //     });
+    // });
+
+    Promise.all([playerPromises, drawPromises].flat()).then(() => {
         console.log("ready to play");
-        audioElements.map((a, i) => {
-            a.play();
+        Tone.start();
+        Tone.Transport.start();
+        let nowTime = Tone.now() + 0.25;
+        console.log("nowTime", nowTime);
+        players.map((p, i) => {
+            let audioDur = p.buffer.length * p.sampleTime;
+            let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
+            loopTrackers[i] = new Tone.Loop(() => {}, audioDur);
+            loopOffsets[i] = seekTime / audioDur;
+            p.seek(seekTime);
+            p.start(nowTime);
+            loopTrackers[i].start(nowTime);
             delays[i].delayTime.value = getVisualSyncDelay(i);
         });
     });

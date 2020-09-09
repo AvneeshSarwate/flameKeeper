@@ -106,7 +106,7 @@ block content
     <input id="fileSwap-4" type="file" style="display: none;" />
     <input id="fileSwap-5" type="file" style="display: none;" />
     <input id="fileSwap-6" type="file" style="display: none;" />
-    
+
     script(nonce=nonce).
       let returns = JSON.parse(`!{fileNames}`);
       let audioData = JSON.parse(`!{audio}`);
@@ -114,4 +114,5 @@ block content
       let timestamp = !{timestamp};
 
     script(nonce=nonce src='./javascript/dat.gui.min.js')
+    script(nonce=nonce src='./javascript/Tone.js')
     script(nonce=nonce src='./javascript/composer.js')
