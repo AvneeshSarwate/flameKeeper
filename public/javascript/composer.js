@@ -70,6 +70,27 @@ if(urlHistory){
 
 document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
+document.getElementById('playAudio').addEventListener('click', playAudio);
+
+function playAudio() {
+    Tone.start();
+    Tone.Transport.start();
+    Promise.all([playerPromises, drawPromises].flat()).then(() => {
+        console.log("ready to play");
+        let nowTime = Tone.now() + 0.25;
+        console.log("nowTime", nowTime);
+        players.map((p, i) => {
+            let audioDur = p.buffer.length * p.sampleTime;
+            let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
+            loopTrackers[i] = new Tone.Loop(() => {}, audioDur);
+            loopOffsets[i] = seekTime / audioDur;
+            p.seek(seekTime);
+            p.start(nowTime);
+            loopTrackers[i].start(nowTime);
+            delays[i].delayTime.value = getVisualSyncDelay(i);
+        });
+    });
+}
 
 let selected_waveform = null;
 let audioElements = [];
@@ -85,6 +106,7 @@ let file_is_replaced = false;
 let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
 let submissionData = {};
 let candidateFileUrl = null;
+let drawPromises = [];
 
 function undoReplace() {
     document.getElementById('undo_button').classList.add('hide');
@@ -708,6 +730,7 @@ function begin() {
 
     document.getElementById('beginButton').classList.add('hide');
     document.getElementById('fullscreen').classList.remove('hide');
+    document.getElementById('playAudio').classList.remove('hide');
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
@@ -722,8 +745,6 @@ function begin() {
     container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
     document.getElementById("installation").prepend(container);
     container.appendChild(createZigZag());
-
-    let drawPromises = [];
 
     waveforms.forEach((wf, i) => {
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -752,24 +773,6 @@ function begin() {
     //         delays[i].delayTime.value = getVisualSyncDelay(i);
     //     });
     // });
-
-    Promise.all([playerPromises, drawPromises].flat()).then(() => {
-        console.log("ready to play");
-        Tone.start();
-        Tone.Transport.start();
-        let nowTime = Tone.now() + 0.25;
-        console.log("nowTime", nowTime);
-        players.map((p, i) => {
-            let audioDur = p.buffer.length * p.sampleTime;
-            let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
-            loopTrackers[i] = new Tone.Loop(() => {}, audioDur);
-            loopOffsets[i] = seekTime / audioDur;
-            p.seek(seekTime);
-            p.start(nowTime);
-            loopTrackers[i].start(nowTime);
-            delays[i].delayTime.value = getVisualSyncDelay(i);
-        });
-    });
 }
 
 
