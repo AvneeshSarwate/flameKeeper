@@ -82,7 +82,16 @@ function playAudio() {
         players.map((p, i) => {
             let audioDur = p.buffer.length * p.sampleTime;
             let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
-            loopTrackers[i] = new Tone.Loop(() => {p.start()}, audioDur+0.0002);
+            let lastCallbackTime = 0;
+            loopTrackers[i] = new Tone.Loop((e) => {
+                p.stop(Tone.now()); 
+                p.start(Tone.now()+0.0005);
+                if(i == 4){
+                    let newTime = Tone.now();
+                    console.log("loop time", newTime - lastCallbackTime, e);
+                    lastCallbackTime = newTime;
+                }
+            }, audioDur+0.0002);
             loopOffsets[i] = seekTime / audioDur;
             p.seek(seekTime);
             p.start(nowTime);
