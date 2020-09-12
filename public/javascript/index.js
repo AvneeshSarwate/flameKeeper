@@ -70,10 +70,41 @@ if(urlHistory){
 
 document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
+document.getElementById('playAudio').addEventListener('click', playAudio);
+
+let transportStart = null;
+function playAudio() {
+    Tone.start();
+    Tone.Transport.start();
+    Promise.all([playerPromises, drawPromises].flat()).then(() => {
+        restartPlaybackAfterLoad();
+    });
+}
+
+function restartPlaybackAfterLoad() {
+    console.log("ready to play");
+    let nowTime = Tone.now() + 0.25;
+    transportStart = nowTime;
+    console.log("nowTime", nowTime);
+    players.map((p, i) => {
+        let audioDur = p.buffer.length * p.sampleTime;
+        let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
+        loopOffsets[i] = seekTime;
+        p.seek(seekTime-0.01);
+        p.start(nowTime);
+        delays[i].delayTime.value = getVisualSyncDelay(i);
+    });
+}
+
+
 
 let selected_waveform = null;
 let audioElements = [];
 let audioElementPromises = [];
+let players = [];
+let playerPromises = [];
+let loopOffsets = [];
+let loopTrackers = [];
 let waveformGroups = [];
 let gains = [];
 let delays = [];
@@ -81,6 +112,7 @@ let file_is_replaced = false;
 let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
 let submissionData = {};
 let candidateFileUrl = null;
+let drawPromises = [];
 
 function undoReplace() {
     document.getElementById('undo_button').classList.add('hide');
@@ -200,21 +232,14 @@ function jumpToHistory() {
 }
 
 function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
-    let audio = audioElements[slotIndex];
     let url = `https://flamekeeper.s3.amazonaws.com/${filename}`;
     
     gains[slotIndex].gain.value = gainVal;
-    audio.src = url;
-    animateAudioData(fetch(url), slotIndex);
+    let waveDrawPromise = animateAudioData(fetch(url), slotIndex);
 
-    let audioPromise = new Promise((resolve) => {
-        audio.oncanplaythrough = () => resolve(audio);
-    }).then(audio => new Promise((resolve) => {
-        audio.currentTime = (audioTime / 1000) % audio.duration; 
-        audio.onseeked = () => resolve(audio);
-    }));
+    let playerPromise = players[slotIndex].load(url);
 
-    return audioPromise;
+    return [playerPromise, waveDrawPromise];
 }
 
 function getInstallationByTimestamp(timestamp) {
@@ -230,12 +255,9 @@ function getInstallationByTimestamp(timestamp) {
 
             audioData = jsonData.loadedAudio;
             
-            let newAudioPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i));
-            Promise.all(newAudioPromises).then(audioElems => {
-                audioElems.map((a, i) => {
-                    a.play();
-                    delays[i].delayTime.value = getVisualSyncDelay(i);
-                });
+            let newPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i)).flat();
+            Promise.all(newPromises).then(() => {
+                restartPlaybackAfterLoad();
             })
         });
 }
@@ -469,6 +491,29 @@ function createAudioElement(wf, slotIndex) {
     source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
 }
 
+function createTonePlayer(wf, slotIndex) {
+    let player = new Tone.Player();
+    player.loop = true;
+    let playerPromise = player.load(wf.url);
+
+    players.push(player);
+    playerPromises.push(playerPromise);
+
+    const compressor = new Tone.Compressor(-10, 12);
+    compressor.knee.value = 40;
+    compressor.attack.value = 0;
+    compressor.release.value = 0.25;
+
+    const delay = new Tone.Delay(0, 10);
+    const gain = new Tone.Gain(audioData[slotIndex].volume);
+
+    delays.push(delay);
+    gains.push(gain);
+
+    player.chain(gain,delay, compressor, Tone.Destination);
+
+}
+
 function toggleGroupBorders() {
     [0, 1, 2, 3, 4, 5, 6].map(i => {
         const bgRect = document.getElementById('bgRect-' + i);
@@ -637,37 +682,35 @@ function normalizeData(filteredData) {
 
 function getVisualSyncDelay(slotIndex) {
     let wf = waveforms[slotIndex];
-    let aed = audioElements[slotIndex].duration;
+    let p = players[slotIndex];
+    let audioDur = p.buffer.length * p.sampleTime;
     let lineFrac = wf.linePercent; 
-    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*0) * aed * lineFrac;
+    return (wf.viewWidth * wf.waveZoom)/(wf.width+wf.viewWidth * wf.waveZoom*0) * audioDur * lineFrac;
 }
+
+let playerDur = i => players[i].buffer.length * players[i].sampleTime;
 
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
-    let time = null;
     svg.setAttribute("width", viewWidth.toString());
     svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
+    let frameCount = 0;
     function draw(ts) {
+        frameCount++;
         let waveZoom = waveforms[slotIndex].waveZoom;
         let zoomedViewWidth = viewWidth*waveZoom;
-        let audio = audioElements[slotIndex];
-        let audioProg = audio.currentTime / audio.duration;
-        if (time === null) {
-            time = ts;
-            requestAnimationFrame(draw);
-            return;
-        }
+        // if (!loopTrackers[slotIndex]) {
+        //     requestAnimationFrame(draw);
+        //     return;
+        // }
+        // let audioProg = (loopTrackers[slotIndex].progress + loopOffsets[slotIndex]) % 1;
+        let dur = playerDur(slotIndex);
+        let audioProg = ((Tone.Transport.now() + (dur - loopOffsets[slotIndex])) % dur)/dur; 
         if (!svg.parentElement) return; //if this wave has been removed, don't requeue animation for it
-        const diff = ts - time;
-        const move = (diff / 1000) * speed;
-        //have offset be determined buy currentTime on audio element
-        offset += move;
         offset = audioProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
+        if(frameCount%20 == 0 && slotIndex == 4) console.log("audioProg", audioProg);
         if(!isNaN(offset)) {
-            // if (offset > waveformWidth + zoomedViewWidth) {
-            //     offset = -1 * zoomedViewWidth;
-            // }
             svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
             time = ts;
         }
@@ -690,6 +733,7 @@ function begin() {
 
     document.getElementById('beginButton').classList.add('hide');
     document.getElementById('fullscreen').classList.remove('hide');
+    document.getElementById('playAudio').classList.remove('hide');
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
@@ -704,8 +748,6 @@ function begin() {
     container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
     document.getElementById("installation").prepend(container);
     container.appendChild(createZigZag());
-
-    let drawPromises = [];
 
     waveforms.forEach((wf, i) => {
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -724,16 +766,16 @@ function begin() {
 
         drawPromises.push(animateAudioData(fetch(wf.url), i));
 
-        createAudioElement(wf, i);
+        createTonePlayer(wf, i);
     });
 
-    Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
-        console.log("ready to play");
-        audioElements.map((a, i) => {
-            a.play();
-            delays[i].delayTime.value = getVisualSyncDelay(i);
-        });
-    });
+    // Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
+    //     console.log("ready to play");
+    //     audioElements.map((a, i) => {
+    //         a.play();
+    //         delays[i].delayTime.value = getVisualSyncDelay(i);
+    //     });
+    // });
 }
 
 
@@ -770,5 +812,6 @@ document.addEventListener('fullscreenchange', exitFullScreen);
 document.addEventListener('webkitfullscreenchange', exitFullScreen);
 document.addEventListener('mozfullscreenchange', exitFullScreen);
 document.addEventListener('MSFullscreenChange', exitFullScreen);
+
 
 
