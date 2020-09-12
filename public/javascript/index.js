@@ -66,6 +66,8 @@ let urlHistory = new URLSearchParams(document.location.search).get('history');
 if(urlHistory){
     document.getElementById('time-header').innerText = 
         'The Curator At ' + new Date(parseInt(timestamp)).toLocaleString();    
+    let timeProg = (timestamp - firstTmestamp) / (Date.now() - firstTmestamp);
+    document.getElementById('time_slider').value = timeProg;
 }
 
 document.getElementById('beginButton').addEventListener('click', begin);

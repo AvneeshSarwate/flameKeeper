@@ -15,6 +15,10 @@ router.get('/', function (req, res, next) {
     let historyTimestamp = parseInt(req.query.history) || 0;
     let historySlot = state.history.filter(h => h.timestamp === historyTimestamp)[0];
 
+    let historyTimestamps = state.history.map(h => h.timestamp);
+    historyTimestamps.sort();
+    let firstTimestamp = historyTimestamps[0];
+
     let loadedAudio = historySlot ? historySlot.audio : [ ...state.currentState.audio ];
     loadedAudio = loadedAudio.map(a => {
         let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
@@ -49,7 +53,8 @@ router.get('/', function (req, res, next) {
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer,
         timestamp: loadedSlotTimestamp,
-        firstEntry
+        firstEntry,
+        firstTimestamp
     });
 });
 
