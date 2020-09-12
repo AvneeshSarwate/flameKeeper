@@ -74,6 +74,8 @@ document.getElementById('playAudio').addEventListener('click', playAudio);
 
 let transportStart = null;
 function playAudio() {
+    document.getElementById('time_slider_div').classList.remove('hide');
+    document.getElementById('playAudio').classList.add('hide');
     Tone.start();
     Tone.Transport.start();
     Promise.all([playerPromises, drawPromises].flat()).then(() => {
@@ -728,7 +730,7 @@ function begin() {
     if (isComposer) {
         document.getElementById('control_panel').classList.remove('hide');
     } else {
-        document.getElementById('time_slider_div').classList.remove('hide');
+        
     }
 
     document.getElementById('beginButton').classList.add('hide');
