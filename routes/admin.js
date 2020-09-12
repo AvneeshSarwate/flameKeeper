@@ -108,7 +108,8 @@ router.get('/composer', requiresLogin, function (req, res, next) {
         composer: req.session.composer,  // Composer ID if a composer is logged in
         audio: JSON.stringify(currentAudio),
         fileNames: JSON.stringify(currentAudio.map(a => a.filename)),
-        timestamp: state.currentState.timestamp
+        timestamp: state.currentState.timestamp,
+        composer_id: state.currentState.composerID
         // isMultiFile: showMultiFile || req.query.multi === 'true',
         // undoState: JSON.stringify(undoState)
     });
@@ -144,6 +145,10 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                     if (!files.file) {
                         reject("no file found");
                         return;
+                    }
+                    if(fields.composerID != state.currentState.composerID) {
+                        reject("composer no longer authorized");
+                        return
                     }
                     let file = files.file;
                     let index = parseInt(fields.index);
