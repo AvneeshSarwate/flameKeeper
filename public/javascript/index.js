@@ -74,7 +74,7 @@ document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
 document.getElementById('playAudio').addEventListener('click', playAudio);
 
-let transportStart = null;
+let transportStartTime = null;
 function playAudio() {
     document.getElementById('time_slider_div').classList.remove('hide');
     document.getElementById('playAudio').classList.add('hide');
@@ -87,15 +87,15 @@ function playAudio() {
 
 function restartPlaybackAfterLoad() {
     console.log("ready to play");
-    let nowTime = Tone.now() + 0.25;
-    transportStart = nowTime;
+    let nowTime = Tone.Transport.now() + 0.25;
+    transportStartTime = nowTime;
     console.log("nowTime", nowTime);
     players.map((p, i) => {
         let audioDur = p.buffer.length * p.sampleTime;
         let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
         loopOffsets[i] = seekTime;
-        p.seek(seekTime-0.01);
         p.start(nowTime);
+        p.seek(seekTime+0.001, nowTime+0.001);
         delays[i].delayTime.value = getVisualSyncDelay(i);
     });
 }
@@ -694,6 +694,14 @@ function getVisualSyncDelay(slotIndex) {
 
 let playerDur = i => players[i].buffer.length * players[i].sampleTime;
 
+let DEBUG_WAVE = 0;
+function setUpForDebug(){
+    DEBUG_WAVE = -1;
+    muteAll();
+    gains[0].gain.value = 1;
+    delays[0].delayTime.value = 0;
+}
+
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -710,10 +718,13 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         // }
         // let audioProg = (loopTrackers[slotIndex].progress + loopOffsets[slotIndex]) % 1;
         let dur = playerDur(slotIndex);
-        let audioProg = ((Tone.Transport.now() + (dur - loopOffsets[slotIndex])) % dur)/dur; 
+        let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur; 
         if (!svg.parentElement) return; //if this wave has been removed, don't requeue animation for it
         offset = audioProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
-        if(frameCount%20 == 0 && slotIndex == 4) console.log("audioProg", audioProg);
+        let nearFrac = Math.abs(.9 - (audioProg/waveforms[slotIndex].linePercent)) < 0.05
+
+        if(nearFrac && slotIndex == DEBUG_WAVE) console.log("audioProg", audioProg, waveforms[slotIndex].linePercent);
+
         if(!isNaN(offset)) {
             svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
             time = ts;
