@@ -524,18 +524,8 @@ footer .footerNote {
 	background-color: red;
  }
 
- #jump_to_history {
-	font-size: 16px;
-	background-color: rgb(127, 119, 134);
- }
 
- #text_slider_display {
-	font-size: 16px;
-	background-color: rgb(127, 119, 134);
-	border: 5px;
- }
-
-#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen {
+#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen, #jump_to_history, #text_slider_display, #playAudio {
 	font-size: 20px;
 }
 
@@ -552,13 +542,16 @@ footer .footerNote {
 	font-family: Arial, Helvetica, sans-serif;
 }
 
+
 /* 
 #jump_time_button, #replace_file_input {
 	background-color: darkred;
 } */
 
- #slider_accessories {
-	 
+ #text_slider_display {
+	background-color: rgba(255, 255, 255, 0.2);
+	font-family: Arial, Helvetica, sans-serif;
+	font-style: bold;
  }
 
 

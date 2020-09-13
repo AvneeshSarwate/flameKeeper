@@ -370,7 +370,7 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 120,
-        transform: `translate(380 330)`,
+        transform: `translate(380 320)`,
         zIndex: -1,
         panAmount: -0.5,
         delay: 0, 

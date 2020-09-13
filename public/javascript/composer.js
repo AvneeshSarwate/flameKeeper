@@ -262,7 +262,7 @@ const WAVEFORM_COLOR = "gray";
 const HIGHLIGHT_COLOR = "#ff5050aa";
 const TRANSPARENT_COLOR = "#ffffff00";
 
-const DEBUG = false;
+const DEBUG = true;
 
 // Nice convenient way to describe the waveforms.
 const waveforms = [
@@ -350,7 +350,7 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 120,
-        transform: `translate(380 330)`,
+        transform: `translate(380 320)`,
         zIndex: -1,
         panAmount: -0.5,
         delay: 0, 
@@ -703,6 +703,7 @@ function begin() {
 
     //document.addEventListener("DOMContentLoaded", function() {
     const container = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    container.setAttribute("preserveAspectRatio", "none");
     if (DEBUG) {
         container.setAttribute("style", "border: 1px solid black;"); // just for visualization
     }
