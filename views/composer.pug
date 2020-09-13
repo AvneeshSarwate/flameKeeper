@@ -10,20 +10,32 @@ block content
       #installation
         //- - let files = fileInfo.Name;
 
-        span(id='control_panel' class="controls hide")
+        div(id='control_panel' class="controls hide")
           span(id='jump_span')
             button(id="jump_time_button") Jump to time (sec):
+            |
+            |
             input(id='jump_time') 
+          br
+          br
           div(id='single_panel')
             span(id='replace_file_span')
               input(id='replace_file_input' type='file')
-            span(id='vol_span' class="hide")
-              label(for='vol') New File Gain: 
-              input(id='vol' type='range' min='0' max='2' value='1' step='0.01')
-              span(id='vol_val') 1
+            div(id='vol_span' class="hide")
+              label(for='vol' id='vol_label') New File Gain: 
               br
+              input(id='vol' type='range' min='0' max='2' value='1' step='0.01')
+              br
+              span(id='vol_val') 1
+            br
+            br
             button(id='undo_button' class="hide") Undo
+            |
+            |
             button(id='replace_file_submit' class="hide") Submit
+            br
+            br
+            button(id="fullscreen") Fullscreen
         
         //-- TODO - change instructions copy depending on whether page is single or multi file replacement
 
@@ -32,64 +44,12 @@ block content
       //- Identity details
       section.profileHeader
         //- button(id="btn") Play
-        button(id="fullscreen") Fullscreen
         h1 The FlameKeeper
-        h3 A LIVE STREAMING ART INSTALLATION&nbsp;
+        h3 Composer Instructions&nbsp;
         p
           | Introductory text about the project goes here. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in.
         br
-      hr
-      br
-      br
-      br
-      .profilePhoto
-        //- Profile photo
-        img(src='./images/profilephoto.png' alt='sample')
-      //- Identity details
-      section.profileHeader
-        h3 This Week&apos;s Curator
-        h1 Composer Name Here
-        p
-          | Short bio goes here. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        p
-          a(href='/past-composers') See all our past curators &raquo;
-    //- content
-    section.mainContent
-      //- Contact details
-      section.section1
-        h2.sectionTitle How It Works
-        hr.sectionTitleRule
-        hr.sectionTitleRule2
-        .section1Content
-          
-          h2.sectionContentTitle Our FlameKeepers
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Nam liber tempor cum soluta nobis eleifend option congue ihil imperdiet doming id quod mazim placerat facer possim assum.
-          h2.sectionContentTitle The 7-Hour Lockdown
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-          h2.sectionContentTitle Ghosts from the Past
-          p.sectionContent
-            | Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
-      
-      //- Previous experience details
-      section.section2
-        h2.sectionTitle Meet the  TEAM
-        hr.sectionTitleRule
-        hr.sectionTitleRule2
-        //- First Title & company details
-        article.section2Content
-          h2.sectionContentTitle Full Name
-          h3.sectionContentSubTitle Role on Project, Professional Role
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-        //- Second Title & company details
-        article.section2Content
-          h2.sectionContentTitle Full Name
-          h3.sectionContentSubTitle Role on Project, Professional Role
-          p.sectionContent
-            | Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-        //- Replicate the above Div block to add more title and company details
+
     footer
       hr
       p.footerDisclaimer
@@ -112,7 +72,7 @@ block content
       let audioData = JSON.parse(`!{audio}`);
       let isComposer = document.location.pathname == "/composer";
       let timestamp = !{timestamp};
-      ket composer_id = !{composer_id};
+      let composer_id = `!{composer_id}`;
 
     script(nonce=nonce src='./javascript/dat.gui.min.js')
     script(nonce=nonce src='./javascript/Tone.js')

@@ -113,6 +113,10 @@ function undoReplace() {
 }
 
 function submit() {
+    if(audioElements[selected_waveform].duration > 120) {
+        alert("select an audio file less than 2 minutes long");
+        return
+    }
     let formData = new FormData();
     if (Object.keys(submissionData).length > 0) {
         for (k in submissionData) {
