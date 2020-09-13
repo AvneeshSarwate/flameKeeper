@@ -525,7 +525,7 @@ footer .footerNote {
  }
 
 
-#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen, #text_slider_display, #playAudio {
+#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen, #playAudio {
 	font-size: 20px;
 }
 
@@ -543,19 +543,40 @@ footer .footerNote {
 }
 
 
-/* 
-#jump_time_button, #replace_file_input {
-	background-color: darkred;
-} */
-#jump_to_history{
+
+/* #jump_to_history{
 	font-size: 20px;
+} */
+
+#slider_accessories {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
 }
 
  #text_slider_display {
-	background-color: rgba(255, 255, 255, 0.2);
+	/* font-size: 20px; */
 	font-family: Arial, Helvetica, sans-serif;
 	font-style: bold;
+	text-shadow: 0 0 2px #000; /* horizontal-offset vertical-offset 'blur' colour */
+  	-moz-text-shadow: 0 0 2px #000;
+	-webkit-text-shadow: 0 0 2px #000;
+	color: white;
  }
+
+
+ @media screen and (min-width: 320px) {
+	#jump_to_history, #text_slider_display {
+	  font-size: calc(16px + 4 * ((100vw - 320px) / 680));
+	}
+  }
+  @media screen and (min-width: 1000px) {
+	#jump_to_history, #text_slider_display {
+	  font-size: 20px;
+	}
+  }
 
 /*
 from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
