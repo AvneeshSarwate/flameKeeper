@@ -525,7 +525,7 @@ footer .footerNote {
  }
 
 
-#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen, #jump_to_history, #text_slider_display, #playAudio {
+#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen, #text_slider_display, #playAudio {
 	font-size: 20px;
 }
 
@@ -547,6 +547,9 @@ footer .footerNote {
 #jump_time_button, #replace_file_input {
 	background-color: darkred;
 } */
+#jump_to_history{
+	font-size: 20px;
+}
 
  #text_slider_display {
 	background-color: rgba(255, 255, 255, 0.2);
