@@ -557,7 +557,9 @@ footer .footerNote {
 	font-style: bold;
  }
 
-
+/*
+from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
+*
  /* slider styles */
  input[type=range] {
 	-webkit-appearance: none;
