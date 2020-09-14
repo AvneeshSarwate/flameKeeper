@@ -547,6 +547,13 @@ footer .footerNote {
 	width: 180px
 }
 
+.snapshot_select {
+	margin-right: 0.5em;
+	margin-left: 0.5em;
+	background-color: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.5);
+}
+
 #time_slider {
 	margin-bottom: 2em;
 }

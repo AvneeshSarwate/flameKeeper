@@ -34,11 +34,11 @@ block content
                 | #{composer.bio}
                 span(class='snapshot-selector')
                     span Select a snapshot to jump back to:
-                    select(id='selector_'+composer.composerID)
+                    select(id='selector_'+composer.composerID class='snapshot_select')
                         option(value="Snapshots") Snapshots:
                         each h in composer.history
                             option(value=h[0]) !{h[1]}
-                    button(id='button_'+composer.composerID) Jump to Snapshot
+                    button(id='button_'+composer.composerID class='custom-button hist_button') Jump to Snapshot
               p
 
   script(nonce=nonce).
