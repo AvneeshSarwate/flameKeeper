@@ -504,33 +504,59 @@ footer .footerNote {
 	 width: 100%;
  }
 
-#beginButton {
-	border: none;
-	color: rgba(182, 224, 148, 0.863);
-	background-color: rgba(148, 57, 160, 0.096);
-  	padding: 15px 32px;
- 	text-align: center;
-  	text-decoration: none;
-	font-size: 24px;
-	border: 8px solid black;
-	border-radius: 4px;
+.text-style {
+	font-family: 'Rubik', sans-serif;
+	font-weight: 300;
+	color: rgba(255, 255, 255, 0.5);
 }
 
- #beginButton:hover {
-	background-color: darkred;
- }
+.custom-button {
+	font-family: 'Rubik', sans-serif;
+	font-weight: 700;
+	color: rgba(255, 255, 255, 0.5);
+	padding: 0.5em 0.5em;
+	text-align: center;
+	text-decoration: none;
+	border: 2px solid rgba(255, 255, 255, 0.25);
+	border-radius: 0px;
+	background-color: rgba(255, 255, 255, 0.0);
+}
 
- #beginButton:active {
-	background-color: red;
- }
+.custom-button:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
 
+.custom-button:active {
+	background-color: rgba(255, 255, 255, 0.2);
+}
 
-#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen, #playAudio {
-	font-size: 20px;
+.custom-button:focus {
+	outline: none;
+}
+
+#beginButton {
+	font-size: 1.3em;
+}
+
+#jump_to_history {
+	margin-right: 0.5em;
+}
+
+#text_slider_display {
+	display: inline-block;
+	width: 180px
+}
+
+#time_slider {
+	margin-bottom: 2em;
+}
+
+#jump_time_button, #jump_time, #replace_file_input, #vol_span, #undo_button, #replace_file_submit, #fullscreen, #jump_to_history, #text_slider_display, #playAudio {
+	font-size: 1em;
 }
 
 #control_panel {
-	background-color: rgba(255, 255, 255, 0.35);
+	background-color: rgba(255, 255, 255, 0.50);
 	border: medium;
 	border-radius: 3px;
 	border: 8px solid rgba(0, 0, 0, 0.8);
@@ -541,42 +567,6 @@ footer .footerNote {
 	font-style: bold;
 	font-family: Arial, Helvetica, sans-serif;
 }
-
-
-
-/* #jump_to_history{
-	font-size: 20px;
-} */
-
-#slider_accessories {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
-}
-
- #text_slider_display {
-	/* font-size: 20px; */
-	font-family: Arial, Helvetica, sans-serif;
-	font-style: bold;
-	text-shadow: 0 0 2px #000; /* horizontal-offset vertical-offset 'blur' colour */
-  	-moz-text-shadow: 0 0 2px #000;
-	-webkit-text-shadow: 0 0 2px #000;
-	color: white;
- }
-
-
- @media screen and (min-width: 320px) {
-	#jump_to_history, #text_slider_display {
-	  font-size: calc(16px + 4 * ((100vw - 320px) / 680));
-	}
-  }
-  @media screen and (min-width: 1000px) {
-	#jump_to_history, #text_slider_display {
-	  font-size: 20px;
-	}
-  }
 
 /*
 from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
@@ -595,40 +585,40 @@ from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
 	height: 8.4px;
 	cursor: pointer;
 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	background: #3071a9;
+	background: lightgray;
 	border-radius: 1.3px;
-	border: 0.2px solid #010101;
+	border: 0.2px solid darkgray;
   }
   input[type=range]::-webkit-slider-thumb {
 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	border: 1px solid #000000;
+	border: 1px solid darkgray;
 	height: 36px;
 	width: 16px;
-	border-radius: 3px;
-	background: #ffffff;
+	border-radius: 0px;
+	background: lightgray;
 	cursor: pointer;
 	-webkit-appearance: none;
 	margin-top: -14px;
   }
   input[type=range]:focus::-webkit-slider-runnable-track {
-	background: #367ebd;
+	background: lightgray;
   }
   input[type=range]::-moz-range-track {
 	width: 100%;
 	height: 8.4px;
 	cursor: pointer;
 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	background: #3071a9;
+	background: lightgray;
 	border-radius: 1.3px;
-	border: 0.2px solid #010101;
+	border: 0.2px solid darkgray;
   }
   input[type=range]::-moz-range-thumb {
 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	border: 1px solid #000000;
+	border: 1px solid darkgray;
 	height: 36px;
 	width: 16px;
 	border-radius: 3px;
-	background: #ffffff;
+	background: lightgray;
 	cursor: pointer;
   }
   input[type=range]::-ms-track {
@@ -641,29 +631,29 @@ from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
 	color: transparent;
   }
   input[type=range]::-ms-fill-lower {
-	background: #2a6495;
-	border: 0.2px solid #010101;
+	background: lightgray;
+	border: 0.2px solid darkgray;
 	border-radius: 2.6px;
 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
   }
   input[type=range]::-ms-fill-upper {
-	background: #3071a9;
-	border: 0.2px solid #010101;
+	background: lightgray;
+	border: 0.2px solid darkgray;
 	border-radius: 2.6px;
 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
   }
   input[type=range]::-ms-thumb {
 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	border: 1px solid #000000;
+	border: 1px solid darkgray;
 	height: 36px;
 	width: 16px;
 	border-radius: 3px;
-	background: #ffffff;
+	background: lightgray;
 	cursor: pointer;
   }
   input[type=range]:focus::-ms-fill-lower {
-	background: #3071a9;
+	background: lightgray;
   }
   input[type=range]:focus::-ms-fill-upper {
-	background: #367ebd;
+	background: lightgray;
   }
