@@ -67,12 +67,13 @@ block content
     <input id="fileSwap-5" type="file" style="display: none;" />
     <input id="fileSwap-6" type="file" style="display: none;" />
 
+    - let authenticatedUserID = composer ? composer.composerID : admin.adminID;
     script(nonce=nonce).
       let returns = JSON.parse(`!{fileNames}`);
       let audioData = JSON.parse(`!{audio}`);
       let isComposer = document.location.pathname == "/composer";
       let timestamp = !{timestamp};
-      let composer_id = `!{composer_id}`;
+      let authenticatedUserID = "!{authenticatedUserID}";
 
     script(nonce=nonce src='./javascript/dat.gui.min.js')
     script(nonce=nonce src='./javascript/Tone.js')

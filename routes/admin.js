@@ -104,12 +104,11 @@ router.get('/composer', requiresLogin, function (req, res, next) {
 
     res.render('composer', {
         nonce: res.locals.nonce,
-        admin: req.session.admin,  // Admin ID if an admin is logged in
-        composer: req.session.composer,  // Composer ID if a composer is logged in
+        admin: req.session.admin,  // Admin if an admin is logged in
+        composer: req.session.composer,  // Composer if a composer is logged in
         audio: JSON.stringify(currentAudio),
         fileNames: JSON.stringify(currentAudio.map(a => a.filename)),
-        timestamp: state.currentState.timestamp,
-        composer_id: state.currentState.composerID
+        timestamp: state.currentState.timestamp
         // isMultiFile: showMultiFile || req.query.multi === 'true',
         // undoState: JSON.stringify(undoState)
     });
@@ -130,9 +129,11 @@ router.get('/dashboard', requiresLogin, function (req, res, next) {
 router.post('/upload', requiresLogin, async function (req, res, next) {
     try {
         if (flameKeeper.locked) {
-            let authenticatedID = req.session.composer || req.session.admin;
-            logger.warn(`composer or admin ${authenticatedID} attempted upload when flameKeeper is locked`);
-            res.status(403);
+            let authenticatedUser = req.session.composer || req.session.admin;
+            let authenticatedID = authenticatedUser.composerID || authenticatedUser.adminID;
+            let msg = `composer or admin ${authenticatedID} attempted upload when flameKeeper is locked`;
+            logger.warn(msg);
+            res.status(403).send(msg);
             return
         }
 
@@ -140,14 +141,17 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
             new IncomingForm().parse(req, async (err, fields, files) => {
                 if (err) {
                     reject(`form parsing error: ${err}`);
+                    return;
                 }
                 try {
                     if (!files.file) {
                         reject("no file found");
                         return;
                     }
-                    if(fields.composerID != state.currentState.composerID) {
-                        reject("composer no longer authorized");
+                    if(fields.composerID !== state.currentState.composerID) {
+                        let msg = `composer or admin ${fields.composerID} attempted upload when current composer is ${state.currentState.composerID}`;
+                        logger.warn(msg);
+                        res.status(403).send(msg);
                         return
                     }
                     let file = files.file;
@@ -178,8 +182,8 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
         res.redirect('/dashboard');
     } catch (err) {
         logger.error(err);
-        res.redirect('/dashboard');
-        // TODO: display error
+        res.status(400).send(err);
+        return
     }
 });
 

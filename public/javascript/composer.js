@@ -122,7 +122,7 @@ function submit() {
         for (k in submissionData) {
             formData.append(k, submissionData[k]);
         }
-        formData.append("composerID", composer_id);
+        formData.append("composerID", authenticatedUserID);
         fetch('/upload', {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
@@ -130,7 +130,7 @@ function submit() {
             body: formData
         }).then(res => {
             if(res.status != 200) {
-                res.body.text().then(t => alert(t));
+                res.text().then(t => alert(t));
             }
         }).catch(err => {
             console.error("unable to upload", err);
