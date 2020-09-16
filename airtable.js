@@ -52,8 +52,7 @@ class Composers {
         let photoRecord = record.get("photo");
         if (photoRecord && photoRecord.length > 0) photo = photoRecord[0].url;
         return {
-            "id": record.id,
-            "composerID": record.get("composerID"),
+            "composerID": record.id,
             "name": record.get("name"),
             "bio": record.get("bio"),
             "photo": photo,
@@ -106,6 +105,7 @@ class Admins {
 
     parseAdmin(record) {
         return {
+            "adminID": record.id,
             "name": record.get("name"),
             "role": record.get("role"),
             "description": record.get("description"),
@@ -122,9 +122,9 @@ class Admins {
         } else return { error: "The access code provided was not recognized." };
     }
 
-    isActive(composerID) {
-        let composer = this.admins.find(c => c.composerID == composerID);
-        if (composer && composer.active) return true;
+    isActive(adminID) {
+        let admin = this.admins.find(a => a.adminID == adminID);
+        if (admin && admin.active) return true;
         return false;
     }
 }

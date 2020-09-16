@@ -34,8 +34,11 @@ router.get('/', function (req, res, next) {
 
     let loadedSlotTimestamp = historySlot ? historySlot.timestamp : state.currentState.timestamp
 
-    let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
-    let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
+    let composerID = historySlot ? historySlot.composerID : state.currentState.composerID || undefined;
+    let composer = undefined;
+    if (composerID) {
+        composer = Composers.composers.filter(c => c.composerID === composerID)[0];
+    }
     if (loadedAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
         res.sendStatus(500);
