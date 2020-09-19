@@ -50,7 +50,7 @@ const MAX_ZOOM_OUT = 3;
     folder_n.add(controllerProps, 'x-'+i).onFinishChange(() => setWavePosition(i));
     folder_n.add(controllerProps, 'y-'+i).onFinishChange(() => setWavePosition(i));
     folder_n.add(controllerProps, 'direction-'+i, ['forward', 'backward', 'up', 'down']).onFinishChange(() => setWavePosition(i));
-    folder_n.add(controllerProps, 'mirrored-'+i).onFinishChange(() => setWavePosition(i));
+    // folder_n.add(controllerProps, 'mirrored-'+i).onFinishChange(() => setWavePosition(i));
 });
 
 gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
@@ -285,12 +285,15 @@ how to set translations after rotations
 */
 
 function setWavePosition(slot_index){
+    let wave = waveforms[slot_index];
+
     let rawx = controllerProps["x-"+slot_index];
     let rawy = controllerProps["y-"+slot_index];
     let direction = controllerProps["direction-"+slot_index];
     let mirrored = controllerProps["mirrored-"+slot_index];
 
-    let wave = waveforms[slot_index];
+    mirrored = wave.mirrored;
+
     let angle, x, y;
     if(direction == "forward")  [angle, x, y] = [180, -rawx, -rawy];
     if(direction == "backward") [angle, x, y] = [0,    rawx,  rawy];
