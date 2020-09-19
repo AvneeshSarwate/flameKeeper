@@ -284,14 +284,6 @@ const TRANSPARENT_COLOR = "#ffffff00";
 
 const DEBUG = false;
 
-/*
-(note rotation y point should be 2x if mirrored == true)
-how to set translations after rotations
-    - 180: x y -> -x -y
-    - 90 : x y -> -y  x
-    - 270: x y ->  y -x
-*/
-
 // Nice convenient way to describe the waveforms.
 const waveforms = [
     {//Wave-0
@@ -300,7 +292,7 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 290,
-        transform: `rotate(270 145 15) translate(0 0)`,
+        transform: `translate(10 40)`,
         zIndex: -1,
         panAmount: -0.75,
         delay: 2.155, 

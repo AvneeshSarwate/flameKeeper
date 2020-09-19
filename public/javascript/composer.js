@@ -40,6 +40,17 @@ const MAX_ZOOM_OUT = 3;
     document.getElementById('fileSwap-'+i).addEventListener('change', (e) => {
         replaceAudioSlotWithFile(e.target.files[0], i);
     });
+
+    controllerProps['x-'+i] = 0;
+    controllerProps['y-'+i] = 0;
+    controllerProps['direction-'+i] = 'forward';
+    controllerProps['mirrored-'+i] = true;
+
+    let folder_n = gui.addFolder("positioning-"+i);
+    folder_n.add(controllerProps, 'x-'+i).onFinishChange(() => setWavePosition(i));
+    folder_n.add(controllerProps, 'y-'+i).onFinishChange(() => setWavePosition(i));
+    folder_n.add(controllerProps, 'direction-'+i, ['forward', 'backward', 'up', 'down']).onFinishChange(() => setWavePosition(i));
+    folder_n.add(controllerProps, 'mirrored-'+i).onFinishChange(() => setWavePosition(i));
 });
 
 gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
@@ -263,6 +274,33 @@ const HIGHLIGHT_COLOR = "#ff5050aa";
 const TRANSPARENT_COLOR = "#ffffff00";
 
 const DEBUG = true;
+
+/*
+(note rotation y point should be 2x if mirrored == true)
+how to set translations after rotations
+    - 180: x y -> -x -y (forward)
+    - 90 : x y -> -y  x (up)
+    - 270: x y ->  y -x (down)
+    - 0  : x y ->  x  y (backward)
+*/
+
+function setWavePosition(slot_index){
+    let rawx = controllerProps["x-"+slot_index];
+    let rawy = controllerProps["y-"+slot_index];
+    let direction = controllerProps["direction-"+slot_index];
+    let mirrored = controllerProps["mirrored-"+slot_index];
+
+    let wave = waveforms[slot_index];
+    let angle, x, y;
+    if(direction == "forward")  [angle, x, y] = [180, -rawx, -rawy];
+    if(direction == "backward") [angle, x, y] = [0,    rawx,  rawy];
+    if(direction == "up")       [angle, x, y] = [90,  -rawy,  rawx];
+    if(direction == "down")     [angle, x, y] = [270,  rawy, -rawx];
+    let [center_x, center_y] =  [wave.viewWidth/2, mirrored ? wave.viewHeight : wave.viewHeight/2];
+
+    let group_elem = document.getElementById('group-'+slot_index);
+    group_elem.setAttribute("transform", `rotate(${angle} ${center_x} ${center_y}) translate(${x} ${y})`);
+}
 
 // Nice convenient way to describe the waveforms.
 const waveforms = [
