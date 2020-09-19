@@ -40,7 +40,15 @@ const MAX_ZOOM_OUT = 3;
     document.getElementById('fileSwap-'+i).addEventListener('change', (e) => {
         replaceAudioSlotWithFile(e.target.files[0], i);
     });
+});
 
+gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
+    let visibility = v ? 'visible' : 'hidden';
+    let labels = document.getElementsByTagNameNS("http://www.w3.org/2000/svg", "text");
+    [0, 1, 2, 3, 4, 5, 6].forEach(i => {labels[i].style.visibility = visibility});
+});
+
+[0, 1, 2, 3, 4, 5, 6].forEach(i => {
     controllerProps['x-'+i] = 0;
     controllerProps['y-'+i] = 0;
     controllerProps['direction-'+i] = 'forward';
@@ -53,12 +61,25 @@ const MAX_ZOOM_OUT = 3;
     // folder_n.add(controllerProps, 'mirrored-'+i).onFinishChange(() => setWavePosition(i));
 });
 
-gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
-    let visibility = v ? 'visible' : 'hidden';
-    let labels = document.getElementsByTagNameNS("http://www.w3.org/2000/svg", "text");
-    [0, 1, 2, 3, 4, 5, 6].forEach(i => {labels[i].style.visibility = visibility});
-});
+controllerProps['download_parameters'] = function() {
+    let positionString = JSON.stringify(controllerProps);
+    download(`Installation Settings ${Date.now()}.txt`, positionString);
+}
 
+gui.add(controllerProps, 'download_parameters');
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
+  }
 
 
 function setGradient(speed, angle, colors){
