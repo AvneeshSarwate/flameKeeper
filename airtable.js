@@ -157,12 +157,41 @@ class Copy {
     }
 }
 
+class Gradient {
+    constructor() {
+        this.logger = getLogger("Copy");
+        this.tableName = "Gradient";
+        this.gradientTable = base(this.tableName);
+        this.gradient = {};
+        this.getGradient();
+    }
+
+    async getGradient() {
+        let gradient = {};
+        try {
+            let records = await this.gradientTable.select({
+                view: 'Grid view'
+            }).all();
+            await asyncForEach(records, async record => {
+                let property = record.get("Property");
+                let value = record.get("Value");
+                gradient[property] = value;
+            });
+        } catch (err) {
+            this.logger.error("unable to get copy", err);
+        }
+        this.gradient = gradient;
+        return this.gradient;
+    }
+}
+
 class AirtableManager {
     constructor() {
         this.logger = getLogger("AirtableManager");
         this.composers = new Composers();
         this.admins = new Admins();
         this.copy = new Copy();
+        this.gradient = new Gradient();
         this.updateFreq = 2000;
         this.start();
     }
@@ -181,6 +210,7 @@ class AirtableManager {
             await this.composers.getComposers();
             await this.admins.getAdmins();
             await this.copy.getCopy();
+            await this.gradient.getGradient();
             this.logger.debug("successfully re-synced airtable data");
         } catch (err) {
             logger.error(err);
@@ -193,4 +223,5 @@ let airtableManager = new AirtableManager();
 exports.Composers = airtableManager.composers;
 exports.Admins = airtableManager.admins;
 exports.Copy = airtableManager.copy;
+exports.Gradient = airtableManager.gradient;
 exports.AirtableManager = airtableManager;

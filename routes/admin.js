@@ -3,7 +3,7 @@ const router = express.Router();
 const { IncomingForm } = require('formidable');
 
 const { state } = require('../state')
-const { Composers, Admins } = require('../airtable');
+const { Composers, Admins, Gradient } = require('../airtable');
 const { sessionStore } = require('../app');
 const { getLogger } = require('../logger');
 const { flameKeeper } = require('../flameKeeper');
@@ -114,6 +114,9 @@ router.get('/composer', requiresLogin, function (req, res, next) {
     });
 });
 
+router.get('/gradient', function(req, res, next) {
+    res.send(Gradient.gradient);
+});
 
 router.get('/dashboard', requiresLogin, function (req, res, next) {
     res.render('admin-dashboard', {

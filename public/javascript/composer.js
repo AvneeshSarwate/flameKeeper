@@ -61,6 +61,30 @@ gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
 
 
 
+function setGradient(speed, angle, colors){
+    let speedString = speed+'s';
+    let gradientString = `linear-gradient(${angle}deg, ${colors.join(', ')})`;
+    
+    document.documentElement.style.setProperty('--gradient-speed', speedString);
+    document.documentElement.style.setProperty('--gradient-def', gradientString);
+    console.log("css", speed, angle, colors);
+}
+
+function refreshGradient() {
+    fetch('/gradient').then(resp => {
+        resp.json().then(gradient => {
+            let speed = parseInt(gradient.speed);
+            let angle = parseInt(gradient.angle);
+            let colors = gradient.colors.split(" ").filter(c => c);
+            setGradient(speed, angle, colors);
+        })
+    })
+}
+
+setTimeout(() => {
+    setInterval(() => refreshGradient(), 2 * 1000);
+}, 1000 * 2);
+
 if (isComposer) {
     document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
     document.getElementById('undo_button').addEventListener('click', undoReplace);
