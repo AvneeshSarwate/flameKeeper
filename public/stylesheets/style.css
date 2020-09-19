@@ -523,6 +523,12 @@ footer .footerNote {
 	background-color: rgba(255, 255, 255, 0.0);
 }
 
+.global_vol {
+	font-family: 'Rubik', sans-serif;
+	font-weight: 700;
+	color: rgba(255, 255, 255, 0.5);
+}
+
 .custom-button:hover {
 	background-color: rgba(255, 255, 255, 0.1);
 }
@@ -533,6 +539,13 @@ footer .footerNote {
 
 .custom-button:focus {
 	outline: none;
+}
+
+#vol_container {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	align-items: center;
 }
 
 #beginButton {

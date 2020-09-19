@@ -47,6 +47,8 @@ router.get('/', function (req, res, next) {
     let historyTimes = state.history.map(h => h.timestamp);
     historyTimes.sort();
     let firstEntry = historyTimes[0];
+
+    console.log("composer at index", composerID, composer);
     
     res.render('index', {
         nonce: res.locals.nonce,

@@ -50,17 +50,12 @@ gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
 
 
 
-if (isComposer) {
-    document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
-    document.getElementById('undo_button').addEventListener('click', undoReplace);
-    document.getElementById('vol').addEventListener('input', changeVol);
-    document.getElementById('replace_file_input').addEventListener('change', replaceFile);
-    document.getElementById('replace_file_submit').addEventListener('click', submit);
-} else {
-    document.getElementById('text_slider_display').innerHTML = new Date().toLocaleString();
-    document.getElementById('time_slider').addEventListener('input', changeTime);
-    document.getElementById('jump_to_history').addEventListener('click', jumpToHistory);
-}
+
+document.getElementById('text_slider_display').innerHTML = new Date().toLocaleString();
+document.getElementById('time_slider').addEventListener('input', changeTime);
+document.getElementById('jump_to_history').addEventListener('click', jumpToHistory);
+document.getElementById('global_vol').addEventListener('input', changeVol);
+
 
 let urlHistory = new URLSearchParams(document.location.search).get('history');
 if(urlHistory){
@@ -118,109 +113,105 @@ let submissionData = {};
 let candidateFileUrl = null;
 let drawPromises = [];
 
-function undoReplace() {
-    document.getElementById('undo_button').classList.add('hide');
-    document.getElementById('replace_file_button').classList.add('hide');
-    document.getElementById('vol_span').classList.add('hide');
-    document.getElementById('replace_file_span').classList.remove('hide');
+// function undoReplace() {
+//     document.getElementById('undo_button').classList.add('hide');
+//     document.getElementById('replace_file_button').classList.add('hide');
+//     document.getElementById('vol_span').classList.add('hide');
+//     document.getElementById('replace_file_span').classList.remove('hide');
 
 
-    const undoWave = selected_waveform;
-    animateAudioData(fetch(waveforms[undoWave].url), undoWave).then(() => {
-        audioElements[undoWave].src = waveforms[undoWave].url;
+//     const undoWave = selected_waveform;
+//     animateAudioData(fetch(waveforms[undoWave].url), undoWave).then(() => {
+//         audioElements[undoWave].src = waveforms[undoWave].url;
 
-        audioElements[undoWave].oncanplaythrough = () => {
-            audioElements[undoWave].play().then(() => {
-                audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
-                delays[undoWave].delayTime.value = getVisualSyncDelay(undoWave);
-                audioElements.forEach(a => {a.currentTime = 0});
-            });
-        };
-    });
-    resetGains();
+//         audioElements[undoWave].oncanplaythrough = () => {
+//             audioElements[undoWave].play().then(() => {
+//                 audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
+//                 delays[undoWave].delayTime.value = getVisualSyncDelay(undoWave);
+//                 audioElements.forEach(a => {a.currentTime = 0});
+//             });
+//         };
+//     });
+//     resetGains();
 
-    file_is_replaced = false;
-    selected_waveform = null;
-    toggleGroupBorders();
+//     file_is_replaced = false;
+//     selected_waveform = null;
+//     toggleGroupBorders();
 
-    document.getElementById('replace_file_input').value = '';
+//     document.getElementById('replace_file_input').value = '';
 
-    submissionData = {};
-}
+//     submissionData = {};
+// }
 
-function submit() {
-    let formData = new FormData();
-    if (Object.keys(submissionData).length > 0) {
-        for (k in submissionData) {
-            formData.append(k, submissionData[k]);
-        }
-        fetch('/upload', {
-            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-            mode: 'cors', // no-cors, *cors, same-origin
-            credentials: 'same-origin', // include, *same-origin, omit
-            body: formData
-        }).then(res => {
-            console.log("updated successfully");
-            // TODO: lock out
-        }).catch(err => {
-            console.error("unable to upload", err);
-        });
-    }
-}
+// function submit() {
+//     let formData = new FormData();
+//     if (Object.keys(submissionData).length > 0) {
+//         for (k in submissionData) {
+//             formData.append(k, submissionData[k]);
+//         }
+//         fetch('/upload', {
+//             method: 'POST', // *GET, POST, PUT, DELETE, etc.
+//             mode: 'cors', // no-cors, *cors, same-origin
+//             credentials: 'same-origin', // include, *same-origin, omit
+//             body: formData
+//         }).then(res => {
+//             console.log("updated successfully");
+//             // TODO: lock out
+//         }).catch(err => {
+//             console.error("unable to upload", err);
+//         });
+//     }
+// }
 
-function resetGains() {
-    gains[selected_waveform].gain.value = lastVolume;
-    document.getElementById('vol').value = lastVolume;
-}
+// function resetGains() {
+//     gains[selected_waveform].gain.value = lastVolume;
+//     document.getElementById('vol').value = lastVolume;
+// }
 
-function jumpToTime() {
-    let timeStr = document.getElementById('jump_time').value;
-    try {
-        let secs = parseFloat(timeStr);
-        audioElements.forEach(ae => {
-            ae.currentTime = secs % ae.duration;
-        })
-    } catch {
-        alert("only numbers can be in the time box")
-    }
-}
+// function jumpToTime() {
+//     let timeStr = document.getElementById('jump_time').value;
+//     try {
+//         let secs = parseFloat(timeStr);
+//         audioElements.forEach(ae => {
+//             ae.currentTime = secs % ae.duration;
+//         })
+//     } catch {
+//         alert("only numbers can be in the time box")
+//     }
+// }
 
-function replaceFile(e) {
-    let selector = e.target;
-    let files = e.target.files;
-    console.log("file replace", files, selector);
-    if (selected_waveform != null) {
-        document.getElementById('undo_button').classList.remove('hide');
-        document.getElementById('replace_file_submit').classList.remove('hide');
-        document.getElementById('vol_span').classList.remove('hide');
-        document.getElementById('replace_file_span').classList.add('hide');
+// function replaceFile(e) {
+//     let selector = e.target;
+//     let files = e.target.files;
+//     console.log("file replace", files, selector);
+//     if (selected_waveform != null) {
+//         document.getElementById('undo_button').classList.remove('hide');
+//         document.getElementById('replace_file_submit').classList.remove('hide');
+//         document.getElementById('vol_span').classList.remove('hide');
+//         document.getElementById('replace_file_span').classList.add('hide');
 
-        candidateFileUrl = URL.createObjectURL(files[0])
-        replaceAudioSlotWithFile(files[0], selected_waveform);
-        file_is_replaced = true;
-        lastVolume = gains[selected_waveform].gain.value;
+//         candidateFileUrl = URL.createObjectURL(files[0])
+//         replaceAudioSlotWithFile(files[0], selected_waveform);
+//         file_is_replaced = true;
+//         lastVolume = gains[selected_waveform].gain.value;
 
-        submissionData['file'] = files[0];
-        submissionData['index'] = selected_waveform;
-        submissionData['volume'] = 1;
-    }
-    else {
-        document.getElementById('replace_file_input').value = '';
-        alert("pick a waveform to replace its audio");
-    }
-}
+//         submissionData['file'] = files[0];
+//         submissionData['index'] = selected_waveform;
+//         submissionData['volume'] = 1;
+//     }
+//     else {
+//         document.getElementById('replace_file_input').value = '';
+//         alert("pick a waveform to replace its audio");
+//     }
+// }
 
-function submitChanges() {
+// function submitChanges() {
 
-}
+// }
 
 function changeVol(e) {
-    let slider = e.target;
     let vol = parseFloat(e.target.value);
-    // console.log('change vol', selected_waveform, vol, typeof vol);
-    gains[selected_waveform].gain.value = vol;
-    document.getElementById('vol_val').innerText = vol;
-    submissionData['volume'] = vol;
+    globalGain.gain.value = vol;
 }
 
 function changeTime(e) {
@@ -495,6 +486,8 @@ function createAudioElement(wf, slotIndex) {
     source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
 }
 
+let globalGain = new Tone.Gain(1);
+
 function createTonePlayer(wf, slotIndex) {
     let player = new Tone.Player();
     player.loop = true;
@@ -514,8 +507,7 @@ function createTonePlayer(wf, slotIndex) {
     delays.push(delay);
     gains.push(gain);
 
-    player.chain(gain,delay, compressor, Tone.Destination);
-
+    player.chain(gain,delay, compressor, globalGain, Tone.Destination);
 }
 
 function toggleGroupBorders() {
@@ -739,15 +731,13 @@ function pauseAll(){
 }
 
 function begin() {
-    if (isComposer) {
-        document.getElementById('control_panel').classList.remove('hide');
-    } else {
-        
-    }
-
     document.getElementById('beginButton').classList.add('hide');
     document.getElementById('fullscreen').classList.remove('hide');
     document.getElementById('playAudio').classList.remove('hide');
+    let vol_stuff = document.getElementsByClassName('global_vol');
+    vol_stuff[0].classList.remove("hide")
+    vol_stuff[1].classList.remove("hide")
+
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
@@ -760,7 +750,7 @@ function begin() {
     }
     container.setAttribute("width", "100%");
     container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
-    document.getElementById("installation").prepend(container);
+    document.getElementById("installation").append(container);
     container.appendChild(createZigZag());
 
     waveforms.forEach((wf, i) => {
