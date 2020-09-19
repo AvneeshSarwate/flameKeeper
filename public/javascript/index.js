@@ -284,6 +284,14 @@ const TRANSPARENT_COLOR = "#ffffff00";
 
 const DEBUG = false;
 
+/*
+(note rotation y point should be 2x if mirrored == true)
+how to set translations after rotations
+    - 180: x y -> -x -y
+    - 90 : x y -> -y  x
+    - 270: x y ->  y -x
+*/
+
 // Nice convenient way to describe the waveforms.
 const waveforms = [
     {//Wave-0
@@ -292,7 +300,7 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 290,
-        transform: `translate(10 40)`,
+        transform: `rotate(270 145 15) translate(0 0)`,
         zIndex: -1,
         panAmount: -0.75,
         delay: 2.155, 
@@ -524,7 +532,6 @@ function toggleGroupBorders() {
         bgRect.setAttribute("stroke-width", selected_waveform === i ? '3px' : '0px')
     });
 }
-
 function drawWaveformBackground(wf, group, i) {
     const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     const view_height = wf.viewHeight * (wf.mirrored ? 2 : 1);
@@ -694,7 +701,7 @@ function getVisualSyncDelay(slotIndex) {
 
 let playerDur = i => players[i].buffer.length * players[i].sampleTime;
 
-let DEBUG_WAVE = 0;
+let DEBUG_WAVE = -1;
 function setUpForDebug(){
     DEBUG_WAVE = -1;
     muteAll();
