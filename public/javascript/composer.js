@@ -279,8 +279,8 @@ const DEBUG = true;
 (note rotation y point should be 2x if mirrored == true)
 how to set translations after rotations
     - 180: x y -> -x -y (forward)
-    - 90 : x y -> -y  x (up)
-    - 270: x y ->  y -x (down)
+    - 90 : x y ->  y -x (up)
+    - 270: x y -> -y  x (down)
     - 0  : x y ->  x  y (backward)
 */
 
@@ -294,8 +294,8 @@ function setWavePosition(slot_index){
     let angle, x, y;
     if(direction == "forward")  [angle, x, y] = [180, -rawx, -rawy];
     if(direction == "backward") [angle, x, y] = [0,    rawx,  rawy];
-    if(direction == "up")       [angle, x, y] = [90,  -rawy,  rawx];
-    if(direction == "down")     [angle, x, y] = [270,  rawy, -rawx];
+    if(direction == "up")       [angle, x, y] = [90,   rawy, -rawx];
+    if(direction == "down")     [angle, x, y] = [270, -rawy,  rawx];
     let [center_x, center_y] =  [wave.viewWidth/2, mirrored ? wave.viewHeight : wave.viewHeight/2];
 
     let group_elem = document.getElementById('group-'+slot_index);
