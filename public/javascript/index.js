@@ -751,6 +751,7 @@ function begin() {
     container.setAttribute("width", "100%");
     container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
     document.getElementById("installation").append(container);
+    container.style.visibility = 'hidden';
     container.appendChild(createZigZag());
 
     waveforms.forEach((wf, i) => {
@@ -771,6 +772,19 @@ function begin() {
         drawPromises.push(animateAudioData(fetch(wf.url), i));
 
         createTonePlayer(wf, i);
+    });
+
+    let loadRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    loadRect.setAttribute("y", 0);
+    loadRect.setAttribute("y", 0);
+    loadRect.setAttribute("height", CONTAINER_HEIGHT);
+    loadRect.setAttribute("width", CONTAINER_WIDTH);
+    loadRect.setAttribute("fill", ZIGZAG_COLOR);
+    // container.appendChild(loadRect);
+
+    Promise.all(drawPromises).then(() => {
+        // container.removeChild(loadRect);
+        container.style.visibility = 'visible';
     });
 
     // Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
@@ -816,6 +830,8 @@ document.addEventListener('fullscreenchange', exitFullScreen);
 document.addEventListener('webkitfullscreenchange', exitFullScreen);
 document.addEventListener('mozfullscreenchange', exitFullScreen);
 document.addEventListener('MSFullscreenChange', exitFullScreen);
+
+begin();
 
 
 

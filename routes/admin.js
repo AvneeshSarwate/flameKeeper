@@ -108,7 +108,9 @@ router.get('/composer', requiresLogin, function (req, res, next) {
         composer: req.session.composer,  // Composer if a composer is logged in
         audio: JSON.stringify(currentAudio),
         fileNames: JSON.stringify(currentAudio.map(a => a.filename)),
-        timestamp: state.currentState.timestamp
+        timestamp: state.currentState.timestamp,
+        isLocked: flameKeeper.locked,
+        lastEditTime: state.lastEdit 
         // isMultiFile: showMultiFile || req.query.multi === 'true',
         // undoState: JSON.stringify(undoState)
     });
