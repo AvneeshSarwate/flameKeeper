@@ -589,6 +589,10 @@ footer .footerNote {
 	font-family: Arial, Helvetica, sans-serif;
 }
 
+#time_warning {
+	font-size: 24px;
+}
+
 /*
 from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
 *

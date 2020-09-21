@@ -11,6 +11,9 @@ block content
         //- - let files = fileInfo.Name;
 
         div(id='control_panel' class="controls hide")
+          div(id="time_warning_container")
+            div(id='time_warning')
+            br
           span(id='jump_span')
             button(id="jump_time_button") Jump to time (sec):
             |
@@ -74,6 +77,8 @@ block content
       let isComposer = document.location.pathname == "/composer";
       let timestamp = !{timestamp};
       let authenticatedUserID = "!{authenticatedUserID}";
+      let isLocked = !{isLocked};
+      let lastEditTime = !{lastEditTime};
 
     script(nonce=nonce src='./javascript/dat.gui.min.js')
     script(nonce=nonce src='./javascript/Tone.js')

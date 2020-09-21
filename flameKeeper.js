@@ -1,5 +1,6 @@
 const { state } = require('./state');
 const { getLogger } = require('./logger');
+const { Composers } = require('./airtable');
 
 class FlameKeeper {
     constructor() {
@@ -61,8 +62,11 @@ class FlameKeeper {
                 "audioID": randomAudio.audioID,
                 "volume": newVolume
             }
+
+            let activeComposerId = Composers.composers.filter(c => c.active)[0].id
+
             try {
-                let edited = await state.editCurrentState(this.ghostComposerID, newAudio);
+                let edited = await state.editCurrentState(activeComposerId, newAudio);
                 if (!edited) {
                     this.logger.error("unable to make ghost edit");
                 }

@@ -92,7 +92,7 @@ function setGradient(speed, angle, colors){
     
     document.documentElement.style.setProperty('--gradient-speed', speedString);
     document.documentElement.style.setProperty('--gradient-def', gradientString);
-    console.log("css", speed, angle, colors);
+    // console.log("css", speed, angle, colors);
 }
 
 function refreshGradient() {
@@ -107,25 +107,35 @@ function refreshGradient() {
 }
 
 setTimeout(() => {
-    setInterval(() => refreshGradient(), 2 * 1000);
+    setInterval(() => {
+
+    }, 2 * 1000);
 }, 1000 * 2);
 
-if (isComposer) {
-    document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
-    document.getElementById('undo_button').addEventListener('click', undoReplace);
-    document.getElementById('vol').addEventListener('input', changeVol);
-    document.getElementById('replace_file_input').addEventListener('change', replaceFile);
-    document.getElementById('replace_file_submit').addEventListener('click', submit);
-} else {
-    document.getElementById('text_slider_display').innerHTML = new Date().toLocaleString();
-    document.getElementById('time_slider').addEventListener('input', changeTime);
-    document.getElementById('jump_to_history').addEventListener('click', jumpToHistory);
+
+function enableEditing(){
+    let editTime = new Date(lastEditTime + 14 * 60 * 60 * 1000).toLocaleString();
+    document.getElementById("single_panel").classList.remove("hide");
+    document.getElementById("time_warning").innerText = `You have until ${editTime} to make changes`;
 }
 
-let urlHistory = new URLSearchParams(document.location.search).get('history');
-if(urlHistory){
-    document.getElementById('time-header').innerText = 
-        'The Curator At ' + new Date(parseInt(timestamp)).toLocaleString();    
+function disableEditing() {
+    let editTime = new Date(lastEditTime + 7 * 60 * 60 * 1000).toLocaleString();
+    document.getElementById("time_warning").innerText = "You cannot make changes until " + editTime;
+    document.getElementById("single_panel").classList.add("hide");
+}
+
+
+document.getElementById('jump_time_button').addEventListener('click', jumpToTime);
+document.getElementById('undo_button').addEventListener('click', undoReplace);
+document.getElementById('vol').addEventListener('input', changeVol);
+document.getElementById('replace_file_input').addEventListener('change', replaceFile);
+document.getElementById('replace_file_submit').addEventListener('click', submit);
+
+if(isLocked){
+    disableEditing();
+} else {
+    enableEditing();
 }
 
 document.getElementById('beginButton').addEventListener('click', begin);
