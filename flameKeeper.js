@@ -53,7 +53,10 @@ class FlameKeeper {
     async makeRandomEdit() {
         // Ensure state is populated with at least some audio and a currentState
         if (state.audio.length > 0 && state.currentState.audio && state.currentState.audio.length > 0) {
-            this.logger.info("FlameKeeper: composer window closed without edit, making ghost edit");
+            let activeComposerId = Composers.composers.filter(c => c.active)[0].composerID;
+            // console.log("active composer ghost edit", Composers.composers.filter(c => c.active)[0])
+
+            this.logger.info("FlameKeeper: composer window closed without edit, making ghost edit for: " + activeComposerId);
             let randomAudio = state.audio[Math.floor(Math.random() * state.audio.length)];
             let newVolume = 0.1 + Math.random() * 0.8; // Random between 0.1-0.9
             let newAudio = [...state.currentState.audio];
@@ -62,8 +65,6 @@ class FlameKeeper {
                 "audioID": randomAudio.audioID,
                 "volume": newVolume
             }
-
-            let activeComposerId = Composers.composers.filter(c => c.active)[0].id
 
             try {
                 let edited = await state.editCurrentState(activeComposerId, newAudio);
