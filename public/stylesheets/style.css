@@ -253,8 +253,8 @@ header #installation {
 	display: inline-block;
 	height: 50px;	
 	padding-top: 50px;
-	margin-bottom: 50px;
-	}	
+    margin-bottom: 50px;
+}	
 header .profileHeader {
 	text-align: left;
 	margin-top: 15%;
@@ -682,3 +682,7 @@ from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
   input[type=range]:focus::-ms-fill-upper {
 	background: lightgray;
   }
+  #installation {
+    width: 100%;
+    height: 100%;
+}

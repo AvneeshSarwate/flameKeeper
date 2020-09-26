@@ -21,32 +21,32 @@ let controllerProps = {
     swap_file_4: () => {swapClick(4)},
     swap_file_5: () => {swapClick(5)},
     swap_file_6: () => {swapClick(6)},
-    show_wave_numbers: true
+    show_wave_numbers: false
 };
 
 const MAX_ZOOM_OUT = 3;
 
-[0, 1, 2, 3, 4, 5, 6].forEach(i => {
-    gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
-        waveforms[i].waveZoom = v;
-        delays[i].delayTime.value = getVisualSyncDelay(i);
-    });
-});
+// [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+//     gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
+//         waveforms[i].waveZoom = v;
+//         delays[i].delayTime.value = getVisualSyncDelay(i);
+//     });
+// });
 // gui.addColor(controllerProps, 'color1');
 // gui.addColor(controllerProps, 'color2');
 
-[0, 1, 2, 3, 4, 5, 6].forEach(i => {
-    gui.add(controllerProps, 'swap_file_'+i);
-    document.getElementById('fileSwap-'+i).addEventListener('change', (e) => {
-        replaceAudioSlotWithFile(e.target.files[0], i);
-    });
-});
+// [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+//     gui.add(controllerProps, 'swap_file_'+i);
+//     document.getElementById('fileSwap-'+i).addEventListener('change', (e) => {
+//         replaceAudioSlotWithFile(e.target.files[0], i);
+//     });
+// });
 
-gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
-    let visibility = v ? 'visible' : 'hidden';
-    let labels = document.getElementsByTagNameNS("http://www.w3.org/2000/svg", "text");
-    [0, 1, 2, 3, 4, 5, 6].forEach(i => {labels[i].style.visibility = visibility});
-});
+// gui.add(controllerProps, 'show_wave_numbers').onChange(v => {
+//     let visibility = v ? 'visible' : 'hidden';
+//     let labels = document.getElementsByTagNameNS("http://www.w3.org/2000/svg", "text");
+//     [0, 1, 2, 3, 4, 5, 6].forEach(i => {labels[i].style.visibility = visibility});
+// });
 
 
 
@@ -65,14 +65,14 @@ if(urlHistory){
     document.getElementById('time_slider').value = timeProg;
 }
 
-document.getElementById('beginButton').addEventListener('click', begin);
+// document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
 document.getElementById('playAudio').addEventListener('click', playAudio);
 
 let transportStartTime = null;
 let isPlaying = false;
 function playAudio() {
-    document.getElementById('time_slider_div').classList.remove('hide');
+    document.getElementById('user_controls').classList.remove('hide');
     document.getElementById('playAudio').classList.add('hide');
     Tone.start();
     Tone.Transport.start();
@@ -114,102 +114,6 @@ let lastVolume = null; //the previos volume of the slot was replaced. saved for 
 let submissionData = {};
 let candidateFileUrl = null;
 let drawPromises = [];
-
-// function undoReplace() {
-//     document.getElementById('undo_button').classList.add('hide');
-//     document.getElementById('replace_file_button').classList.add('hide');
-//     document.getElementById('vol_span').classList.add('hide');
-//     document.getElementById('replace_file_span').classList.remove('hide');
-
-
-//     const undoWave = selected_waveform;
-//     animateAudioData(fetch(waveforms[undoWave].url), undoWave).then(() => {
-//         audioElements[undoWave].src = waveforms[undoWave].url;
-
-//         audioElements[undoWave].oncanplaythrough = () => {
-//             audioElements[undoWave].play().then(() => {
-//                 audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
-//                 delays[undoWave].delayTime.value = getVisualSyncDelay(undoWave);
-//                 audioElements.forEach(a => {a.currentTime = 0});
-//             });
-//         };
-//     });
-//     resetGains();
-
-//     file_is_replaced = false;
-//     selected_waveform = null;
-//     toggleGroupBorders();
-
-//     document.getElementById('replace_file_input').value = '';
-
-//     submissionData = {};
-// }
-
-// function submit() {
-//     let formData = new FormData();
-//     if (Object.keys(submissionData).length > 0) {
-//         for (k in submissionData) {
-//             formData.append(k, submissionData[k]);
-//         }
-//         fetch('/upload', {
-//             method: 'POST', // *GET, POST, PUT, DELETE, etc.
-//             mode: 'cors', // no-cors, *cors, same-origin
-//             credentials: 'same-origin', // include, *same-origin, omit
-//             body: formData
-//         }).then(res => {
-//             console.log("updated successfully");
-//             // TODO: lock out
-//         }).catch(err => {
-//             console.error("unable to upload", err);
-//         });
-//     }
-// }
-
-// function resetGains() {
-//     gains[selected_waveform].gain.value = lastVolume;
-//     document.getElementById('vol').value = lastVolume;
-// }
-
-// function jumpToTime() {
-//     let timeStr = document.getElementById('jump_time').value;
-//     try {
-//         let secs = parseFloat(timeStr);
-//         audioElements.forEach(ae => {
-//             ae.currentTime = secs % ae.duration;
-//         })
-//     } catch {
-//         alert("only numbers can be in the time box")
-//     }
-// }
-
-// function replaceFile(e) {
-//     let selector = e.target;
-//     let files = e.target.files;
-//     console.log("file replace", files, selector);
-//     if (selected_waveform != null) {
-//         document.getElementById('undo_button').classList.remove('hide');
-//         document.getElementById('replace_file_submit').classList.remove('hide');
-//         document.getElementById('vol_span').classList.remove('hide');
-//         document.getElementById('replace_file_span').classList.add('hide');
-
-//         candidateFileUrl = URL.createObjectURL(files[0])
-//         replaceAudioSlotWithFile(files[0], selected_waveform);
-//         file_is_replaced = true;
-//         lastVolume = gains[selected_waveform].gain.value;
-
-//         submissionData['file'] = files[0];
-//         submissionData['index'] = selected_waveform;
-//         submissionData['volume'] = 1;
-//     }
-//     else {
-//         document.getElementById('replace_file_input').value = '';
-//         alert("pick a waveform to replace its audio");
-//     }
-// }
-
-// function submitChanges() {
-
-// }
 
 function changeVol(e) {
     let vol = parseFloat(e.target.value);
@@ -276,7 +180,7 @@ const WAVEFORM_COLOR = "gray";
 const HIGHLIGHT_COLOR = "#ff5050aa";
 const TRANSPARENT_COLOR = "#ffffff00";
 
-const DEBUG = false;
+const DEBUG = true;
 
 // Nice convenient way to describe the waveforms.
 const waveforms = [
@@ -532,6 +436,7 @@ function drawWaveformBackground(wf, group, i) {
     bgRect.setAttribute('id', 'bgRect-' + i);
 
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.style.visibility = "hidden";
     label.textContent = "" + i;
     label.setAttribute("x", wf.viewWidth/2);
     label.setAttribute("y", view_height/2);
@@ -733,12 +638,12 @@ function pauseAll(){
 }
 
 function begin() {
-    document.getElementById('beginButton').classList.add('hide');
-    document.getElementById('fullscreen').classList.remove('hide');
-    document.getElementById('playAudio').classList.remove('hide');
-    let vol_stuff = document.getElementsByClassName('global_vol');
-    vol_stuff[0].classList.remove("hide")
-    vol_stuff[1].classList.remove("hide")
+    // document.getElementById('beginButton').classList.add('hide');
+    // document.getElementById('fullscreen').classList.remove('hide');
+    // document.getElementById('playAudio').classList.remove('hide');
+    // let vol_stuff = document.getElementsByClassName('global_vol');
+    // vol_stuff[0].classList.remove("hide")
+    // vol_stuff[1].classList.remove("hide")
 
 
     audioCtx.resume().then(() => {
@@ -754,6 +659,8 @@ function begin() {
     container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
     document.getElementById("installation").append(container);
     container.style.visibility = 'hidden';
+    container.id = 'installation-svg';
+    container.setAttribute("preserveAspectRatio", "none");
     container.appendChild(createZigZag());
 
     waveforms.forEach((wf, i) => {
@@ -804,19 +711,19 @@ function goFullScreen() {
 
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-        elem.className += 'css-selector';
+        elem.classList.add('css-selector');
     }
     else if (elem.mozRequestFullScreen) {
         elem.mozRequestFullScreen();
-        elem.className += 'css-selector';
+        elem.classList.add('css-selector');
     }
     else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
-        elem.className += 'css-selector';
+        elem.classList.add('css-selector');
     }
     else if (elem.msRequestFullscreen) {
         elem.msRequestFullscreen();
-        elem.className += 'css-selector';
+        elem.classList.add('css-selector');
     }
 }
 
