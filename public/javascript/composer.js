@@ -100,7 +100,7 @@ function refreshGradient() {
         resp.json().then(gradient => {
             let speed = parseInt(gradient.speed);
             let angle = parseInt(gradient.angle);
-            let colors = gradient.colors.split(" ").filter(c => c);
+            let colors = gradient.colors.split(/(\s+)/).filter(c => c[0] === "#");
             setGradient(speed, angle, colors);
         })
     })
