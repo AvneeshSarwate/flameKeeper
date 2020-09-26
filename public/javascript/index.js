@@ -240,6 +240,7 @@ function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
 }
 
 function getInstallationByTimestamp(timestamp) {
+    players.forEach(p => p.stop());
     fetch(document.location.origin + '/getInfo?history=' + timestamp)
         .then(response => response.json())
         .then(jsonData => {
