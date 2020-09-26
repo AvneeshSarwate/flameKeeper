@@ -708,30 +708,35 @@ function begin() {
 
 function goFullScreen() {
     const elem = document.getElementById('installation');
+    const svgElem = document.getElementById('installation-svg');
 
     if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-        elem.classList.add('css-selector');
+        svgElem.requestFullscreen();
+        svgElem.classList.add('css-selector');
     }
     else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-        elem.classList.add('css-selector');
+        svgElem.mozRequestFullScreen();
+        svgElem.classList.add('css-selector');
     }
     else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-        elem.classList.add('css-selector');
+        svgElem.style.position = 'absolute';
+        svgElem.webkitRequestFullscreen();
+        svgElem.classList.add('css-selector');
     }
     else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-        elem.classList.add('css-selector');
+        svgElem.msRequestFullscreen();
+        svgElem.classList.add('css-selector');
     }
 }
 
 
 function exitFullScreen() {
     const elem = document.getElementById('installation');
+    const svgElem = document.getElementById('installation-svg');
+
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-        elem.classList.remove('css-selector');
+        svgElem.classList.remove('css-selector');
+        svgElem.style.position = '';
     }
 }
 
