@@ -70,6 +70,7 @@ document.getElementById('fullscreen').addEventListener('click', goFullScreen);
 document.getElementById('playAudio').addEventListener('click', playAudio);
 
 let transportStartTime = null;
+let isPlaying = false;
 function playAudio() {
     document.getElementById('time_slider_div').classList.remove('hide');
     document.getElementById('playAudio').classList.add('hide');
@@ -77,6 +78,7 @@ function playAudio() {
     Tone.Transport.start();
     Promise.all([playerPromises, drawPromises].flat()).then(() => {
         restartPlaybackAfterLoad();
+        isPlaying = true;
     });
 }
 
@@ -703,22 +705,21 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         frameCount++;
         let waveZoom = waveforms[slotIndex].waveZoom;
         let zoomedViewWidth = viewWidth*waveZoom;
-        // if (!loopTrackers[slotIndex]) {
-        //     requestAnimationFrame(draw);
-        //     return;
-        // }
-        // let audioProg = (loopTrackers[slotIndex].progress + loopOffsets[slotIndex]) % 1;
+
         let dur = playerDur(slotIndex);
         let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur; 
+
         if (!svg.parentElement) return; //if this wave has been removed, don't requeue animation for it
-        offset = audioProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
+
+        let fakeAudioProg = (Date.now()/1000 % dur)/dur;
+        let waveProg = isPlaying ? audioProg : fakeAudioProg;
+        offset = waveProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
         let nearFrac = Math.abs(.9 - (audioProg/waveforms[slotIndex].linePercent)) < 0.05
 
         if(nearFrac && slotIndex == DEBUG_WAVE) console.log("audioProg", audioProg, waveforms[slotIndex].linePercent);
 
         if(!isNaN(offset)) {
             svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
-            time = ts;
         }
         requestAnimationFrame(draw);
     }
