@@ -534,7 +534,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     svg.setAttribute("height", waveformHeight * 2);
     svg.setAttribute("width", width);
     svg.setAttribute("id", "wave-" + slotIndex);
-    svg.setAttribute("preserveAspectRatio", "none");
+    // svg.setAttribute("preserveAspectRatio", "none");
 
     // Create the actual polyline.
     const line = document.createElementNS(
@@ -711,21 +711,25 @@ function goFullScreen() {
     const svgElem = document.getElementById('installation-svg');
 
     if (elem.requestFullscreen) {
-        svgElem.requestFullscreen();
-        svgElem.classList.add('css-selector');
+        elem.requestFullscreen();
+        elem.classList.add('css-selector');
+        svgElem.classList.add('isFullscreen');
     }
     else if (elem.mozRequestFullScreen) {
         svgElem.mozRequestFullScreen();
         svgElem.classList.add('css-selector');
+        svgElem.classList.add('isFullscreen');
     }
     else if (elem.webkitRequestFullscreen) {
         svgElem.style.position = 'absolute';
         svgElem.webkitRequestFullscreen();
         svgElem.classList.add('css-selector');
+        svgElem.classList.add('isFullscreen');
     }
     else if (elem.msRequestFullscreen) {
         svgElem.msRequestFullscreen();
         svgElem.classList.add('css-selector');
+        svgElem.classList.add('isFullscreen');
     }
 }
 
@@ -736,6 +740,8 @@ function exitFullScreen() {
 
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
         svgElem.classList.remove('css-selector');
+        elem.classList.remove('css-selector');
+        svgElem.classList.remove('isFullscreen');
         svgElem.style.position = '';
     }
 }

@@ -717,11 +717,11 @@ background: lightgray;
 
 
 /*installation fullscreen hacks*/
-#installation {
+/* #installation {
     width: 100%;
     height: 100%;
-}
-#installation-svg {
+} */
+.isFullscreen {
     width: 100%;
     height: 100%;
 }
