@@ -4,13 +4,13 @@ const audioCtx = new AudioContext();
 var gui = new dat.GUI();
 let swapClick = i => document.getElementById('fileSwap-'+i).click();
 let controllerProps = {
-    zoom0: 1,
-    zoom1: 1,
-    zoom2: 1,
-    zoom3: 1,
-    zoom4: 1,
-    zoom5: 1,
-    zoom6: 1,
+    zoom0: 1.29,
+    zoom1: 2.73,
+    zoom2: 2.2,
+    zoom3: 2.4,
+    zoom4: 1.59,
+    zoom5: 2.73,
+    zoom6: 1.13,
     color1: [ 0, 128, 255 ],
     color2: [ 0, 128, 255 ],
     colorSpeed: 259,
@@ -424,7 +424,7 @@ const waveforms = [
         zIndex: -1,
         panAmount: -0.75,
         delay: 2.155, 
-        waveZoom: 1,
+        waveZoom: 1.29,
         linePercent: 0.69
     },
     {//Wave-1
@@ -437,7 +437,7 @@ const waveforms = [
         zIndex: -1,
         panAmount: 0.5,
         delay: 2.48, 
-        waveZoom: 1,
+        waveZoom: 2.73,
         linePercent: 0.85
     },
     {//Wave-2
@@ -450,7 +450,7 @@ const waveforms = [
         zIndex: -1,
         panAmount: 0.75,
         delay: 1.53, 
-        waveZoom: 1,
+        waveZoom: 2.2,
         linePercent: 0.51
     },
     {//Wave-3
@@ -463,7 +463,7 @@ const waveforms = [
         zIndex: -1,
         panAmount: 0.25,
         delay: 1.35, 
-        waveZoom: 1,
+        waveZoom: 2.4,
         linePercent: 0.51
     },
     {//Wave-4
@@ -476,7 +476,7 @@ const waveforms = [
         zIndex: -1,
         panAmount: 0,
         delay: 2.27, 
-        waveZoom: 1,
+        waveZoom: 1.59,
         linePercent: 0.79
     },
     {//Wave-5
@@ -489,7 +489,7 @@ const waveforms = [
         zIndex: -1,
         panAmount: -0.25,
         delay: 0.47, 
-        waveZoom: 1,
+        waveZoom: 2.73,
         linePercent: 0.215
     },
     {//Wave-6
@@ -502,7 +502,7 @@ const waveforms = [
         zIndex: -1,
         panAmount: -0.5,
         delay: 0, 
-        waveZoom: 1,
+        waveZoom: 1.13,
         linePercent: 0
     }
 ];

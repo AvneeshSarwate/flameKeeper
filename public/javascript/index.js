@@ -4,13 +4,13 @@ const audioCtx = new AudioContext();
 var gui = new dat.GUI();
 let swapClick = i => document.getElementById('fileSwap-'+i).click();
 let controllerProps = {
-    zoom0: 1,
-    zoom1: 1,
-    zoom2: 1,
-    zoom3: 1,
-    zoom4: 1,
-    zoom5: 1,
-    zoom6: 1,
+    zoom0: 1.29,
+    zoom1: 2.73,
+    zoom2: 2.2,
+    zoom3: 2.4,
+    zoom4: 1.59,
+    zoom5: 2.73,
+    zoom6: 1.13,
     color1: [ 0, 128, 255 ],
     color2: [ 0, 128, 255 ],
     colorSpeed: 259,
@@ -26,12 +26,12 @@ let controllerProps = {
 
 const MAX_ZOOM_OUT = 3;
 
-// [0, 1, 2, 3, 4, 5, 6].forEach(i => {
-//     gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
-//         waveforms[i].waveZoom = v;
-//         delays[i].delayTime.value = getVisualSyncDelay(i);
-//     });
-// });
+[0, 1, 2, 3, 4, 5, 6].forEach(i => {
+    gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
+        waveforms[i].waveZoom = v;
+        delays[i].delayTime.value = getVisualSyncDelay(i);
+    });
+});
 // gui.addColor(controllerProps, 'color1');
 // gui.addColor(controllerProps, 'color2');
 
@@ -190,13 +190,13 @@ const waveforms = [
         url: `https://flamekeeper.s3.amazonaws.com/${returns[0]}`,
         speed: 10,
         mirrored: true,
-        viewHeight: 30,
+        viewHeight: 25.5,
         viewWidth: 290,
-        transform: `translate(10 40)`,
+        transform: `rotate(0 145 30) translate(50 30)`,
         zIndex: -1,
         panAmount: -0.75,
         delay: 2.155, 
-        waveZoom: 1,
+        waveZoom: 1.29,
         linePercent: 0.69
     },
     {//Wave-1
@@ -205,11 +205,11 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `translate(180 110) rotate(90)`,
+        transform: `rotate(90 47.5 60) translate(97.5 -72.5)`,
         zIndex: -1,
         panAmount: 0.5,
         delay: 2.48, 
-        waveZoom: 1,
+        waveZoom: 2.73,
         linePercent: 0.85
     },
     {//Wave-2
@@ -218,11 +218,11 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 200,
-        transform: `translate(400 200) rotate(180)`,
+        transform: `rotate(0 100 30) translate(200 150)`,
         zIndex: -1,
         panAmount: 0.75,
         delay: 1.53, 
-        waveZoom: 1,
+        waveZoom: 2.2,
         linePercent: 0.51
     },
     {//Wave-3
@@ -231,11 +231,11 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 200,
-        transform: `translate(400 260) rotate(180)`,
-        zIndex: 1,
+        transform: `rotate(180 100 30) translate(-200 -195)`,
+        zIndex: -1,
         panAmount: 0.25,
         delay: 1.35, 
-        waveZoom: 1,
+        waveZoom: 2.4,
         linePercent: 0.51
     },
     {//Wave-4
@@ -244,11 +244,11 @@ const waveforms = [
         mirrored: false,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `translate(420 300) rotate(270)`,
+        transform: `rotate(270 47.5 30) translate(-222.5 402.5)`,
         zIndex: -1,
         panAmount: 0,
         delay: 2.27, 
-        waveZoom: 1,
+        waveZoom: 1.59,
         linePercent: 0.79
     },
     {//Wave-5
@@ -257,11 +257,11 @@ const waveforms = [
         mirrored: false,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `rotate(90 95 15) translate(190 -370)`,
+        transform: `rotate(270 47.5 15) translate(-237.5 447.5) scale(1 -1)`,
         zIndex: -1,
         panAmount: -0.25,
         delay: 0.47, 
-        waveZoom: 1,
+        waveZoom: 2.73,
         linePercent: 0.215
     },
     {//Wave-6
@@ -269,15 +269,47 @@ const waveforms = [
         speed: 10,
         mirrored: true,
         viewHeight: 30,
-        viewWidth: 120,
-        transform: `translate(380 320)`,
+        viewWidth: 230,
+        transform: `rotate(180 60 30) translate(-400 -310)`,
         zIndex: -1,
         panAmount: -0.5,
         delay: 0, 
-        waveZoom: 1,
+        waveZoom: 1.13,
         linePercent: 0
     }
 ];
+
+
+function setGradient(speed, angle, colors, zooms){
+    let speedString = speed+'s';
+    let gradientString = `linear-gradient(${angle}deg, ${colors.join(', ')})`;
+    let zoomString = zooms.join(" ");
+
+    document.documentElement.style.setProperty('--gradient-speed', speedString);
+    document.documentElement.style.setProperty('--gradient-def', gradientString);
+    document.documentElement.style.setProperty('--background-size', zoomString);
+    // console.log("css", speed, angle, colors);
+}
+
+function refreshGradient() {
+    fetch('/gradient').then(resp => {
+        resp.json().then(gradient => {
+            let speed = parseInt(gradient.speed);
+            let angle = parseInt(gradient.angle);
+            let colors = gradient.colors.split(/(\s+)/).filter(c => c[0] === "#");
+            let zooms = gradient.zooms.split(/(\s+)/);
+            setGradient(speed, angle, colors, zooms);
+        })
+    })
+}
+
+setTimeout(() => {
+    setInterval(() => {
+        refreshGradient();
+        
+    }, 2 * 1000);
+}, 1000 * 2);
+
 
 function createZigZag() {
     const vlength = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
@@ -557,7 +589,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     svg.setAttribute("height", waveformHeight * 2);
     svg.setAttribute("width", width);
     svg.setAttribute("id", "wave-" + slotIndex);
-    // svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("preserveAspectRatio", "none");
 
     // Create the actual polyline.
     const line = document.createElementNS(
