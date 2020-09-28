@@ -3,12 +3,13 @@
 
 :root {
 	--gradient-speed: 259s;
-	--gradient-def: linear-gradient(234deg, #195646, #203558, #45541e, #3b165a, #5f3d1b, #691636, #175867, #564f15, #1a4352, #1c4a5c, #5c411c, #5c1c54, #193b63);
+    --gradient-def: linear-gradient(234deg, #195646, #203558, #45541e, #3b165a, #5f3d1b, #691636, #175867, #564f15, #1a4352, #1c4a5c, #5c411c, #5c1c54, #193b63);
+    --background-size: 1600% 100000%;
   }
 
 .css-selector {
     background: var(--gradient-def);
-    background-size: 1600% 100000%;
+    background-size: var(--background-size);
 
     -webkit-animation: AnimationName var(--gradient-speed) ease infinite;
     -moz-animation: AnimationName var(--gradient-speed) ease infinite;
