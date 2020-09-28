@@ -31,7 +31,7 @@ class Composers {
             });
             this.logger.debug("composers loaded");
         } catch (err) {
-            this.logger.error("unable to get composers", err);
+            this.logger.error(`unable to get composers: ${err}`);
         }
         this.composers = composers;
         return this.composers;
@@ -39,7 +39,7 @@ class Composers {
 
     setComposerKey(composer) {
         return new Promise((resolve, reject) => {
-            this.composerTable.update(composer.id, {
+            this.composerTable.update(composer.composerID, {
                 "key": crypto.randomBytes(16).toString('hex')
             }).then(record => {
                 resolve(this.parseComposer(record));

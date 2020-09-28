@@ -188,7 +188,7 @@ function undoReplace() {
 }
 
 function submit() {
-    if(audioElements[selected_waveform].duration > 120) {
+    if(audioElements[selected_waveform].duration > 440) {
         alert("select an audio file less than 2 minutes long");
         return
     }

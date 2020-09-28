@@ -153,12 +153,12 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                         reject("no file found");
                         return;
                     }
-                    if(fields.composerID !== state.currentState.composerID) {
-                        let msg = `composer or admin ${fields.composerID} attempted upload when current composer is ${state.currentState.composerID}`;
-                        logger.warn(msg);
-                        res.status(403).send(msg);
-                        return
-                    }
+                    // if(fields.composerID !== state.currentState.composerID) {
+                    //     let msg = `composer or admin ${fields.composerID} attempted upload when current composer is ${state.currentState.composerID}`;
+                    //     logger.warn(msg);
+                    //     res.status(403).send(msg);
+                    //     return
+                    // }
                     let file = files.file;
                     let index = parseInt(fields.index);
                     if (!index == null || index < 0 || index > 6) {
