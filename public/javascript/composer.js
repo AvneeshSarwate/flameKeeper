@@ -108,7 +108,8 @@ function refreshGradient() {
 
 setTimeout(() => {
     setInterval(() => {
-
+        refreshGradient();
+        
     }, 2 * 1000);
 }, 1000 * 2);
 
@@ -364,15 +365,57 @@ function setWavePosition(slot_index){
     group_elem.setAttribute("transform", `rotate(${angle} ${center_x} ${center_y}) translate(${x} ${y})`);
 }
 
+function printTransform(rawx, rawy, direction, slot_index){
+    let mirrored = controllerProps["mirrored-"+slot_index];
+    let wave = waveforms[slot_index];
+
+    mirrored = wave.mirrored;
+
+    let angle, x, y;
+    if(direction == "forward")  [angle, x, y] = [180, -rawx, -rawy];
+    if(direction == "backward") [angle, x, y] = [0,    rawx,  rawy];
+    if(direction == "up")       [angle, x, y] = [90,   rawy, -rawx];
+    if(direction == "down")     [angle, x, y] = [270, -rawy,  rawx];
+    let [center_x, center_y] =  [wave.viewWidth/2, mirrored ? wave.viewHeight : wave.viewHeight/2];
+
+    console.log("transform string", `rotate(${angle} ${center_x} ${center_y}) translate(${x} ${y})`);
+}
+
+function printTransform2(rawx, rawy, direction, rect, mirrored){
+    let width = rect.width.baseVal.value / 2;
+    let height = rect.height.baseVal.value;
+    let angle, x, y;
+    if(direction == "forward")  [angle, x, y] = [180, -rawx, -rawy];
+    if(direction == "backward") [angle, x, y] = [0,    rawx,  rawy];
+    if(direction == "up")       [angle, x, y] = [90,   rawy, -rawx];
+    if(direction == "down")     [angle, x, y] = [270, -rawy,  rawx];
+    let [center_x, center_y] =  [width/2, mirrored ? height : height/2];
+
+    return `rotate(${angle} ${center_x} ${center_y}) translate(${x} ${y})`;
+}
+
+function debugRect(height, width) {
+    const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bgRect.setAttribute("x", 0);
+    bgRect.setAttribute("y", 0);
+    bgRect.setAttribute("height", height);
+    bgRect.setAttribute("width", width);
+    bgRect.setAttribute("fill", TRANSPARENT_COLOR);
+    bgRect.setAttribute("stroke", 'white');
+    bgRect.setAttribute('stroke-width', '0px');
+    bgRect.setAttribute('id', 'debug');
+    return bgRect;
+}
+
 // Nice convenient way to describe the waveforms.
 const waveforms = [
     {//Wave-0
         url: `https://flamekeeper.s3.amazonaws.com/${returns[0]}`,
         speed: 10,
         mirrored: true,
-        viewHeight: 30,
+        viewHeight: 25.5,
         viewWidth: 290,
-        transform: `translate(10 40)`,
+        transform: `rotate(0 145 30) translate(50 30)`,
         zIndex: -1,
         panAmount: -0.75,
         delay: 2.155, 
@@ -385,7 +428,7 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `translate(180 110) rotate(90)`,
+        transform: `rotate(90 47.5 60) translate(97.5 -72.5)`,
         zIndex: -1,
         panAmount: 0.5,
         delay: 2.48, 
@@ -398,7 +441,7 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 200,
-        transform: `translate(400 200) rotate(180)`,
+        transform: `rotate(0 100 30) translate(200 150)`,
         zIndex: -1,
         panAmount: 0.75,
         delay: 1.53, 
@@ -411,7 +454,7 @@ const waveforms = [
         mirrored: true,
         viewHeight: 30,
         viewWidth: 200,
-        transform: `translate(400 260) rotate(180)`,
+        transform: `rotate(180 100 30) translate(-200 -195)`,
         zIndex: 1,
         panAmount: 0.25,
         delay: 1.35, 
@@ -424,7 +467,7 @@ const waveforms = [
         mirrored: false,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `translate(420 300) rotate(270)`,
+        transform: `rotate(270 47.5 30) translate(-222.5 402.5)`,
         zIndex: -1,
         panAmount: 0,
         delay: 2.27, 
@@ -437,7 +480,7 @@ const waveforms = [
         mirrored: false,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `rotate(90 95 15) translate(190 -370)`,
+        transform: `rotate(270 47.5 15) translate(-237.5 447.5) scale(1 -1)`,
         zIndex: -1,
         panAmount: -0.25,
         delay: 0.47, 
@@ -449,8 +492,8 @@ const waveforms = [
         speed: 10,
         mirrored: true,
         viewHeight: 30,
-        viewWidth: 120,
-        transform: `translate(380 320)`,
+        viewWidth: 230,
+        transform: `rotate(180 60 30) translate(-400 -310)`,
         zIndex: -1,
         panAmount: -0.5,
         delay: 0, 
