@@ -419,6 +419,38 @@ function createTonePlayer(wf, slotIndex) {
     player.chain(gain,delay, compressor, globalGain, Tone.Destination);
 }
 
+let hoverInfo = document.getElementById('composer-hover');
+let infoShowingForBg = null;
+hoverInfo.onclick = () => {
+    hoverInfo.classList.add('hide');
+    infoShowingForBg = null;
+}
+
+let bgInfoClick = (e) => {
+    if(e.target.id === infoShowingForBg){
+        hoverInfo.classList.add('hide');
+    } else {
+        bgRect = e.target;
+        let i = parseInt(e.target.id.split("-")[1]);
+        let hoverImg = document.getElementById('composer-hover-img');
+        let hoverText = document.getElementById('composer-hover-text');
+
+        let audio_composer = allComposers.filter(c => c.composerID == audioData[i].composerID)[0];
+        let audio_time = new Date(audioData[i].uploadedAt).toLocaleString();
+        
+        hoverImg.src = audio_composer.photo;
+        hoverText.innerText = `Uploaded by ${audio_composer.name} on ${audio_time}`;
+
+        let {top, left} = bgRect.getBoundingClientRect();
+        console.log("composer hover val", top, left, Date.now());
+        hoverInfo.style.top = top+'px';
+        hoverInfo.style.left = left+'px';
+        console.log("composer hover style", hoverInfo.style.top, hoverInfo.style.left);
+        hoverInfo.classList.remove('hide');
+        infoShowingForBg = e.target.id;
+    }
+}
+
 function drawWaveformBackground(wf, group, i) {
     const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     const view_height = wf.viewHeight * (wf.mirrored ? 2 : 1);
@@ -441,19 +473,14 @@ function drawWaveformBackground(wf, group, i) {
     group.appendChild(label);
     group.appendChild(bgRect);
 
-    if (isComposer) {
-        group.onclick = () => {
-            if (file_is_replaced) {
-                alert("Undo your current file-change before replacing a different file");
-                return
-            }
-            selected_waveform = i;
-            toggleGroupBorders();
-        };
+    bgRect.onclick = bgInfoClick;
 
-        group.onmouseenter = () => { bgRect.setAttribute("fill", HIGHLIGHT_COLOR) };
-        group.onmouseleave = () => { bgRect.setAttribute("fill", TRANSPARENT_COLOR) };
-    }
+    // bgRect.onmouseenter = () => { 
+    //     showInfo();
+    // };
+    // bgRect.onmouseleave = () => {
+    //     hoverInfo.classList.add('hide');
+    // }
 }
 
 function drawZeroLine(wf, group) {
