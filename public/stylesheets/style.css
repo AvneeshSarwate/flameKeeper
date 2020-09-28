@@ -598,7 +598,7 @@ footer .footerNote {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    justify-content: space-around;
+    /* justify-content: space-around; */
 }
 
 #time_slider_accessories {

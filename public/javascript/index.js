@@ -1,7 +1,7 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
-var gui = new dat.GUI();
+// var gui = new dat.GUI();
 let swapClick = i => document.getElementById('fileSwap-'+i).click();
 let controllerProps = {
     zoom0: 1.29,
@@ -26,12 +26,12 @@ let controllerProps = {
 
 const MAX_ZOOM_OUT = 3;
 
-[0, 1, 2, 3, 4, 5, 6].forEach(i => {
-    gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
-        waveforms[i].waveZoom = v;
-        delays[i].delayTime.value = getVisualSyncDelay(i);
-    });
-});
+// [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+//     gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
+//         waveforms[i].waveZoom = v;
+//         delays[i].delayTime.value = getVisualSyncDelay(i);
+//     });
+// });
 // gui.addColor(controllerProps, 'color1');
 // gui.addColor(controllerProps, 'color2');
 
@@ -823,6 +823,8 @@ document.addEventListener('mozfullscreenchange', exitFullScreen);
 document.addEventListener('MSFullscreenChange', exitFullScreen);
 
 begin();
+
+document.getElementById('time_slider_container').remove(); //todo - temporary 
 
 
 
