@@ -170,7 +170,7 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                         reject(`volume must be 0-2, received ${volume}`);
                         return;
                     }
-                    let audioID = await state.addAudio(file.name, file.path);
+                    let audioID = await state.addAudio(file.name, file.path, req.session.composer.composerID);
                     let newAudio = [ ...state.currentState.audio ];
                     newAudio[index] = {
                         "audioID": audioID,

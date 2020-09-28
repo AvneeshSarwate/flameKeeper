@@ -13,6 +13,7 @@ class State {
         "audio": [
             {
                 "audioID": "<guid>",
+                "composerID": "<guid>",
                 "name": "<filename>",
                 "filename": "<guid>-<name>",
                 "lengthSeconds": 0.0,
@@ -89,7 +90,7 @@ class State {
         return true;
     }
 
-    async addAudio(name, path) {
+    async addAudio(name, path, composerID) {
         let id = uuidv4();
         let filename = `${id}-${name}`;
         let file = fs.readFileSync(path);
@@ -110,6 +111,7 @@ class State {
 
         let audio = {
             "audioID": id,
+            "composerID": composerID,
             "name": name,
             "filename": filename,
             "lengthSeconds": getMP3Duration(file) / 1000,

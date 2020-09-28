@@ -95,10 +95,10 @@ block content
     script(nonce=nonce).
       let returns = JSON.parse(`!{fileNames}`);
       let audioData = JSON.parse(`!{audio}`);
+      let allComposers = JSON.parse(`!{allComposers}`);
       let isComposer = document.location.pathname == "/composer";
       let timestamp = !{timestamp};
       let firstEntry = !{firstEntry};
-      let firstTimestamp = !{firstTimestamp};
 
     script(nonce=nonce src='./javascript/dat.gui.min.js')
     script(nonce=nonce src='./javascript/Tone.js')

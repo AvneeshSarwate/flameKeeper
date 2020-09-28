@@ -10,16 +10,8 @@ const logger = getLogger("main");
 
 const FAR_FUTURE = 999999999999999; // Thu Sep 26 33658 21:46:39 GMT-0400 (Eastern Daylight Time)
 
-router.get('/', function (req, res, next) {
-    //TODO history - add query string val of history timestamp to pull composer info and audio files
-    let historyTimestamp = parseInt(req.query.history) || 0;
-    let historySlot = state.history.filter(h => h.timestamp === historyTimestamp)[0];
-
-    let historyTimestamps = state.history.map(h => h.timestamp);
-    historyTimestamps.sort();
-    let firstTimestamp = historyTimestamps[0];
-
-    let loadedAudio = historySlot ? historySlot.audio : [ ...state.currentState.audio ];
+let filterAudio = function(loadedSlot) {
+    let loadedAudio = loadedSlot.audio;
     loadedAudio = loadedAudio.map(a => {
         let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
         if (!audio) {
@@ -32,23 +24,42 @@ router.get('/', function (req, res, next) {
         }
     });
 
-    let loadedSlotTimestamp = historySlot ? historySlot.timestamp : state.currentState.timestamp
-
-    let composerID = historySlot ? historySlot.composerID : state.currentState.composerID || undefined;
+    let composerID = loadedSlot.composerID || undefined;
     let composer = undefined;
     if (composerID) {
         composer = Composers.composers.filter(c => c.composerID === composerID)[0];
     }
     if (loadedAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
-        res.sendStatus(500);
+        return undefined;
     }
+
+    return {
+        loadedAudio,
+        composer
+    };
+};
+
+router.get('/', function (req, res, next) {
+    // Get audio and composer from timestamp, or current state
+    let historyTimestamp = parseInt(req.query.history) || 0;
+    let loadedSlot = state.history.filter(h => h.timestamp === historyTimestamp)[0] || state.currentState;
+
+    let filteredAudio = filterAudio(loadedSlot);
+    if (!filteredAudio) {
+        res.sendStatus(500);
+        return
+    }
+
+    let loadedAudio = filteredAudio.loadedAudio;
+    let composer = filteredAudio.composer;
+    let loadedSlotTimestamp = loadedSlot.timestamp;
 
     let historyTimes = state.history.map(h => h.timestamp);
     historyTimes.sort();
     let firstEntry = historyTimes[0];
 
-    console.log("composer at index", composerID, composer);
+    console.log("composer at index", composer);
     
     res.render('index', {
         nonce: res.locals.nonce,
@@ -57,9 +68,9 @@ router.get('/', function (req, res, next) {
         audio: JSON.stringify(loadedAudio),
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer,
+        allComposers: JSON.stringify(Composers.composers),
         timestamp: loadedSlotTimestamp,
-        firstEntry,
-        firstTimestamp
+        firstEntry
     });
 });
 
@@ -68,28 +79,17 @@ router.get('/getInfo', function (req, res, next) {
     //TODO history - add query string val of history timestamp to pull composer info and audio files
     let historyTimestamp = parseInt(req.query.history) || 0;
     let historySlot = state.history.filter(h => h.timestamp < historyTimestamp ).slice(-1)[0];
+    let loadedSlot = historySlot ? historySlot : state.currentState;
 
-    let loadedAudio = historySlot ? historySlot.audio : [ ...state.currentState.audio ];
-    loadedAudio = loadedAudio.map(a => {
-        let audio = state.audio.find(aObj => aObj.audioID == a.audioID);
-        if (!audio) {
-            logger.error("unable to find audio for audioID", a.audioID);
-            return undefined;
-        }
-        return {
-            ...audio,
-            ...a
-        }
-    });
-
-    let composerID = historySlot ? historySlot.composerID : state.currentState.composerID;
-    let composer = Composers.composers.filter(c => c.composerID === composerID)[0];
-    if (loadedAudio.includes(undefined)) {
-        logger.error("unable to find currentState audioID in uploaded audio");
+    let filteredAudio = filterAudio(loadedSlot);
+    if (!filteredAudio) {
         res.sendStatus(500);
+        return
     }
 
-    let timestamp = historySlot ? historySlot.timestamp : state.lastEdit;
+    let loadedAudio = filteredAudio.loadedAudio;
+    let composer = filteredAudio.composer;
+    let timestamp = loadedSlot.timestamp;
     
     res.send({loadedAudio, composer, timestamp});
 });

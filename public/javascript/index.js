@@ -77,24 +77,25 @@ function playAudio() {
     Tone.start();
     Tone.Transport.start();
     Promise.all([playerPromises, drawPromises].flat()).then(() => {
-        restartPlaybackAfterLoad();
+        restartPlaybackAfterLoad(Date.now());
         isPlaying = true;
     });
 }
 
-function restartPlaybackAfterLoad() {
+function restartPlaybackAfterLoad(startTime) {
     console.log("ready to play");
     let nowTime = Tone.Transport.now() + 0.25;
     transportStartTime = nowTime;
-    console.log("nowTime", nowTime);
     players.map((p, i) => {
         let audioDur = p.buffer.length * p.sampleTime;
-        let seekTime = ((Date.now() - timestamp) / 1000) % audioDur;
+        let uploadedTimestamp = audioData[i].uploadedAt;
+        let seekTime = ((startTime - uploadedTimestamp) / 1000) % audioDur;
         loopOffsets[i] = seekTime;
         p.start(nowTime);
         p.seek(seekTime+0.001, nowTime+0.001);
         delays[i].delayTime.value = getVisualSyncDelay(i);
     });
+    Tone.Transport.scheduleOnce((_) => installationBlur.setStdDeviation(0, 0), nowTime);
 }
 
 
@@ -114,6 +115,8 @@ let lastVolume = null; //the previos volume of the slot was replaced. saved for 
 let submissionData = {};
 let candidateFileUrl = null;
 let drawPromises = [];
+let currentTime;
+let installationBlur;
 
 function changeVol(e) {
     let vol = parseFloat(e.target.value);
@@ -121,15 +124,13 @@ function changeVol(e) {
 }
 
 function changeTime(e) {
-    let newTimeStamp = (Date.now() - firstEntry) * parseFloat(e.target.value) + firstEntry;
-    let newTimeString = new Date(newTimeStamp).toLocaleString();
+    currentTime = (Date.now() - firstEntry) * parseFloat(e.target.value) + firstEntry;
+    let newTimeString = new Date(currentTime).toLocaleString();
     document.getElementById('text_slider_display').innerHTML = newTimeString;
 }
 
 function jumpToHistory() {
-    let sliderVal = parseFloat(document.getElementById('time_slider').value);
-    let newTimeStamp = (Date.now() - firstEntry) * sliderVal + firstEntry;
-    getInstallationByTimestamp(newTimeStamp);
+    getInstallationByTimestamp(currentTime);
 }
 
 function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
@@ -157,9 +158,10 @@ function getInstallationByTimestamp(timestamp) {
 
             audioData = jsonData.loadedAudio;
             
+            installationBlur.setStdDeviation(5, 5);
             let newPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i)).flat();
             Promise.all(newPromises).then(() => {
-                restartPlaybackAfterLoad();
+                restartPlaybackAfterLoad(timestamp);
             })
         });
 }
@@ -661,8 +663,24 @@ function begin() {
     container.style.visibility = 'hidden';
     container.id = 'installation-svg';
     container.setAttribute("preserveAspectRatio", "none");
-    container.appendChild(createZigZag());
 
+    // Create blur filter
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    container.appendChild(defs);
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.id = 'blurFilter';
+    filter.setAttribute('x', '0%');
+    filter.setAttribute('y', '0%');
+    defs.appendChild(filter);
+    installationBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+    installationBlur.setAttribute('in', 'SourceGraphic');
+    installationBlur.setAttribute('stdDeviation', '0'); // Start with no blur
+    filter.appendChild(installationBlur);
+
+    // Set blur on container
+    container.setAttribute('filter', "url('#blurFilter')");
+
+    container.appendChild(createZigZag());
     waveforms.forEach((wf, i) => {
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.setAttribute("transform", wf.transform);
