@@ -86,12 +86,14 @@ window.onbeforeunload = function() {
 };
 
 
-function setGradient(speed, angle, colors){
+function setGradient(speed, angle, colors, zooms){
     let speedString = speed+'s';
     let gradientString = `linear-gradient(${angle}deg, ${colors.join(', ')})`;
-    
+    let zoomString = zooms.join(" ");
+
     document.documentElement.style.setProperty('--gradient-speed', speedString);
     document.documentElement.style.setProperty('--gradient-def', gradientString);
+    document.documentElement.style.setProperty('--background-size', zoomString);
     // console.log("css", speed, angle, colors);
 }
 
@@ -101,7 +103,8 @@ function refreshGradient() {
             let speed = parseInt(gradient.speed);
             let angle = parseInt(gradient.angle);
             let colors = gradient.colors.split(/(\s+)/).filter(c => c[0] === "#");
-            setGradient(speed, angle, colors);
+            let zooms = gradient.zooms.split(/(\s+)/);
+            setGradient(speed, angle, colors, zooms);
         })
     })
 }
@@ -147,6 +150,7 @@ let audioElements = [];
 let audioElementPromises = [];
 let waveformGroups = [];
 let gains = [];
+let muteGains = [];
 let delays = [];
 let file_is_replaced = false;
 let lastVolume = null; //the previos volume of the slot was replaced. saved for undo in single-replace mode
@@ -330,6 +334,7 @@ const SAMPLES_PER_SECOND = 120;
 const PIXELS_PER_SECOND = 50;
 const NORMALIZE_DATA = true;
 const WAVEFORM_COLOR = "gray";
+const MUTE_COLOR = 'black';
 const HIGHLIGHT_COLOR = "#ff5050aa";
 const TRANSPARENT_COLOR = "#ffffff00";
 
@@ -455,7 +460,7 @@ const waveforms = [
         viewHeight: 30,
         viewWidth: 200,
         transform: `rotate(180 100 30) translate(-200 -195)`,
-        zIndex: 1,
+        zIndex: -1,
         panAmount: 0.25,
         delay: 1.35, 
         waveZoom: 1,
@@ -603,6 +608,11 @@ function createAudioElement(wf, slotIndex) {
     gain.gain.value = audioData[slotIndex].volume;
     gains.push(gain);
 
+
+    const muteGain = audioCtx.createGain();
+    muteGain.gain.value = 1;
+    muteGains.push(muteGain);
+
     const delay = audioCtx.createDelay(5);
     delay.delayTime.value = waveforms[slotIndex].delay;
     delays.push(delay);
@@ -615,7 +625,7 @@ function createAudioElement(wf, slotIndex) {
 
     //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
     //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
-    source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
+    source.connect(gain).connect(delay).connect(compressor).connect(muteGain).connect(audioCtx.destination);
 }
 
 function toggleGroupBorders() {
@@ -656,12 +666,26 @@ function drawWaveformBackground(wf, group, i) {
             toggleGroupBorders();
         };
 
+        group.ondblclick = () => {
+            selected_waveform = null;
+            toggleGroupBorders();
+            let waveColor, muteVol;
+            if(muteGains[i].gain.value == 1) {
+                [waveColor, muteVol] = [MUTE_COLOR, 0]
+            } else {
+                [waveColor, muteVol] = [WAVEFORM_COLOR, 1]
+            }
+            document.getElementById('waveline-'+i).setAttribute('fill', waveColor);
+            document.getElementById('zeroline-'+i).setAttribute('fill', waveColor);
+            muteGains[i].gain.value = muteVol;
+        };
+
         group.onmouseenter = () => { bgRect.setAttribute("fill", HIGHLIGHT_COLOR) };
         group.onmouseleave = () => { bgRect.setAttribute("fill", TRANSPARENT_COLOR) };
     }
 }
 
-function drawZeroLine(wf, group) {
+function drawZeroLine(wf, group, slotIndex) {
     // Draw line at zero to make the no-waveform part look better.
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", 0);
@@ -669,6 +693,7 @@ function drawZeroLine(wf, group) {
     line.setAttribute("y1", wf.viewHeight);
     line.setAttribute("y2", wf.viewHeight);
     line.setAttribute("stroke", WAVEFORM_COLOR);
+    line.setAttribute("id", "zeroline-"+slotIndex)
     group.appendChild(line);
 }
 
@@ -750,6 +775,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         })
         .join(" ");
     line.setAttribute("points", pointsJoined);
+    line.setAttribute('id', 'waveline-'+slotIndex)
     svg.appendChild(line);
 
     waveforms[slotIndex].width = width;
@@ -864,7 +890,7 @@ function begin() {
 
         drawWaveformBackground(wf, group, i);
 
-        drawZeroLine(wf, group);
+        drawZeroLine(wf, group, i);
 
         if (wf.zIndex < 0) {
             container.prepend(group);

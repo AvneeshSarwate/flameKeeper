@@ -419,12 +419,6 @@ function createTonePlayer(wf, slotIndex) {
     player.chain(gain,delay, compressor, globalGain, Tone.Destination);
 }
 
-function toggleGroupBorders() {
-    [0, 1, 2, 3, 4, 5, 6].map(i => {
-        const bgRect = document.getElementById('bgRect-' + i);
-        bgRect.setAttribute("stroke-width", selected_waveform === i ? '3px' : '0px')
-    });
-}
 function drawWaveformBackground(wf, group, i) {
     const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     const view_height = wf.viewHeight * (wf.mirrored ? 2 : 1);
