@@ -622,6 +622,32 @@ footer .footerNote {
     align-items: center;
 }
 
+#composer-hover {
+    display: flex;
+	flex-direction: row;
+    align-items: center;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    padding: 0.5em 0.5em;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+	border: 2px solid rgba(255, 255, 255, 0.25);
+	border-radius: 2px;
+}
+
+ /*todo - maybe change general hide class usage of visibility/hidden in other places?*/
+#composer-hover.hide {
+    visibility: collapse;
+}
+
+#composer-hover-img {
+    margin-right: 0.5em;
+}
+#composer-hover-text {
+    margin-right: 0.5em;
+}
+
+
 .global_vol {
 	font-family: 'Rubik', sans-serif;
 	font-weight: 700;

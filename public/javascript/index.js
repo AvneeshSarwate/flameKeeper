@@ -182,7 +182,7 @@ const WAVEFORM_COLOR = "gray";
 const HIGHLIGHT_COLOR = "#ff5050aa";
 const TRANSPARENT_COLOR = "#ffffff00";
 
-const DEBUG = true;
+const DEBUG = false;
 
 // Nice convenient way to describe the waveforms.
 const waveforms = [
@@ -457,21 +457,28 @@ hoverInfo.onclick = () => {
     hoverInfo.classList.add('hide');
     infoShowingForBg = null;
 }
+document.onclick = () => {
+    if(infoShowingForBg != null) {
+        hoverInfo.classList.add('hide');
+        infoShowingForBg = null;
+    }
+}
 
 let bgInfoClick = (e) => {
-    if(e.target.id === infoShowingForBg){
+    let ind = parseInt(e.target.id.split("-")[1]);
+    if(ind === infoShowingForBg){
         hoverInfo.classList.add('hide');
+        infoShowingForBg = null;
     } else {
-        bgRect = e.target;
-        let i = parseInt(e.target.id.split("-")[1]);
+        bgRect = document.getElementById('bgRect-'+ind);
         let hoverImg = document.getElementById('composer-hover-img');
         let hoverText = document.getElementById('composer-hover-text');
 
-        let audio_composer = allComposers.filter(c => c.composerID == audioData[i].composerID)[0];
-        let audio_time = new Date(audioData[i].uploadedAt).toLocaleString();
+        let audio_composer = allComposers.filter(c => c.composerID == audioData[ind].composerID)[0];
+        let audio_time = new Date(audioData[ind].uploadedAt).toLocaleString();
         
         hoverImg.src = audio_composer.photo;
-        hoverText.innerText = `Uploaded by ${audio_composer.name} on ${audio_time}`;
+        hoverText.innerText = `Uploaded by ${audio_composer.name} \non ${audio_time}`;
 
         let {top, left} = bgRect.getBoundingClientRect();
         console.log("composer hover val", top, left, Date.now());
@@ -479,8 +486,9 @@ let bgInfoClick = (e) => {
         hoverInfo.style.left = left+'px';
         console.log("composer hover style", hoverInfo.style.top, hoverInfo.style.left);
         hoverInfo.classList.remove('hide');
-        infoShowingForBg = e.target.id;
+        infoShowingForBg = ind;
     }
+    e.stopPropagation();
 }
 
 function drawWaveformBackground(wf, group, i) {
@@ -505,7 +513,7 @@ function drawWaveformBackground(wf, group, i) {
     group.appendChild(label);
     group.appendChild(bgRect);
 
-    bgRect.onclick = bgInfoClick;
+    group.onclick = bgInfoClick;
 
     // bgRect.onmouseenter = () => { 
     //     showInfo();
@@ -604,6 +612,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         })
         .join(" ");
     line.setAttribute("points", pointsJoined);
+    line.setAttribute("id", "waveline-"+slotIndex);
     svg.appendChild(line);
 
     waveforms[slotIndex].width = width;
