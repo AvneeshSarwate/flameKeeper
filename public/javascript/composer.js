@@ -412,6 +412,8 @@ function debugRect(height, width) {
     return bgRect;
 }
 
+function setFrac(num, elemInd) {audioElements[elemInd].currentTime = audioElements[elemInd].duration * num}
+
 // Nice convenient way to describe the waveforms.
 const waveforms = [
     {//Wave-0
@@ -425,7 +427,7 @@ const waveforms = [
         panAmount: -0.75,
         delay: 2.155, 
         waveZoom: 1.29,
-        linePercent: 0.69
+        linePercent: 0.829 //248/299
     },
     {//Wave-1
         url: `https://flamekeeper.s3.amazonaws.com/${returns[1]}`,
@@ -438,7 +440,7 @@ const waveforms = [
         panAmount: 0.5,
         delay: 2.48, 
         waveZoom: 2.73,
-        linePercent: 0.85
+        linePercent: 0.845 //376/445
     },
     {//Wave-2
         url: `https://flamekeeper.s3.amazonaws.com/${returns[2]}`,
@@ -451,7 +453,7 @@ const waveforms = [
         panAmount: 0.75,
         delay: 1.53, 
         waveZoom: 2.2,
-        linePercent: 0.51
+        linePercent: 0.503 //420/835
     },
     {//Wave-3
         url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
@@ -464,7 +466,7 @@ const waveforms = [
         panAmount: 0.25,
         delay: 1.35, 
         waveZoom: 2.4,
-        linePercent: 0.51
+        linePercent: 0.503
     },
     {//Wave-4
         url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
@@ -477,7 +479,7 @@ const waveforms = [
         panAmount: 0,
         delay: 2.27, 
         waveZoom: 1.59,
-        linePercent: 0.79
+        linePercent: 0.789 //359/455 
     },
     {//Wave-5
         url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
@@ -490,7 +492,7 @@ const waveforms = [
         panAmount: -0.25,
         delay: 0.47, 
         waveZoom: 2.73,
-        linePercent: 0.215
+        linePercent: 0.789
     },
     {//Wave-6
         url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
@@ -503,7 +505,7 @@ const waveforms = [
         panAmount: -0.5,
         delay: 0, 
         waveZoom: 1.13,
-        linePercent: 0
+        linePercent: 0.911 //697/765
     }
 ];
 
@@ -613,7 +615,7 @@ function createAudioElement(wf, slotIndex) {
     muteGain.gain.value = 1;
     muteGains.push(muteGain);
 
-    const delay = audioCtx.createDelay(5);
+    const delay = audioCtx.createDelay(20);
     delay.delayTime.value = waveforms[slotIndex].delay;
     delays.push(delay);
     
