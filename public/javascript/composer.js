@@ -209,6 +209,8 @@ function submit() {
         }).then(res => {
             if(res.status != 200) {
                 res.text().then(t => alert(t));
+                document.getElementById('replace_file_submit').disabled = false;
+                return;
             }
             alert(`successfully submitted ${submissionData.file.name}`);
             lastEditTime = Date.now();
