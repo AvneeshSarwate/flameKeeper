@@ -188,8 +188,11 @@ function undoReplace() {
 }
 
 function submit() {
-    if(audioElements[selected_waveform].duration > 440) {
+    document.getElementById('replace_file_submit').disabled = true;
+
+    if(audioElements[selected_waveform].duration > 120) {
         alert("select an audio file less than 2 minutes long");
+        document.getElementById('replace_file_submit').disabled = false;
         return
     }
     let formData = new FormData();
@@ -206,9 +209,17 @@ function submit() {
         }).then(res => {
             if(res.status != 200) {
                 res.text().then(t => alert(t));
+                document.getElementById('replace_file_submit').disabled = false;
+                return;
             }
+            alert(`successfully submitted ${submissionData.file.name}`);
+            lastEditTime = Date.now();
+            disableEditing();
+            document.getElementById('replace_file_submit').disabled = false;
         }).catch(err => {
+            alert("unable to upload, please contact the developers");
             console.error("unable to upload", err);
+            document.getElementById('replace_file_submit').disabled = false;
         });
     }
 }

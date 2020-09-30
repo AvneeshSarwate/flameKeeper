@@ -153,6 +153,7 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                         reject("no file found");
                         return;
                     }
+                    // Don't check against current state or else transition is impossible
                     // if(fields.composerID !== state.currentState.composerID) {
                     //     let msg = `composer or admin ${fields.composerID} attempted upload when current composer is ${state.currentState.composerID}`;
                     //     logger.warn(msg);
