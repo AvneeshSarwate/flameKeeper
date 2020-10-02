@@ -117,6 +117,7 @@ let candidateFileUrl = null;
 let drawPromises = [];
 let currentTime;
 let installationBlur;
+let drawPointBuffers = [];
 
 function changeVol(e) {
     let vol = parseFloat(e.target.value);
@@ -177,6 +178,7 @@ const ZIGZAG_COLOR = "red";
 const ZIGZAG_WIDTH = 1;
 const SAMPLES_PER_SECOND = 120;
 const PIXELS_PER_SECOND = 50;
+const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
 const NORMALIZE_DATA = true;
 const WAVEFORM_COLOR = "gray";
 const HIGHLIGHT_COLOR = "#ff5050aa";
@@ -570,7 +572,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     }
     //waveformHeight = waveformHeight / 2;
     // Create all of the points for our svg.
-    const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
+    
     // +2 for beginning and ending at 0 height.
     const width = (data.length + 2) * pixelsPerSample;
     const points = [];
@@ -616,6 +618,10 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     svg.appendChild(line);
 
     waveforms[slotIndex].width = width;
+
+    let repeatedWaveBuffer = [];
+    let baseLength = points.length;
+
     let wf = waveforms[slotIndex];
     // if(width < wf.viewWidth * MAX_ZOOM_OUT){
         //todo - clean this up and to only copy over end-part of wave when file is large 
@@ -623,8 +629,10 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         let waveCopyStrings = [];
         for(let i = 0; i < numRepeats; i++){
             let repeat = points.map(([x, y]) => `${x-(i+1)*width},${y}`).join(" "); //copy of the waveform shifted i wavelengths
+            repeatedWaveBuffer.push(points.map(([x, y]) => [x-(i+1)*width, y]));
             waveCopyStrings.push(repeat);
         }
+        drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1)};
         line.setAttribute("points", pointsJoined + " " + waveCopyStrings.join(" "));
     // } else {
     //     let endSlice = getWaveEndSlice(points, wf.viewWidth * MAX_ZOOM_OUT);
@@ -670,6 +678,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let offset = -1 * viewWidth;
     svg.setAttribute("width", viewWidth.toString());
     svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
+    let polyline = document.getElementById('waveline-'+slotIndex);
     let frameCount = 0;
     function draw(ts) {
         frameCount++;
@@ -678,6 +687,14 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 
         let dur = playerDur(slotIndex);
         let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur; 
+
+        let waveWidth = waveforms[slotIndex].viewWidth;
+        let waveStart = Math.floor(drawPointBuffers[slotIndex].baseLength * audioProg);
+        let waveEnd = Math.floor(waveWidth/pixelsPerSample);
+        let pointSlice = drawPointBuffers[slotIndex].points.slice(waveStart, waveEnd);
+        let interpolation = 0;// todo - can interpolate points to adjust for rounding the waveStart/end
+        let startX = pointSlice[0][0];
+        let newPoints = pointStart.map(([x, y]) => [x-startX+interpolation, y]);
 
         if (!svg.parentElement) return; //if this wave has been removed, don't requeue animation for it
 
@@ -690,6 +707,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 
         if(!isNaN(offset)) {
             svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
+            // polyline.setAttribute('points', newPoints.map(([x, y]) => `${x},${y}`).join(""))
         }
         requestAnimationFrame(draw);
     }
