@@ -1,7 +1,7 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
-// var gui = new dat.GUI();
+var gui = new dat.GUI();
 let swapClick = i => document.getElementById('fileSwap-'+i).click();
 let controllerProps = {
     zoom0: 1.29,
@@ -21,7 +21,15 @@ let controllerProps = {
     swap_file_4: () => {swapClick(4)},
     swap_file_5: () => {swapClick(5)},
     swap_file_6: () => {swapClick(6)},
-    show_wave_numbers: false
+    show_wave_numbers: false,
+    prog0: 0,
+    prog1: 0,
+    prog2: 0,
+    prog3: 0,
+    prog4: 0,
+    prog5: 0,
+    prog6: 0,
+    manualProg: false
 };
 
 const MAX_ZOOM_OUT = 3;
@@ -47,6 +55,11 @@ const MAX_ZOOM_OUT = 3;
 //     let labels = document.getElementsByTagNameNS("http://www.w3.org/2000/svg", "text");
 //     [0, 1, 2, 3, 4, 5, 6].forEach(i => {labels[i].style.visibility = visibility});
 // });
+
+[0, 1, 2, 3, 4, 5, 6].forEach(i => {
+    gui.add(controllerProps, 'prog'+i, 0, 3, 0.01)
+});
+gui.add(controllerProps, 'manualProg')
 
 
 
@@ -307,7 +320,7 @@ function refreshGradient() {
 
 setTimeout(() => {
     setInterval(() => {
-        refreshGradient();
+        // refreshGradient();
         
     }, 2 * 1000);
 }, 1000 * 2);
@@ -572,6 +585,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     waveforms[slotIndex].width = width;
 
     let repeatedWaveBuffer = [];
+    let topWaveBuffer = [];
 
     let wf = waveforms[slotIndex];
     // if(width < wf.viewWidth * MAX_ZOOM_OUT){
@@ -581,9 +595,10 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         for(let i = 0; i < numRepeats; i++){
             let repeat = points.map(([x, y]) => `${x-(i+1)*width},${y}`).join(" "); //copy of the waveform shifted i wavelengths
             repeatedWaveBuffer.push(points.map(([x, y]) => [x-(i+1)*width, y]));
+            topWaveBuffer.push(baseWaveArc.map(([x, y]) => [x-(i+1)*width, y]))
             waveCopyStrings.push(repeat);
         }
-        drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1), flipFunc, baseWaveArc, width};
+        drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1), flipFunc, baseWaveArc, width, waveTop: topWaveBuffer.flat(1)};
         line.setAttribute("points", pointsJoined + " " + waveCopyStrings.join(" "));
     // } else {
     //     let endSlice = getWaveEndSlice(points, wf.viewWidth * MAX_ZOOM_OUT);
@@ -625,7 +640,10 @@ function setUpForDebug(){
 }
 
 
-let USE_LINE_REDRAW = false;
+let USE_LINE_REDRAW = true;
+
+
+let waveInfo = [];
 
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
@@ -646,20 +664,35 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 
         let fakeAudioProg = (Date.now()/1000 % dur)/dur;
         let waveProg = isPlaying ? audioProg : fakeAudioProg;
+
+        if(controllerProps.manualProg) waveProg = controllerProps['prog'+slotIndex] % .999;
+
         offset = waveProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
         let nearFrac = Math.abs(.9 - (audioProg/waveforms[slotIndex].linePercent)) < 0.05
 
-        let waveWidth = waveforms[slotIndex].viewWidth;
-        let waveStart = Math.floor(drawPointBuffers[slotIndex].baseLength * waveProg);
-        let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
-        let pointSlice = drawPointBuffers[slotIndex].points.slice(waveStart, waveStart + waveSampNum);
-        let interpolation = 0;// todo - can interpolate points to adjust for rounding the waveStart/end
-        if(!pointSlice || !pointSlice[0]) debugger;
-        let startX = pointSlice[0][0];
-        let newPoints = pointSlice.map(([x, y]) => [x-startX+interpolation, y]);
+        // let waveWidth = waveforms[slotIndex].viewWidth;
+        // let waveStart = Math.floor(drawPointBuffers[slotIndex].baseLength * waveProg);
+        // let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
+        // let pointSlice = drawPointBuffers[slotIndex].points.slice(waveStart, waveStart + waveSampNum);
+        // let interpolation = 0;// todo - can interpolate points to adjust for rounding the waveStart/end
+        // if(!pointSlice || !pointSlice[0]) debugger;
+        // let startX = pointSlice[0][0];
+        // let newPoints = pointSlice.map(([x, y]) => [x-startX+interpolation, y]);
 
-        let {baseWaveArc, flipFunc, width, baseLength} = drawPointBuffers[slotIndex];
-        // let startInd = 
+        let waveWidth = waveforms[slotIndex].viewWidth;
+        let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
+        let {baseWaveArc, flipFunc, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
+        let startInd = Math.floor(waveProg * baseLength);
+        let endInd = startInd + waveSampNum;
+        let xStart = waveTop[startInd][0];
+        let topSlice = waveTop.slice(startInd, endInd).map(([x, y]) => [x-xStart, y]);
+        let backwards = topSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
+        let newPoints = topSlice.concat(backwards);
+
+        waveInfo[slotIndex] = {
+            width: waveTop.slice(-1)[0][0] - waveTop[0][0],
+            waveProg
+        };
         
 
         if(nearFrac && slotIndex == DEBUG_WAVE) console.log("audioProg", audioProg, waveforms[slotIndex].linePercent);
