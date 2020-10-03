@@ -338,18 +338,11 @@ function createZigZag() {
     return line;
 }
 
-function animateAudioData(audioDataPromise, slotIndex) {
+function animateAudioData(toneBuffer, slotIndex) {
     let wf = waveforms[slotIndex];
     let group = document.getElementById('group-' + slotIndex);
 
-    return audioDataPromise
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer => {
-            let bufferPromise = new Promise(resolve => {
-                audioCtx.decodeAudioData(arrayBuffer, resolve);
-            });
-            return bufferPromise
-        })
+    return Promise.resolve(toneBuffer)
         .then(audioBuffer => visualize(audioBuffer, wf.viewHeight, slotIndex))
         .then(({ waveformWidth, svg }) => {
             let animateViewHeight = wf.viewHeight * 2;
@@ -381,54 +374,6 @@ function replaceAudioSlotWithFile(file, slotIndex) {
     });
 }
 
-function createAudioElement(wf, slotIndex) {
-    const audio = new Audio();
-    audio.crossOrigin = 'anonymous';
-    if (returns.length > 0) audio.src = wf.url;
-    audio.loop = true;
-
-    //- setTimeout(function() {
-    //-   audio.play();
-    //- }, 5000);
-
-    // audio.addEventListener("canplaythrough", () => { audio.play() });
-
-    let audioPromise = new Promise((resolve) => {
-        audio.oncanplaythrough = () => resolve(audio);
-    }).then(audio => new Promise((resolve) => {
-        audio.currentTime = ((Date.now() - timestamp) / 1000) % audio.duration; 
-        audio.onseeked = () => resolve(audio);
-    }));
-
-    audioElementPromises.push(audioPromise);
-
-    audioElements.push(audio);
-
-    document.body.appendChild(audio);
-    const source = audioCtx.createMediaElementSource(audio);
-
-    //- const panner = new PannerNode(audioCtx);
-
-    const compressor = audioCtx.createDynamicsCompressor();
-    const gain = audioCtx.createGain();
-    gain.gain.value = audioData[slotIndex].volume;
-    gains.push(gain);
-
-    const delay = audioCtx.createDelay(5);
-    delay.delayTime.value = waveforms[slotIndex].delay;
-    delays.push(delay);
-    
-    compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
-    compressor.knee.setValueAtTime(40, audioCtx.currentTime);
-    compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
-    compressor.attack.setValueAtTime(0, audioCtx.currentTime);
-    compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
-
-    //- panner.setPosition(wf.panAmount,0,1-Math.abs(wf.panAmount));
-    //- source.connect(panner).connect(compressor).connect(audioCtx.destination);
-    source.connect(gain).connect(delay).connect(compressor).connect(audioCtx.destination);
-}
-
 let globalGain = new Tone.Gain(1);
 
 function createTonePlayer(wf, slotIndex) {
@@ -451,6 +396,8 @@ function createTonePlayer(wf, slotIndex) {
     gains.push(gain);
 
     player.chain(gain,delay, compressor, globalGain, Tone.Destination);
+
+    return playerPromise
 }
 
 let hoverInfo = document.getElementById('composer-hover');
@@ -583,6 +530,11 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         x += pixelsPerSample;
         points.push([x, y]);
     }
+
+    let baseLength = points.length;
+    let baseWaveArc = points.map(a => a);
+    let flipFunc = y => waveformHeight * 2 - y;
+
     for (let i = points.length - 1; i >= 0; i--) {
         const [x, y] = points[i];
         points.push([x, waveformHeight * 2 - y]);
@@ -620,7 +572,6 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     waveforms[slotIndex].width = width;
 
     let repeatedWaveBuffer = [];
-    let baseLength = points.length;
 
     let wf = waveforms[slotIndex];
     // if(width < wf.viewWidth * MAX_ZOOM_OUT){
@@ -632,7 +583,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
             repeatedWaveBuffer.push(points.map(([x, y]) => [x-(i+1)*width, y]));
             waveCopyStrings.push(repeat);
         }
-        drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1)};
+        drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1), flipFunc, baseWaveArc, width};
         line.setAttribute("points", pointsJoined + " " + waveCopyStrings.join(" "));
     // } else {
     //     let endSlice = getWaveEndSlice(points, wf.viewWidth * MAX_ZOOM_OUT);
@@ -673,6 +624,9 @@ function setUpForDebug(){
     delays[0].delayTime.value = 0;
 }
 
+
+let USE_LINE_REDRAW = false;
+
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -688,14 +642,6 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         let dur = playerDur(slotIndex);
         let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur; 
 
-        let waveWidth = waveforms[slotIndex].viewWidth;
-        let waveStart = Math.floor(drawPointBuffers[slotIndex].baseLength * audioProg);
-        let waveEnd = Math.floor(waveWidth/pixelsPerSample);
-        let pointSlice = drawPointBuffers[slotIndex].points.slice(waveStart, waveEnd);
-        let interpolation = 0;// todo - can interpolate points to adjust for rounding the waveStart/end
-        let startX = pointSlice[0][0];
-        let newPoints = pointStart.map(([x, y]) => [x-startX+interpolation, y]);
-
         if (!svg.parentElement) return; //if this wave has been removed, don't requeue animation for it
 
         let fakeAudioProg = (Date.now()/1000 % dur)/dur;
@@ -703,11 +649,25 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         offset = waveProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
         let nearFrac = Math.abs(.9 - (audioProg/waveforms[slotIndex].linePercent)) < 0.05
 
+        let waveWidth = waveforms[slotIndex].viewWidth;
+        let waveStart = Math.floor(drawPointBuffers[slotIndex].baseLength * waveProg);
+        let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
+        let pointSlice = drawPointBuffers[slotIndex].points.slice(waveStart, waveStart + waveSampNum);
+        let interpolation = 0;// todo - can interpolate points to adjust for rounding the waveStart/end
+        if(!pointSlice || !pointSlice[0]) debugger;
+        let startX = pointSlice[0][0];
+        let newPoints = pointSlice.map(([x, y]) => [x-startX+interpolation, y]);
+
+        let {baseWaveArc, flipFunc, width, baseLength} = drawPointBuffers[slotIndex];
+        // let startInd = 
+        
+
         if(nearFrac && slotIndex == DEBUG_WAVE) console.log("audioProg", audioProg, waveforms[slotIndex].linePercent);
 
         if(!isNaN(offset)) {
-            svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
-            // polyline.setAttribute('points', newPoints.map(([x, y]) => `${x},${y}`).join(""))
+            let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
+            if(USE_LINE_REDRAW) polyline.setAttribute('points', pointString)
+            else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
         }
         requestAnimationFrame(draw);
     }
@@ -776,9 +736,11 @@ function begin() {
             container.appendChild(group);
         }
 
-        drawPromises.push(animateAudioData(fetch(wf.url), i));
+        // drawPromises.push(animateAudioData(fetch(wf.url), i));
 
-        createTonePlayer(wf, i);
+        createTonePlayer(wf, i).then(tonePlayer => {
+            drawPromises.push(animateAudioData(tonePlayer.buffer, i));
+        });
     });
 
     let loadRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
