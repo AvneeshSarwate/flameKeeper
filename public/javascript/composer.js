@@ -159,9 +159,10 @@ let candidateFileUrl = null;
 
 function undoReplace() {
     document.getElementById('undo_button').classList.add('hide');
-    document.getElementById('replace_file_button').classList.add('hide');
     document.getElementById('vol_span').classList.add('hide');
     document.getElementById('replace_file_span').classList.remove('hide');
+    document.getElementById('replace_file_input').classList.remove('hide');
+    document.getElementById('replace_file_submit').classList.add('hide');
 
 
     const undoWave = selected_waveform;
@@ -190,11 +191,20 @@ function undoReplace() {
 function submit() {
     document.getElementById('replace_file_submit').disabled = true;
 
+    if(selected_waveform < 0 || selected_waveform > 6) {
+        alert("select a waveform to replace");
+        document.getElementById('replace_file_submit').disabled = false;
+        return;
+    }
+
     if(audioElements[selected_waveform].duration > 120) {
         alert("select an audio file less than 2 minutes long");
         document.getElementById('replace_file_submit').disabled = false;
-        return
+        return;
     }
+
+    document.getElementById('replace_file_submit').innerHTML = "Uploading...";
+
     let formData = new FormData();
     if (Object.keys(submissionData).length > 0) {
         for (k in submissionData) {
@@ -210,15 +220,19 @@ function submit() {
             if(res.status != 200) {
                 res.text().then(t => alert(t));
                 document.getElementById('replace_file_submit').disabled = false;
+                document.getElementById('replace_file_submit').innerHTML = "Submit";
                 return;
             }
             alert(`successfully submitted ${submissionData.file.name}`);
             lastEditTime = Date.now();
             disableEditing();
+
+            document.getElementById('replace_file_submit').innerHTML = "Submit";
             document.getElementById('replace_file_submit').disabled = false;
         }).catch(err => {
             alert("unable to upload, please contact the developers");
             console.error("unable to upload", err);
+            document.getElementById('replace_file_submit').innerHTML = "Submit";
             document.getElementById('replace_file_submit').disabled = false;
         });
     }
