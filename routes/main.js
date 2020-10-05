@@ -59,7 +59,7 @@ router.get('/', function (req, res, next) {
     historyTimes.sort();
     let firstEntry = historyTimes[0];
 
-    console.log("composer at index", composer);
+    // console.log("composer at index", composer);
     
     res.render('index', {
         nonce: res.locals.nonce,

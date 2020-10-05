@@ -649,7 +649,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
     svg.setAttribute("width", viewWidth.toString());
-    svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
+    if(!USE_LINE_REDRAW) svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
     let polyline = document.getElementById('waveline-'+slotIndex);
     let frameCount = 0;
     function draw(ts) {
@@ -690,7 +690,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         let newPoints = topSlice.concat(backwards);
 
         waveInfo[slotIndex] = {
-            width: waveTop.slice(-1)[0][0] - waveTop[0][0],
+            width: topSlice.slice(-1)[0][0] - topSlice[0][0],
             waveProg
         };
         
