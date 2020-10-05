@@ -43,6 +43,7 @@
     "pino": "^6.5.1",
     "pino-pretty": "^4.1.0",
     "pug": "^2.0.4",
+    "showdown": "^1.9.1",
     "standardized-audio-context": "^24.1.22",
     "tone": "^14.7.39"
   }

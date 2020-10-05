@@ -47,7 +47,7 @@ block content
         if composer
           h3(id='time-header') This Week&apos;s Curator
           h1(id='composer-name') #{composer.name}
-          p(id='composer-bio') #{composer.bio}
+          div(id='composer-bio') !{composer.bio}
         p
           a(href='/past-composers') See all our past curators &raquo;
     //- content
@@ -73,7 +73,7 @@ block content
           article.section2Content
             h2.sectionContentTitle #{admin.name}
             h3.sectionContentSubTitle #{admin.role}
-            p.sectionContent #{admin.description}
+            div.sectionContent !{admin.description}
     
     div(id='composer-hover' class='hide')
         img(id='composer-hover-img')

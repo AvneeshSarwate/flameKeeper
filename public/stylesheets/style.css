@@ -118,6 +118,20 @@ header .profileHeader p {
 	display: inline-block;
 }
 
+.sectionContent a, #composer-bio a{
+	font-family: 'Rubik', sans-serif;
+	color: rgba(255,255,255,0.50);
+}
+
+.sectionContent a:hover, #composer-bio a:hover {
+	opacity: 0.8;
+	text-decoration: none;
+}
+
+.sectionContent a:focus, #composer-bio a:focus {
+	outline-color: rgba(255,255,255,0.50);
+}
+
 .mainContent .socialNetworkNavBar {
 	text-align: left;
 	display: inline-block;

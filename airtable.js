@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const Airtable = require('airtable');
-const { asyncForEach } = require('./util');
+const { asyncForEach, markdownToHTML } = require('./util');
 const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
 const baseID = "appiuLzmVDcFCntEr";
 const base = airtable.base(baseID);
@@ -54,7 +54,7 @@ class Composers {
         return {
             "composerID": record.id,
             "name": record.get("name"),
-            "bio": record.get("bio"),
+            "bio": markdownToHTML(record.get("bio")),
             "photo": photo,
             "key": record.get("key"),
             "active": record.get("active") || false
@@ -108,7 +108,7 @@ class Admins {
             "adminID": record.id,
             "name": record.get("name"),
             "role": record.get("role"),
-            "description": record.get("description"),
+            "description": markdownToHTML(record.get("description")),
             "key": record.get("key"),
             "active": record.get("active") || false
         };
