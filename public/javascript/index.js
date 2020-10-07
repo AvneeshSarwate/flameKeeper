@@ -191,7 +191,7 @@ const ZIGZAG_COLOR = "red";
 const ZIGZAG_WIDTH = 1;
 const ZIGZAG_V_LENGTH = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
 const ZIGZAG_H_LENGTH = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
-const ZIGZAG_LOADING_EXPONENTIAL = 2;
+const ZIGZAG_LOADING_EXPONENTIAL = 0.005;
 const SAMPLES_PER_SECOND = 120;
 const PIXELS_PER_SECOND = 50;
 const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
@@ -800,7 +800,7 @@ function begin() {
     container.setAttribute("width", "100%");
     container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
     document.getElementById("installation").append(container);
-    container.style.visibility = 'hidden';
+    // container.style.visibility = 'hidden';
     container.id = 'installation-svg';
     container.setAttribute("preserveAspectRatio", "none");
 
@@ -837,10 +837,17 @@ function begin() {
             container.appendChild(group);
         }
 
-        // drawPromises.push(animateAudioData(fetch(wf.url), i));
+        createTonePlayer(wf, i);
+    });
 
-        createTonePlayer(wf, i).then(tonePlayer => {
-            drawPromises.push(animateAudioData(tonePlayer.buffer, i));
+    // Wait until all the audio is downloaded to start drawing the waveforms,
+    //  which is much faster
+    Promise.all(playerPromises).then(() => {
+        playerPromises.forEach((playerPromise, i) => {
+            playerPromise.then(tonePlayer => {
+                // Start drawing the waveforms and animating
+                drawPromises.push(animateAudioData(tonePlayer.buffer, i));
+            });
         });
     });
 
@@ -852,10 +859,13 @@ function begin() {
     loadRect.setAttribute("fill", ZIGZAG_COLOR);
     // container.appendChild(loadRect);
 
-    Promise.all(drawPromises).then(() => {
-        // container.removeChild(loadRect);
-        container.style.visibility = 'visible';
-    });
+    // NOTE: drawPromises ([animateAudioData]) are all immediately resolved due
+    //  to animateAudioData returning Promise.resolve(), so need to wait
+
+    // Promise.all(drawPromises).then(() => {
+    //     // container.removeChild(loadRect);
+    //     container.style.visibility = 'visible';
+    // });
 
     // Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
     //     console.log("ready to play");
