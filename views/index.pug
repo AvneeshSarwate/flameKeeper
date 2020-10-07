@@ -27,10 +27,9 @@ block content
       br
       //- Header
       section.profileHeader
-        h1 #{copy.title[0]}
-        h3 #{copy.subtitle[0].toUpperCase()}
-        for paragraph in copy.introduction
-          p #{paragraph}
+        h1 #{copy.title}
+        h3 #{copy.subtitle.toUpperCase()}
+        div !{copy.introduction}
         br
       hr
       br
@@ -58,12 +57,7 @@ block content
         hr.sectionTitleRule
         hr.sectionTitleRule2
         .section1Content
-          for paragraph, i in copy['how-it-works']
-            //- expects subtitle, paragraph, empty line
-            if i % 3 === 0
-              p.sectionContentTitle #{paragraph}
-            else
-              p.sectionContent #{paragraph}
+          div !{copy["how-it-works"]}
       //- Contributors to the installation
       section.section2
         h2.sectionTitle Meet The Team

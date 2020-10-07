@@ -148,7 +148,7 @@ function jumpToHistory() {
 }
 
 function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
-    let url = `https://flamekeeper.s3.amazonaws.com/${filename}`;
+    let url = `https://flamekeepers.s3.amazonaws.com/${filename}`;
     
     gains[slotIndex].gain.value = gainVal;
     let waveDrawPromise = animateAudioData(fetch(url), slotIndex);
@@ -202,7 +202,7 @@ const DEBUG = false;
 // Nice convenient way to describe the waveforms.
 const waveforms = [
     {//Wave-0
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[0]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[0]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 25.5,
@@ -215,7 +215,7 @@ const waveforms = [
         linePercent: 0.829 //248/299
     },
     {//Wave-1
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[1]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[1]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 30,
@@ -228,7 +228,7 @@ const waveforms = [
         linePercent: 0.845 //376/445
     },
     {//Wave-2
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[2]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[2]}`,
         speed: 15,
         mirrored: true,
         viewHeight: 30,
@@ -241,7 +241,7 @@ const waveforms = [
         linePercent: 0.503 //420/835
     },
     {//Wave-3
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[3]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 30,
@@ -254,7 +254,7 @@ const waveforms = [
         linePercent: 0.503
     },
     {//Wave-4
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[4]}`,
         speed: 10,
         mirrored: false,
         viewHeight: 30,
@@ -267,7 +267,7 @@ const waveforms = [
         linePercent: 0.789 //359/455 
     },
     {//Wave-5
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[5]}`,
         speed: 10,
         mirrored: false,
         viewHeight: 30,
@@ -280,7 +280,7 @@ const waveforms = [
         linePercent: 0.789
     },
     {//Wave-6
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[6]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 30,

@@ -146,7 +146,19 @@ class Copy {
             }).all();
             await asyncForEach(records, async record => {
                 let section = record.get("section");
-                let sectionCopy = record.get("copy").split('\n');
+                let sectionCopy;
+                switch (section) {
+                    case "title":
+                    case "subtitle":
+                        sectionCopy = record.get("copy");
+                        break;
+                    case "introduction":
+                    case "how-it-works":
+                        sectionCopy = markdownToHTML(record.get("copy"));
+                        break;
+                    default:
+                        sectionCopy = record.get("copy");
+                }
                 if (section) copy[section] = sectionCopy;
             });
         } catch (err) {
