@@ -189,6 +189,9 @@ const HPAD = 100;
 const VPAD = 20;
 const ZIGZAG_COLOR = "red";
 const ZIGZAG_WIDTH = 1;
+const ZIGZAG_V_LENGTH = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
+const ZIGZAG_H_LENGTH = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
+const ZIGZAG_LOADING_EXPONENTIAL = 2;
 const SAMPLES_PER_SECOND = 120;
 const PIXELS_PER_SECOND = 50;
 const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
@@ -327,28 +330,89 @@ setTimeout(() => {
 
 
 function createZigZag() {
-    const vlength = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
-    const hlength = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
     const points = [
         [HPAD, VPAD],
-        [HPAD, VPAD + vlength],
-        [HPAD + hlength, VPAD + vlength],
-        [HPAD + hlength, VPAD + vlength * 2],
-        [HPAD + hlength * 2, VPAD + vlength * 2],
-        [HPAD + hlength * 2, VPAD + vlength * 3]
+        [HPAD, VPAD + ZIGZAG_V_LENGTH],
+        [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH],
+        [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH * 2],
+        [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 2],
+        [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 3]
     ]
         .map(([x, y]) => `${x},${y}`)
         .join(" ");
-    const line = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "polyline"
-    );
-    line.setAttribute("stroke", ZIGZAG_COLOR);
-    line.setAttribute("stroke-width", ZIGZAG_WIDTH);
-    line.setAttribute("fill", "none");
-    line.setAttribute("points", points);
-    line.setAttribute("id", "zigzag");
-    return line;
+
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute('d', 'M' + points);
+    path.setAttribute('id', 'zigZag');
+    let pathLen = path.getTotalLength();
+    path.style.fill = "none";
+    path.style.stroke = ZIGZAG_COLOR;
+    path.style.strokeWidth = ZIGZAG_WIDTH;
+    path.style.strokeDashoffset = pathLen;
+    path.style.strokeDasharray = pathLen + ',' + pathLen;
+
+    return path;
+}
+
+let animationFrames = 0;
+let startLoading;
+let filesLoaded = 0;
+let newFileLoaded = false;
+let lastFileLoadedTimestamp;
+let loadingAnimationCallback;
+
+function startLoadingAnimation() {
+    startLoading = Date.now();
+    newFileLoaded = true;
+    loadingAnimationCallback = requestAnimationFrame(animateLoading);
+}
+
+function updateLoadingAnimation() {
+    filesLoaded += 1;
+    newFileLoaded = true;
+    if (filesLoaded == 7) {
+        stopLoadingAnimation();
+        let path = document.getElementById("zigZag");
+        path.style.strokeDashoffset = 0;
+    }
+}
+
+function stopLoadingAnimation() {
+    cancelAnimationFrame(loadingAnimationCallback);
+    filesLoaded = 0;
+    lastFileLoadedTimestamp = undefined;
+    newFileLoaded = false;
+    console.log("loading animation frames", animationFrames);
+    console.log("loading time", Date.now() - startLoading);
+    console.log("loading animation avg FPS", animationFrames / (Date.now() - startLoading));
+}
+
+function animateLoading(t) {
+    animationFrames += 1;
+
+    if (newFileLoaded) {
+        lastFileLoadedTimestamp = t;
+        newFileLoaded = false;
+    }
+
+    // Get SVG path element and its length
+    let path = document.getElementById("zigZag");
+    let pathLen = path.getTotalLength();
+
+    // When the next file is fully loaded the path
+    //  should be this long
+    let segmentLength = pathLen / 7;
+
+    // Determine current length based on exponential approach
+    //  to nextLengthMilestone
+    let relT = t - lastFileLoadedTimestamp;
+    let drawLen = (filesLoaded * segmentLength) + (segmentLength * (1 - (Math.E ** (-1 * ZIGZAG_LOADING_EXPONENTIAL * relT))))
+
+    // Path length is drawn by setting the offset as pathLen - drawLen
+    path.style.strokeDashoffset = Math.max(pathLen - drawLen, 0);
+
+    // Continue animating
+    loadingAnimationCallback = requestAnimationFrame(animateLoading);
 }
 
 function animateAudioData(toneBuffer, slotIndex) {
@@ -393,6 +457,9 @@ function createTonePlayer(wf, slotIndex) {
     let player = new Tone.Player();
     player.loop = true;
     let playerPromise = player.load(wf.url);
+
+    // Update loading progress
+    playerPromise.then(updateLoadingAnimation);
 
     players.push(player);
     playerPromises.push(playerPromise);
@@ -754,6 +821,7 @@ function begin() {
     container.setAttribute('filter', "url('#blurFilter')");
 
     container.appendChild(createZigZag());
+    startLoadingAnimation();
     waveforms.forEach((wf, i) => {
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.setAttribute("transform", wf.transform);
