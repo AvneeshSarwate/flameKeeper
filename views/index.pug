@@ -7,6 +7,8 @@ block content
         //-- Profile logo. Add a img tag in place of <span>.
         p.logoPlaceholder
           img(src='./images/me-logo-wht.png' alt='sample logo')      
+      div(id="loadingProgress" class="hide")
+        div #[span(id="loadingValue") 0]%
       #installation
       button(id="playAudio" class='custom-button') Start Audio
       div(id="user_controls" class="hide")

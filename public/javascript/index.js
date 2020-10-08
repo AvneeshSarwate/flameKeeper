@@ -362,6 +362,13 @@ let lastFileLoadedTimestamp;
 let loadingAnimationCallback;
 
 function startLoadingAnimation() {
+    let loadingProgress = document.getElementById("loadingProgress");
+    let zigZag = document.getElementById("zigZag");
+    let { zigZagTop, zigZagLeft } = zigZag.getBoundingClientRect();
+    loadingProgress.style.top = `${zigZagTop }px`;
+    loadingProgress.style.left = `${zigZagLeft}px`;
+    loadingProgress.classList.remove('hide');
+
     startLoading = Date.now();
     newFileLoaded = true;
     loadingAnimationCallback = requestAnimationFrame(animateLoading);
@@ -382,6 +389,7 @@ function stopLoadingAnimation() {
     filesLoaded = 0;
     lastFileLoadedTimestamp = undefined;
     newFileLoaded = false;
+    loadingProgress.classList.add('hide');
     console.log("loading animation frames", animationFrames);
     console.log("loading time", Date.now() - startLoading);
     console.log("loading animation avg FPS", animationFrames / (Date.now() - startLoading));
@@ -410,6 +418,11 @@ function animateLoading(t) {
 
     // Path length is drawn by setting the offset as pathLen - drawLen
     path.style.strokeDashoffset = Math.max(pathLen - drawLen, 0);
+
+    // Update percentage
+    let loadingValue = document.getElementById("loadingValue");
+    let percentComplete = Math.round(100 * drawLen / pathLen);
+    loadingValue.innerHTML = percentComplete;
 
     // Continue animating
     loadingAnimationCallback = requestAnimationFrame(animateLoading);
