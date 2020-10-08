@@ -1,7 +1,6 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
-var gui = new dat.GUI();
 let swapClick = i => document.getElementById('fileSwap-'+i).click();
 let controllerProps = {
     zoom0: 1.29,
@@ -34,10 +33,11 @@ let controllerProps = {
 
 const MAX_ZOOM_OUT = 3;
 
+// var gui = new dat.GUI();
 // [0, 1, 2, 3, 4, 5, 6].forEach(i => {
 //     gui.add(controllerProps, 'zoom'+i, 0, MAX_ZOOM_OUT, 0.01).onFinishChange(v => {
 //         waveforms[i].waveZoom = v;
-//         delays[i].delayTime.value = getVisualSyncDelay(i);
+//         // delays[i].delayTime.value = getVisualSyncDelay(i);
 //     });
 // });
 // gui.addColor(controllerProps, 'color1');
@@ -56,10 +56,10 @@ const MAX_ZOOM_OUT = 3;
 //     [0, 1, 2, 3, 4, 5, 6].forEach(i => {labels[i].style.visibility = visibility});
 // });
 
-[0, 1, 2, 3, 4, 5, 6].forEach(i => {
-    gui.add(controllerProps, 'prog'+i, 0, 3, 0.01)
-});
-gui.add(controllerProps, 'manualProg')
+// [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+//     gui.add(controllerProps, 'prog'+i, 0, 3, 0.01)
+// });
+// gui.add(controllerProps, 'manualProg')
 
 
 
@@ -683,14 +683,16 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
         let {baseWaveArc, flipFunc, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
         let startInd = Math.floor(waveProg * baseLength);
-        let endInd = startInd + waveSampNum;
+        let endInd = startInd + waveSampNum * waveZoom;
         let xStart = waveTop[startInd][0];
-        let topSlice = waveTop.slice(startInd, endInd).map(([x, y]) => [x-xStart, y]);
-        let backwards = topSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
-        let newPoints = topSlice.concat(backwards);
+        let topSlice = waveTop.slice(startInd, endInd);
+        let sliceWidth = topSlice.slice(-1)[0][0] - xStart;
+        let zoomedTopSlice = topSlice.map(([x, y]) => [(x-xStart)/sliceWidth * waveWidth, y]);
+        let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
+        let newPoints = zoomedTopSlice.concat(backwards);
 
         waveInfo[slotIndex] = {
-            width: topSlice.slice(-1)[0][0] - topSlice[0][0],
+            width: zoomedTopSlice.slice(-1)[0][0] - zoomedTopSlice[0][0],
             waveProg
         };
         
