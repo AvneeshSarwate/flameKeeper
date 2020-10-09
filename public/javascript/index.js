@@ -148,7 +148,7 @@ function jumpToHistory() {
 }
 
 function resetWaveFromURL(filename, gainVal, audioTime, slotIndex){
-    let url = `https://flamekeeper.s3.amazonaws.com/${filename}`;
+    let url = `https://flamekeepers.s3.amazonaws.com/${filename}`;
     
     gains[slotIndex].gain.value = gainVal;
     let waveDrawPromise = animateAudioData(fetch(url), slotIndex);
@@ -189,6 +189,9 @@ const HPAD = 100;
 const VPAD = 20;
 const ZIGZAG_COLOR = "red";
 const ZIGZAG_WIDTH = 1;
+const ZIGZAG_V_LENGTH = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
+const ZIGZAG_H_LENGTH = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
+const ZIGZAG_LOADING_EXPONENTIAL = 0.005;
 const SAMPLES_PER_SECOND = 120;
 const PIXELS_PER_SECOND = 50;
 const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
@@ -202,7 +205,7 @@ const DEBUG = false;
 // Nice convenient way to describe the waveforms.
 const waveforms = [
     {//Wave-0
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[0]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[0]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 25.5,
@@ -215,7 +218,7 @@ const waveforms = [
         linePercent: 0.829 //248/299
     },
     {//Wave-1
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[1]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[1]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 30,
@@ -228,7 +231,7 @@ const waveforms = [
         linePercent: 0.845 //376/445
     },
     {//Wave-2
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[2]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[2]}`,
         speed: 15,
         mirrored: true,
         viewHeight: 30,
@@ -241,7 +244,7 @@ const waveforms = [
         linePercent: 0.503 //420/835
     },
     {//Wave-3
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[3]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[3]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 30,
@@ -254,7 +257,7 @@ const waveforms = [
         linePercent: 0.503
     },
     {//Wave-4
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[4]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[4]}`,
         speed: 10,
         mirrored: false,
         viewHeight: 30,
@@ -267,7 +270,7 @@ const waveforms = [
         linePercent: 0.789 //359/455 
     },
     {//Wave-5
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[5]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[5]}`,
         speed: 10,
         mirrored: false,
         viewHeight: 30,
@@ -280,7 +283,7 @@ const waveforms = [
         linePercent: 0.789
     },
     {//Wave-6
-        url: `https://flamekeeper.s3.amazonaws.com/${returns[6]}`,
+        url: `https://flamekeepers.s3.amazonaws.com/${returns[6]}`,
         speed: 10,
         mirrored: true,
         viewHeight: 30,
@@ -327,28 +330,102 @@ setTimeout(() => {
 
 
 function createZigZag() {
-    const vlength = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
-    const hlength = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
     const points = [
         [HPAD, VPAD],
-        [HPAD, VPAD + vlength],
-        [HPAD + hlength, VPAD + vlength],
-        [HPAD + hlength, VPAD + vlength * 2],
-        [HPAD + hlength * 2, VPAD + vlength * 2],
-        [HPAD + hlength * 2, VPAD + vlength * 3]
+        [HPAD, VPAD + ZIGZAG_V_LENGTH],
+        [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH],
+        [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH * 2],
+        [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 2],
+        [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 3]
     ]
         .map(([x, y]) => `${x},${y}`)
         .join(" ");
-    const line = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "polyline"
-    );
-    line.setAttribute("stroke", ZIGZAG_COLOR);
-    line.setAttribute("stroke-width", ZIGZAG_WIDTH);
-    line.setAttribute("fill", "none");
-    line.setAttribute("points", points);
-    line.setAttribute("id", "zigzag");
-    return line;
+
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute('d', 'M' + points);
+    path.setAttribute('id', 'zigZag');
+    let pathLen = path.getTotalLength();
+    path.style.fill = "none";
+    path.style.stroke = ZIGZAG_COLOR;
+    path.style.strokeWidth = ZIGZAG_WIDTH;
+    path.style.strokeDashoffset = pathLen;
+    path.style.strokeDasharray = pathLen + ',' + pathLen;
+
+    return path;
+}
+
+let animationFrames = 0;
+let startLoading;
+let filesLoaded = 0;
+let newFileLoaded = false;
+let lastFileLoadedTimestamp;
+let loadingAnimationCallback;
+
+function startLoadingAnimation() {
+    let loadingProgress = document.getElementById("loadingProgress");
+    let zigZag = document.getElementById("zigZag");
+    let { zigZagTop, zigZagLeft } = zigZag.getBoundingClientRect();
+    loadingProgress.style.top = `${zigZagTop }px`;
+    loadingProgress.style.left = `${zigZagLeft}px`;
+    loadingProgress.classList.remove('hide');
+
+    startLoading = Date.now();
+    newFileLoaded = true;
+    loadingAnimationCallback = requestAnimationFrame(animateLoading);
+}
+
+function updateLoadingAnimation() {
+    filesLoaded += 1;
+    newFileLoaded = true;
+    if (filesLoaded == 7) {
+        stopLoadingAnimation();
+        let path = document.getElementById("zigZag");
+        path.style.strokeDashoffset = 0;
+    }
+}
+
+function stopLoadingAnimation() {
+    cancelAnimationFrame(loadingAnimationCallback);
+    filesLoaded = 0;
+    lastFileLoadedTimestamp = undefined;
+    newFileLoaded = false;
+    loadingProgress.classList.add('hide');
+    console.log("loading animation frames", animationFrames);
+    console.log("loading time", Date.now() - startLoading);
+    console.log("loading animation avg FPS", animationFrames / (Date.now() - startLoading));
+}
+
+function animateLoading(t) {
+    animationFrames += 1;
+
+    if (newFileLoaded) {
+        lastFileLoadedTimestamp = t;
+        newFileLoaded = false;
+    }
+
+    // Get SVG path element and its length
+    let path = document.getElementById("zigZag");
+    let pathLen = path.getTotalLength();
+
+    // When the next file is fully loaded the path
+    //  should be this long
+    let segmentLength = pathLen / 7;
+
+    // Determine current length based on exponential approach
+    //  to nextLengthMilestone
+    let relT = t - lastFileLoadedTimestamp;
+    let drawLen = (filesLoaded * segmentLength) + (segmentLength * (1 - (Math.E ** (-1 * ZIGZAG_LOADING_EXPONENTIAL * relT))))
+
+    // Path length is drawn by setting the offset as pathLen - drawLen
+    path.style.strokeDashoffset = Math.max(pathLen - drawLen, 0);
+
+    // Update percentage
+    let loadingValue = document.getElementById("loadingValue");
+    let percentComplete = Math.round(100 * drawLen / pathLen);
+    loadingValue.innerHTML = percentComplete;
+
+    // Continue animating
+    loadingAnimationCallback = requestAnimationFrame(animateLoading);
 }
 
 function animateAudioData(toneBuffer, slotIndex) {
@@ -393,6 +470,9 @@ function createTonePlayer(wf, slotIndex) {
     let player = new Tone.Player();
     player.loop = true;
     let playerPromise = player.load(wf.url);
+
+    // Update loading progress
+    playerPromise.then(updateLoadingAnimation);
 
     players.push(player);
     playerPromises.push(playerPromise);
@@ -735,7 +815,7 @@ function begin() {
     container.setAttribute("width", "100%");
     container.setAttribute("viewBox", `0 0 ${CONTAINER_WIDTH} ${CONTAINER_HEIGHT}`);
     document.getElementById("installation").append(container);
-    container.style.visibility = 'hidden';
+    // container.style.visibility = 'hidden';
     container.id = 'installation-svg';
     container.setAttribute("preserveAspectRatio", "none");
 
@@ -756,6 +836,7 @@ function begin() {
     container.setAttribute('filter', "url('#blurFilter')");
 
     container.appendChild(createZigZag());
+    startLoadingAnimation();
     waveforms.forEach((wf, i) => {
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.setAttribute("transform", wf.transform);
@@ -771,10 +852,17 @@ function begin() {
             container.appendChild(group);
         }
 
-        // drawPromises.push(animateAudioData(fetch(wf.url), i));
+        createTonePlayer(wf, i);
+    });
 
-        createTonePlayer(wf, i).then(tonePlayer => {
-            drawPromises.push(animateAudioData(tonePlayer.buffer, i));
+    // Wait until all the audio is downloaded to start drawing the waveforms,
+    //  which is much faster
+    Promise.all(playerPromises).then(() => {
+        playerPromises.forEach((playerPromise, i) => {
+            playerPromise.then(tonePlayer => {
+                // Start drawing the waveforms and animating
+                drawPromises.push(animateAudioData(tonePlayer.buffer, i));
+            });
         });
     });
 
@@ -786,10 +874,13 @@ function begin() {
     loadRect.setAttribute("fill", ZIGZAG_COLOR);
     // container.appendChild(loadRect);
 
-    Promise.all(drawPromises).then(() => {
-        // container.removeChild(loadRect);
-        container.style.visibility = 'visible';
-    });
+    // NOTE: drawPromises ([animateAudioData]) are all immediately resolved due
+    //  to animateAudioData returning Promise.resolve(), so need to wait
+
+    // Promise.all(drawPromises).then(() => {
+    //     // container.removeChild(loadRect);
+    //     container.style.visibility = 'visible';
+    // });
 
     // Promise.all([audioElementPromises, drawPromises].flat()).then(() => {
     //     console.log("ready to play");

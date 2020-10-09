@@ -7,10 +7,10 @@ const constants = require('./constants');
 
 async function upload() {
     let filename = `state.json`;
-    let file = fs.readFileSync('./state.json');
+    let file = fs.readFileSync(`./${filename}`);
     let uploadParams = {
         Bucket: constants.BUCKET_NAME,
-        Key: constants.STATE_FILENAME,
+        Key: filename,
         Body: file.toString()
     };
 

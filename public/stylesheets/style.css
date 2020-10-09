@@ -179,7 +179,7 @@ header .profileHeader p {
 	color: rgba(255,255,255,0.50);
 	font-family: 'Rubik', sans-serif;
 }
-.section2 .sectionContentTitle, .section1 .sectionContentTitle, .socialNetworkNav .sectionContentTitle {
+.section2 .sectionContentTitle, .section1 .sectionContentTitle, .socialNetworkNav .sectionContentTitle, .section1Content h2 {
 	font-family: 'Rubik', sans-serif;
 	color: rgba(255,255,255,0.50);
 	font-size: 1.8em;
@@ -191,7 +191,7 @@ header .profileHeader p {
 	font-size: 1.0em;
 	font-weight: 400;
 }
-.section2 .sectionContent, .section1 .sectionContent, .socialNetworkNav .sectionContent {
+.section2 .sectionContent, .section1 .sectionContent, .socialNetworkNav .sectionContent, .section1Content p {
 	font-family: 'Rubik', sans-serif;
 	color: rgba(255,255,255,0.50);
 	font-size: 1.2em;
@@ -661,6 +661,22 @@ footer .footerNote {
     margin-right: 0.5em;
 }
 
+#loadingProgress {
+	display: block;
+	position: absolute;
+	align-items: center;
+	font-family: 'Rubik', sans-serif;
+	font-weight: 700;
+	padding: 0.5em 0.5em;
+	color: rgba(255, 255, 255, 0.5);
+	text-decoration: none;
+	border: 2px solid rgba(255, 255, 255, 0.25);
+	border-radius: 2px;
+}
+
+#loadingProgress.hide {
+    visibility: collapse;
+}
 
 .global_vol {
 	font-family: 'Rubik', sans-serif;
