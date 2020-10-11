@@ -1,0 +1,131 @@
+{
+	"audio": [
+		{
+			"audioID": "448fcb5d-5804-46be-bb70-deeea9e0d7af",
+			"composerID": "recwYGjZM8aRwhGq9",
+			"name": "Basses.mp3",
+			"filename": "448fcb5d-5804-46be-bb70-deeea9e0d7af-Basses.mp3",
+			"lengthSeconds": 99.239,
+			"uploadedAt": 1601331658338
+		},
+		{
+			"audioID": "59c07ea8-8d27-4fc5-b091-06e328b57f76",
+			"composerID": "recwYGjZM8aRwhGq9",
+			"name": "Choir.mp3",
+			"filename": "59c07ea8-8d27-4fc5-b091-06e328b57f76-Choir.mp3",
+			"lengthSeconds": 136.49,
+			"uploadedAt": 1601331673998
+		},
+		{
+			"audioID": "d558e11d-48be-4d01-afb9-fd20f0be68c4",
+			"composerID": "recwYGjZM8aRwhGq9",
+			"name": "Harmonics.mp3",
+			"filename": "d558e11d-48be-4d01-afb9-fd20f0be68c4-Harmonics.mp3",
+			"lengthSeconds": 250.567,
+			"uploadedAt": 1601331698976
+		},
+		{
+			"audioID": "af9520dc-4ac7-47e1-82f4-5faa25809353",
+			"composerID": "recwYGjZM8aRwhGq9",
+			"name": "Haze.mp3",
+			"filename": "af9520dc-4ac7-47e1-82f4-5faa25809353-Haze.mp3",
+			"lengthSeconds": 218.07,
+			"uploadedAt": 1601331720788
+		},
+		{
+			"audioID": "acdd8c41-1888-439e-8a71-7ea3b2808d90",
+			"composerID": "recwYGjZM8aRwhGq9",
+			"name": "Pressure Strings.mp3",
+			"filename": "acdd8c41-1888-439e-8a71-7ea3b2808d90-Pressure Strings.mp3",
+			"lengthSeconds": 200.072,
+			"uploadedAt": 1601331748850
+		},
+		{
+			"audioID": "284bdb24-1f90-4dfa-ab6f-254157442f2a",
+			"composerID": "recwYGjZM8aRwhGq9",
+			"name": "Tapper Corda.mp3",
+			"filename": "284bdb24-1f90-4dfa-ab6f-254157442f2a-Tapper Corda.mp3",
+			"lengthSeconds": 158.067,
+			"uploadedAt": 1601331776678
+		},
+		{
+			"audioID": "cc7d90ff-2f16-4dd7-898f-96762678c772",
+			"composerID": "recwYGjZM8aRwhGq9",
+			"name": "Time.mp3",
+			"filename": "cc7d90ff-2f16-4dd7-898f-96762678c772-Time.mp3",
+			"lengthSeconds": 172.069,
+			"uploadedAt": 1601331802781
+		}
+	],
+	"currentState": {
+		"composerID": "recwYGjZM8aRwhGq9",
+		"timestamp": 1601331803011,
+		"audio": [
+			{
+				"audioID": "448fcb5d-5804-46be-bb70-deeea9e0d7af",
+				"volume": 1
+			},
+			{
+				"audioID": "59c07ea8-8d27-4fc5-b091-06e328b57f76",
+				"volume": 1
+			},
+			{
+				"audioID": "d558e11d-48be-4d01-afb9-fd20f0be68c4",
+				"volume": 1
+			},
+			{
+				"audioID": "af9520dc-4ac7-47e1-82f4-5faa25809353",
+				"volume": 1
+			},
+			{
+				"audioID": "acdd8c41-1888-439e-8a71-7ea3b2808d90",
+				"volume": 1
+			},
+			{
+				"audioID": "284bdb24-1f90-4dfa-ab6f-254157442f2a",
+				"volume": 1
+			},
+			{
+				"audioID": "cc7d90ff-2f16-4dd7-898f-96762678c772",
+				"volume": 1
+			}
+		]
+	},
+	"history": [
+		{
+			"composerID": "recwYGjZM8aRwhGq9",
+			"timestamp": 1603331803011,
+			"audio": [
+				{
+					"audioID": "448fcb5d-5804-46be-bb70-deeea9e0d7af",
+					"volume": 0.5
+				},
+				{
+					"audioID": "59c07ea8-8d27-4fc5-b091-06e328b57f76",
+					"volume": 1
+				},
+				{
+					"audioID": "d558e11d-48be-4d01-afb9-fd20f0be68c4",
+					"volume": 1
+				},
+				{
+					"audioID": "af9520dc-4ac7-47e1-82f4-5faa25809353",
+					"volume": 1
+				},
+				{
+					"audioID": "acdd8c41-1888-439e-8a71-7ea3b2808d90",
+					"volume": 1
+				},
+				{
+					"audioID": "284bdb24-1f90-4dfa-ab6f-254157442f2a",
+					"volume": 1
+				},
+				{
+					"audioID": "cc7d90ff-2f16-4dd7-898f-96762678c772",
+					"volume": 1
+				}
+			]
+		}
+	],
+	"lastEdit": 1601331803011
+}

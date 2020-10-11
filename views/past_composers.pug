@@ -1,4 +1,4 @@
-extends layout
+extends layout2
 block content
   body(class='css-selector')
     header
@@ -31,14 +31,12 @@ block content
               h3 
               h1 #{composer.name}
               p
-                | #{composer.bio}
-                span(class='snapshot-selector')
-                    span Select a snapshot to jump back to:
-                    select(id='selector_'+composer.composerID class='snapshot_select')
-                        option(value="Snapshots") Snapshots:
-                        each h in composer.history
-                            option(value=h[0]) !{h[1]}
-                    button(id='button_'+composer.composerID class='custom-button hist_button') Jump to Snapshot
+                | !{composer.bio}
+              if composer.history.length > 0
+                p 
+                    | Select a snapshot to jump back to:
+              each h in composer.history
+                a(href='/?history='+h[0] class='custom-button') !{h[1]+1}
               p
 
   script(nonce=nonce).
