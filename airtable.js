@@ -224,7 +224,7 @@ class AirtableManager {
             await this.copy.getCopy();
             await this.gradient.getGradient();
             this.logger.debug("successfully re-synced airtable data");
-            console.log("composers", this.composers.composers);
+            // console.log("composers", this.composers.composers);
         } catch (err) {
             logger.error(err);
         }

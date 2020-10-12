@@ -381,7 +381,7 @@ function updateLoadingAnimation() {
         stopLoadingAnimation();
         let path = document.getElementById("zigZag");
         path.style.strokeDashoffset = 0;
-        [0, 1, 2, 3, 4, 5, 6, 7].map(i => {
+        [0, 1, 2, 3, 4, 5, 6].map(i => {
             drawZeroLine(waveforms[i], document.getElementById("group-"+i))
         })
     }

@@ -68,7 +68,13 @@ router.get('/', function (req, res, next) {
         audio: JSON.stringify(loadedAudio),
         fileNames: JSON.stringify(loadedAudio.map(a => a.filename)),
         composerInfo: composer,
-        allComposers: JSON.stringify(Composers.composers),
+        allComposers: JSON.stringify(Composers.composers.map(c => {
+            return {
+                composerID: c.composerID,
+                photo: c.photo,
+                name: c.name
+            }
+        })),
         timestamp: loadedSlotTimestamp,
         firstEntry
     });
