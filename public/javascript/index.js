@@ -381,6 +381,9 @@ function updateLoadingAnimation() {
         stopLoadingAnimation();
         let path = document.getElementById("zigZag");
         path.style.strokeDashoffset = 0;
+        [0, 1, 2, 3, 4, 5, 6, 7].map(i => {
+            drawZeroLine(waveforms[i], document.getElementById("group-"+i))
+        })
     }
 }
 
@@ -844,7 +847,7 @@ function begin() {
 
         drawWaveformBackground(wf, group, i);
 
-        drawZeroLine(wf, group);
+        
 
         if (wf.zIndex < 0) {
             container.prepend(group);

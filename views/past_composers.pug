@@ -1,4 +1,7 @@
-extends layout2
+extends layout2 
+
+//-- this uses style2.css
+
 block content
   body(class='css-selector')
     header
@@ -35,27 +38,10 @@ block content
               if composer.history.length > 0
                 p 
                     | Select a snapshot to jump back to:
-              each h in composer.history
-                a(href='/?history='+h[0] class='custom-button') !{h[1]+1}
+              div(id="history-container")
+                each h in composer.history
+                    a(href='/?history='+h[0] class='custom-button') !{h[1]+1}
               p
-
-  script(nonce=nonce).
-
-    function jumpToSnapshot(e) {
-      let composerId = e.target.id.split("_")[1];
-      let selector = document.getElementById("selector_"+composerId);
-      let timeValue = selector.value;
-      if(timeValue == "Snapshots") {
-        alert("Please pick a snapshot to jump to!")
-      } else {
-        let historyURL = document.location.origin + "?history="+timeValue;
-        document.location = historyURL;
-      }
-    }
-    let buttons = document.getElementsByTagName('button');
-    for(button of buttons) {
-      button.addEventListener('click', jumpToSnapshot);
-    }
                         
           
           

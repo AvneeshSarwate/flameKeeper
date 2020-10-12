@@ -1,6 +1,11 @@
 @charset "utf-8";
 /* Global Styles */
 
+
+/*
+note - this is only used with the past_composer.pug page
+*/
+
 :root {
 	--gradient-speed: 259s;
     --gradient-def: linear-gradient(234deg, #195646, #203558, #45541e, #3b165a, #5f3d1b, #691636, #175867, #564f15, #1a4352, #1c4a5c, #5c411c, #5c1c54, #193b63);
@@ -685,6 +690,11 @@ footer .footerNote {
     width: 200px;
 }
 
+#history-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
 
 /*
 from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
