@@ -692,6 +692,7 @@ input[type=range] {
 	-webkit-appearance: none;
 	margin: 18px 10px;
 	width: 100%;
+	background: transparent;
 }
 input[type=range]:focus {
 	outline: none;
@@ -730,7 +731,6 @@ input[type=range]::-moz-range-thumb {
 	background: #ababab;
 	box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.15);
 	cursor: pointer;
-	-webkit-appearance: none;
 }
 input[type=range]:active::-moz-range-thumb {
 	background: #cacaca;
@@ -762,7 +762,6 @@ input[type=range]::-ms-thumb {
 	background: #ababab;
 	box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.15);
 	cursor: pointer;
-	-webkit-appearance: none;
 }
 input[type=range]:active::-ms-thumb {
 	background: #cacaca;
