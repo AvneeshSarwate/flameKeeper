@@ -98,7 +98,7 @@ header .profileHeader h3 {
 	color: rgba(255,255,255,0.50);
 	font-size: 1em;
 	font-weight: 200;
-	line-height: 14px;
+	line-height: 1.3em;
 }
 hr {
 	background-color: rgba(255,255,255,0.30);
@@ -147,7 +147,7 @@ header .profileHeader p {
 }
 /* Main Content sections */
 .mainContent .section1 {
-	padding-top: 30px;
+	margin-top: 30px;
 }
 .mainContent .section1 {
 	display: block;
@@ -164,12 +164,8 @@ header .profileHeader p {
 	float: left;
 	clear: both;
 }
-.section1 .sectionTitleRule2, .section2 .sectionTitleRule2 {
-	background-color: rgba(255,255,255,0.30);
-	height: 2px;
-	border: 0px;
-}
-.mainContent .section1 .section1Content {
+
+.mainContent .section1 .section1Content, .mainContent .section2 .section2Content {
 	font-family: 'Rubik', sans-serif;
 	font-size: 14px;
 	font-weight: 100;
@@ -195,7 +191,7 @@ header .profileHeader p {
 	font-family: 'Rubik', sans-serif;
 	color: rgba(255,255,255,0.50);
 	font-size: 1.2em;
-	font-weight: 400;
+	font-weight: 100;
 	line-height: 1.8;
 }
 .mainContent {
@@ -274,9 +270,6 @@ header .profileHeader {
 	text-align: left;
 	margin-top: 15%;
 }
-header .profileHeader p {
-	text-align: justify;
-}
 .mainContent .socialNetworkNavBar {
 	text-align: left;
 	display: block;
@@ -300,14 +293,10 @@ header .profileHeader p {
 .section1 .sectionTitleRule, .section2 .sectionTitleRule {
 	width: 100%;
 }
-.section1 .sectionTitleRule2, .section2 .sectionTitleRule2 {
-	display: none;
-}
 .mainContent .section1 .section1Content {
 	display: inline-block;
 	text-align: left;
 	font-family: 'Rubik', sans-serif;
-	text-align: justify;
 }
 .mainContent .section2 {
 	display: block;
@@ -315,7 +304,6 @@ header .profileHeader p {
 }
 .section2 .section2Content {
 	margin-top: 10%;
-	text-align: justify;
 	margin-bottom: 10%;
 }
 .mainContent .externalResourcesNav {
@@ -352,7 +340,7 @@ header .profilePhoto {
 }
 header .profileHeader {
 	text-align: left;
-	margin-top: 7%;
+	margin-top: 30px;
 }
 .mainContent .socialNetworkNavBar .socialNetworkNav {
 	width: 74px;
@@ -366,9 +354,6 @@ header .profileHeader {
 }
 .section1 .sectionTitleRule, .section2 .sectionTitleRule {
 	width: 100%;
-}
-.section1 .sectionTitleRule2, .section2 .sectionTitleRule2 {
-	display: none;
 }
 .mainContent .section1 .section1Content {
 	display: block;

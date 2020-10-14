@@ -27,7 +27,7 @@ block content
                 input(id="global_vol" class='global_vol' type="range" min='0' max='2' value='1' step='0.0001')
                 img(src="./images/fullscreen.png" id='fullscreen' class='icon')
       br
-      //- Header
+      //- Introduction
       section.profileHeader
         h1 #{copy.title}
         h3 #{copy.subtitle.toUpperCase()}
@@ -35,15 +35,12 @@ block content
         br
       hr
       br
-      br
-      br
+      //- Current composer
       - let composer = composerInfo;
       if composer
         .profilePhoto
           //- Profile photo
           img(src=composer.photo alt='sample' id='composer-photo')
-      
-      //- TODO history - populate profile info from template
       section.profileHeader
         if composer
           h3(id='time-header') This Week&apos;s Curator
@@ -57,14 +54,12 @@ block content
       section.section1
         h2.sectionTitle How It Works
         hr.sectionTitleRule
-        hr.sectionTitleRule2
         .section1Content
           div !{copy["how-it-works"]}
       //- Contributors to the installation
       section.section2
         h2.sectionTitle Meet The Team
         hr.sectionTitleRule
-        hr.sectionTitleRule2
         for admin in admins
           article.section2Content
             h2.sectionContentTitle #{admin.name}
