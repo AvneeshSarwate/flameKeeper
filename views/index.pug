@@ -10,8 +10,8 @@ block content
             img(src='./images/me-logo-wht.png' alt='sample logo')
       div(id="loadingProgress" class="hide")
         div #[span(id="loadingValue") 0]%#[img(src='./images/dots.gif' height='4px' style='margin-left: 2px;' alt='loading')]
-      button(id="playAudio" class='custom-button') Start Audio
       #installation
+      button(id="playAudio" class='custom-button') Start Audio
       div(id="user_controls" class="hide")
         div(id="time_slider_container")
             img(src="./images/clock.png" class="icon")
@@ -83,7 +83,7 @@ block content
         span All Rights Reserved
       p.footerNote
         | Contact Us - 
-        span Email / Social
+        span #[a.customLink(target='_blank' href='mailto:info@metropolisensemble.org') Email] / #[a.customLink(target='_blank' href='https://www.instagram.com/metroensemble/?hl=en') Social]
     
     <input id="fileSwap-0" type="file" style="display: none;" />
     <input id="fileSwap-1" type="file" style="display: none;" />
