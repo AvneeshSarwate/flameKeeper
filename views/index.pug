@@ -32,6 +32,11 @@ block content
         h1 #{copy.title}
         h3 #{copy.subtitle.toUpperCase()}
         div !{copy.introduction}
+        //- Social shares
+        div.socialShares
+          a(href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-hashtags="TheFlameKeepers" data-show-count="false")
+          div(class="fb-share-button" data-href="https://flamekeepers.metropolisensemble.org/" data-layout="button" data-size="small")
+            a(target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fflamekeepers.metropolisensemble.org%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore") Share
         br
       hr
       br

@@ -2,9 +2,15 @@
 /* Global Styles */
 
 :root {
-	--gradient-speed: 259s;
+	/* Original Gradient */
+	/* --gradient-speed: 259s;
     --gradient-def: linear-gradient(234deg, #195646, #203558, #45541e, #3b165a, #5f3d1b, #691636, #175867, #564f15, #1a4352, #1c4a5c, #5c411c, #5c1c54, #193b63);
-    --background-size: 1600% 100000%;
+	--background-size: 1600% 100000%; */
+
+	/* Gradient as of 10/14/2020 */
+	--gradient-speed: 250s;
+    --gradient-def: linear-gradient(45deg, #7a7a7a, #b2b2b2, #f0f0f0, #f0f0f0, #b2b2b2, #7a7a7a);
+	--background-size: 10000% 10000%;
   }
 
 .css-selector {
@@ -773,3 +779,9 @@ input[type=range]:active::-ms-thumb {
     width: 50px;
     height: 50px;
 }
+
+.socialShares iframe {
+	margin-right: 8px;
+}
+
+.twitter-share-button[style] { vertical-align: text-bottom !important; }
