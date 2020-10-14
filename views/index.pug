@@ -6,11 +6,12 @@ block content
       .profileLogo
         //-- Profile logo. Add a img tag in place of <span>.
         p.logoPlaceholder
-          img(src='./images/me-logo-wht.png' alt='sample logo')      
+          a(href='/')
+            img(src='./images/me-logo-wht.png' alt='sample logo')
       div(id="loadingProgress" class="hide")
         div #[span(id="loadingValue") 0]%#[img(src='./images/dots.gif' height='4px' style='margin-left: 2px;' alt='loading')]
-      #installation
       button(id="playAudio" class='custom-button') Start Audio
+      #installation
       div(id="user_controls" class="hide")
         div(id="time_slider_container")
             img(src="./images/clock.png" class="icon")

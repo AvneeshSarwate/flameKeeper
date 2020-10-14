@@ -85,8 +85,7 @@ header .logoPlaceholder span {
 	line-height: 53px;
 }
 header .profilePhoto img {
-	width: 100px;
-	height: 100px;
+	max-width: 100px;
 }
 header .profilePhoto {
 	width: 100px;
