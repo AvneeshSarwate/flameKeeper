@@ -775,8 +775,7 @@ input[type=range]:active::-ms-thumb {
 }
 
 #composer-hover-img {
-    width: 50px;
-    height: 50px;
+    max-width: 50px;
 }
 
 .socialShares iframe {
