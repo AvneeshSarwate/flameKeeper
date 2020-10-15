@@ -70,13 +70,14 @@ document.getElementById('jump_to_history').addEventListener('click', jumpToHisto
 document.getElementById('global_vol').addEventListener('input', changeVol);
 
 
-let urlHistory = new URLSearchParams(document.location.search).get('history');
-if(urlHistory){
-    document.getElementById('time-header').innerText = 
-        'The Curator At ' + new Date(parseInt(timestamp)).toLocaleString();    
-    let timeProg = (timestamp - firstTimestamp) / (Date.now() - firstTimestamp);
-    document.getElementById('time_slider').value = timeProg;
-}
+//commenting out time slider for now - might need to change firstTimeStamp => firstEntry
+// let urlHistory = new URLSearchParams(document.location.search).get('history');
+// if(urlHistory){
+//     document.getElementById('time-header').innerText = 
+//         'The Curator At ' + new Date(parseInt(timestamp)).toLocaleString();    
+//     let timeProg = (timestamp - firstTimestamp) / (Date.now() - firstTimestamp);
+//     document.getElementById('time_slider').value = timeProg;
+// }
 
 // document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
