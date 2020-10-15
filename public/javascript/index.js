@@ -205,6 +205,7 @@ const DEBUG = false;
 // Nice convenient way to describe the waveforms.
 const waveforms = [
     {//Wave-0
+        index: 0,
         url: `https://flamekeepers.s3.amazonaws.com/${returns[0]}`,
         speed: 10,
         mirrored: true,
@@ -218,6 +219,7 @@ const waveforms = [
         linePercent: 0.829 //248/299
     },
     {//Wave-1
+        index: 1,
         url: `https://flamekeepers.s3.amazonaws.com/${returns[1]}`,
         speed: 10,
         mirrored: true,
@@ -231,6 +233,7 @@ const waveforms = [
         linePercent: 0.845 //376/445
     },
     {//Wave-2
+        index: 2,
         url: `https://flamekeepers.s3.amazonaws.com/${returns[2]}`,
         speed: 15,
         mirrored: true,
@@ -244,6 +247,7 @@ const waveforms = [
         linePercent: 0.503 //420/835
     },
     {//Wave-3
+        index: 3,
         url: `https://flamekeepers.s3.amazonaws.com/${returns[3]}`,
         speed: 10,
         mirrored: true,
@@ -257,6 +261,7 @@ const waveforms = [
         linePercent: 0.503
     },
     {//Wave-4
+        index: 4,
         url: `https://flamekeepers.s3.amazonaws.com/${returns[4]}`,
         speed: 10,
         mirrored: false,
@@ -270,6 +275,7 @@ const waveforms = [
         linePercent: 0.789 //359/455 
     },
     {//Wave-5
+        index: 5,
         url: `https://flamekeepers.s3.amazonaws.com/${returns[5]}`,
         speed: 10,
         mirrored: false,
@@ -283,6 +289,7 @@ const waveforms = [
         linePercent: 0.789
     },
     {//Wave-6
+        index: 6,
         url: `https://flamekeepers.s3.amazonaws.com/${returns[6]}`,
         speed: 10,
         mirrored: true,
@@ -321,12 +328,12 @@ function refreshGradient() {
     })
 }
 
-setTimeout(() => {
-    setInterval(() => {
-        // refreshGradient();
+// setTimeout(() => {
+//     setInterval(() => {
+//         // refreshGradient();
         
-    }, 2 * 1000);
-}, 1000 * 2);
+//     }, 2 * 1000);
+// }, 1000 * 2);
 
 
 function createZigZag() {
@@ -444,6 +451,8 @@ function animateAudioData(toneBuffer, slotIndex) {
                 animateViewHeight = wf.viewHeight;
             }
             group.appendChild(svg);
+            let slotFadeInAnimations = document.getElementsByClassName(`fadeIn-${wf.index}`);
+            for (let a of slotFadeInAnimations) a.beginElement();
             animate(svg, waveformWidth, wf.viewWidth, animateViewHeight, wf.speed, slotIndex);
         });
 }
@@ -568,6 +577,22 @@ function drawWaveformBackground(wf, group, i) {
     // }
 }
 
+function fadeInAnimation(index) {
+    // Define fade in animation
+    let fadeInAnimation = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "animate"
+    );
+    fadeInAnimation.setAttribute("class", `fadeIn-${index}`);
+    fadeInAnimation.setAttribute("attributeName", "opacity");
+    fadeInAnimation.setAttribute("dur", "10s");
+    fadeInAnimation.setAttribute("values", "0;0.3;0.4;1");
+    fadeInAnimation.setAttribute("times", "0;0.4;0.8;1");
+    fadeInAnimation.setAttribute("repeatCount", "1");
+    fadeInAnimation.setAttribute("begin", "indefinite");
+    return fadeInAnimation;
+}
+
 function drawZeroLine(wf, group) {
     // Draw line at zero to make the no-waveform part look better.
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -576,6 +601,7 @@ function drawZeroLine(wf, group) {
     line.setAttribute("y1", wf.viewHeight);
     line.setAttribute("y2", wf.viewHeight);
     line.setAttribute("stroke", WAVEFORM_COLOR);
+    line.appendChild(fadeInAnimation(wf.index));
     group.appendChild(line);
 }
 
@@ -663,6 +689,8 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
         .join(" ");
     line.setAttribute("points", pointsJoined);
     line.setAttribute("id", "waveline-"+slotIndex);
+    // Add fade in animation
+    line.appendChild(fadeInAnimation(slotIndex));
     svg.appendChild(line);
 
     waveforms[slotIndex].width = width;
@@ -846,8 +874,6 @@ function begin() {
         group.setAttribute("id", "group-" + i);
 
         drawWaveformBackground(wf, group, i);
-
-        
 
         if (wf.zIndex < 0) {
             container.prepend(group);
