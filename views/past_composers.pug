@@ -41,7 +41,7 @@ block content
                     | Select a snapshot to jump back to:
               div(id="history-container")
                 each h in composer.history
-                    a(href='/?history='+h[0] class='custom-button') !{h[1]+1}
+                    a(href='/?history='+h[0] class='custom-button snapshot-button') !{h[1]+1}
               p
                         
           

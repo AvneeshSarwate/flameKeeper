@@ -561,6 +561,11 @@ footer .footerNote {
 	outline: none;
 }
 
+.snapshot-button {
+	width: 40px;
+	margin: 2px;
+}
+
 #beginButton {
 	font-size: 1.3em;
 }
