@@ -585,8 +585,8 @@ function fadeInAnimation(index) {
     );
     fadeInAnimation.setAttribute("class", `fadeIn-${index}`);
     fadeInAnimation.setAttribute("attributeName", "opacity");
-    fadeInAnimation.setAttribute("dur", "10s");
-    fadeInAnimation.setAttribute("values", "0;0.3;0.4;1");
+    fadeInAnimation.setAttribute("dur", "4s");
+    fadeInAnimation.setAttribute("values", "0;0.1;0.2;1");
     fadeInAnimation.setAttribute("times", "0;0.4;0.8;1");
     fadeInAnimation.setAttribute("repeatCount", "1");
     fadeInAnimation.setAttribute("begin", "indefinite");
