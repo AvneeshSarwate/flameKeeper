@@ -86,33 +86,42 @@ window.onbeforeunload = function() {
 };
 
 
-function setGradient(speed, angle, colors, zooms){
-    let speedString = speed+'s';
+function setGradient(speed, angle, colors, zooms) {
+    let speedString = speed + 's';
     let gradientString = `linear-gradient(${angle}deg, ${colors.join(', ')})`;
     let zoomString = zooms.join(" ");
 
     document.documentElement.style.setProperty('--gradient-speed', speedString);
     document.documentElement.style.setProperty('--gradient-def', gradientString);
     document.documentElement.style.setProperty('--background-size', zoomString);
-    // console.log("css", speed, angle, colors);
 }
 
-function refreshGradient() {
-    fetch('/gradient').then(resp => {
-        resp.json().then(gradient => {
-            let speed = parseInt(gradient.speed);
-            let angle = parseInt(gradient.angle);
-            let colors = gradient.colors.split(/(\s+)/).filter(c => c[0] === "#");
-            let zooms = gradient.zooms.split(/(\s+)/);
+function setFontColor(r, g, b, a) {
+    document.documentElement.style.setProperty('--font-color', `rgba(${r}, ${g}, ${b}, ${a})`);
+}
+
+function refreshStyle() {
+    fetch('/style').then(resp => {
+        resp.json().then(style => {
+            let speed = parseInt(style.gradient.speed);
+            let angle = parseInt(style.gradient.angle);
+            let colors = style.gradient.colors.split(/(\s+)/).filter(c => c[0] === "#");
+            let zooms = style.gradient.zooms.split(/(\s+)/);
             setGradient(speed, angle, colors, zooms);
+
+            let r = style.font.r;
+            let g = style.font.g;
+            let b = style.font.b;
+            let a = style.font.a;
+            setFontColor(r, g, b, a);
         })
     })
 }
 
+// Enable style changing from airtable TODO: remove
 setTimeout(() => {
     setInterval(() => {
-        refreshGradient();
-        
+        refreshStyle();
     }, 2 * 1000);
 }, 1000 * 2);
 

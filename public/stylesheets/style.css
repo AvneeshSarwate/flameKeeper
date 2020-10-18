@@ -11,6 +11,8 @@
 	--gradient-speed: 250s;
     --gradient-def: linear-gradient(45deg, #7a7a7a, #b2b2b2, #f0f0f0, #f0f0f0, #b2b2b2, #7a7a7a);
 	--background-size: 10000% 10000%;
+
+	--font-color: rgba(255, 255, 255, 0.5);
   }
 
 .css-selector {
@@ -62,7 +64,6 @@ header {
 	display: block;
 }
 header .profileLogo .logoPlaceholder {
-
 	width: 350px;
 	text-align: center;
 }
@@ -74,7 +75,6 @@ header .logoPlaceholder span {
 	width: 80px;
 	height: 22px;
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,1.00);
 	font-size: 30px;
 	font-weight: 700;
 	line-height: 53px;
@@ -89,18 +89,18 @@ header .profilePhoto {
 	clear: both;
 }
 header .profileHeader a {
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 }
 header .profileHeader h1 {
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-size: 1.3em;
 	font-weight: 700;
 	line-height: 14px;
 }
 header .profileHeader h3 {
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-size: 1em;
 	font-weight: 200;
 	line-height: 1.3em;
@@ -112,7 +112,7 @@ hr {
 }
 header .profileHeader p {
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-size: 1.1em;
 	font-weight: 300;
 	line-height: 1.8;
@@ -125,7 +125,7 @@ header .profileHeader p {
 
 .sectionContent a, #composer-bio a, .customLink{
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 }
 
 .sectionContent a:hover, #composer-bio a:hover, .customLink:hover {
@@ -134,7 +134,7 @@ header .profileHeader p {
 }
 
 .sectionContent a:focus, #composer-bio a:focus, .customLink:focus {
-	outline-color: rgba(255,255,255,0.50);
+	outline-color: var(--font-color);
 }
 
 .mainContent .socialNetworkNavBar {
@@ -159,7 +159,7 @@ header .profileHeader p {
 }
 .section1 .sectionTitle, .section2 .sectionTitle {
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-size: 1.2em;
 	font-weight: 700;
 	text-transform: uppercase;
@@ -174,27 +174,27 @@ header .profileHeader p {
 	font-family: 'Rubik', sans-serif;
 	font-size: 14px;
 	font-weight: 100;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 }
 .mainContent .section1 .section1Content span {
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-family: 'Rubik', sans-serif;
 }
 .section2 .sectionContentTitle, .section1 .sectionContentTitle, .socialNetworkNav .sectionContentTitle, .section1Content h2 {
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-size: 1.8em;
 	font-weight: 700;
 }
 .section2 .sectionContentSubTitle, .section1 .sectionContentSubTitle, .socialNetworkNav .sectionContentSubTitle {
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-size: 1.0em;
 	font-weight: 400;
 }
 .section2 .sectionContent, .section1 .sectionContent, .socialNetworkNav .sectionContent, .section1Content p {
 	font-family: 'Rubik', sans-serif;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-size: 1.2em;
 	font-weight: 100;
 	line-height: 1.8;
@@ -232,22 +232,22 @@ footer .footerDisclaimer {
 	font-family: 'Rubik', sans-serif;
 	font-size: 14px;
 	line-height: 18px;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-weight: 700;
 }
 footer .footerDisclaimer span {
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-weight: 400;
 }
 footer .footerNote {
 	font-family: 'Rubik', sans-serif;
 	font-size: 14px;
 	line-height: 18px;
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-weight: 700;
 }
 footer .footerNote span {
-	color: rgba(255,255,255,0.50);
+	color: var(--font-color);
 	font-weight: 400;
 }
 
@@ -520,7 +520,7 @@ footer .footerNote {
 .custom-button {
 	font-family: 'Rubik', sans-serif;
 	font-weight: 700;
-	color: rgba(255, 255, 255, 0.5);
+	color: var(--font-color);
 	padding: 0.5em 0.5em;
 	text-align: center;
 	text-decoration: none;

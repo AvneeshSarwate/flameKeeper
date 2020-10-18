@@ -169,31 +169,36 @@ class Copy {
     }
 }
 
-class Gradient {
+class Style {
     constructor() {
-        this.logger = getLogger("Copy");
-        this.tableName = "Gradient";
-        this.gradientTable = base(this.tableName);
-        this.gradient = {};
-        this.getGradient();
+        this.logger = getLogger("Style");
+        this.tableName = "Style";
+        this.styleTable = base(this.tableName);
+        this.style = {};
+        this.getStyle();
     }
 
-    async getGradient() {
-        let gradient = {};
+    async getStyle() {
+        let style = {};
+        style.gradient = {};
+        style.font = {};
         try {
-            let records = await this.gradientTable.select({
+            let records = await this.styleTable.select({
                 view: 'Grid view'
             }).all();
+            let gradientPrefix = "gradient-";
+            let fontPrefix = "font-";
             await asyncForEach(records, async record => {
                 let property = record.get("Property");
                 let value = record.get("Value");
-                gradient[property] = value;
+                if (property.startsWith(gradientPrefix)) style.gradient[property.slice(gradientPrefix.length)] = value;
+                else if (property.startsWith(fontPrefix)) style.font[property.slice(fontPrefix.length)] = value;
             });
         } catch (err) {
-            this.logger.error("unable to get copy", err);
+            this.logger.error("unable to get style", err);
         }
-        this.gradient = gradient;
-        return this.gradient;
+        this.style = style;
+        return this.style;
     }
 }
 
@@ -203,7 +208,7 @@ class AirtableManager {
         this.composers = new Composers();
         this.admins = new Admins();
         this.copy = new Copy();
-        this.gradient = new Gradient();
+        this.style = new Style();
         this.updateFreq = 2000;
         this.start();
     }
@@ -222,9 +227,8 @@ class AirtableManager {
             await this.composers.getComposers();
             await this.admins.getAdmins();
             await this.copy.getCopy();
-            await this.gradient.getGradient();
+            await this.style.getStyle();
             this.logger.debug("successfully re-synced airtable data");
-            // console.log("composers", this.composers.composers);
         } catch (err) {
             logger.error(err);
         }
@@ -236,5 +240,5 @@ let airtableManager = new AirtableManager();
 exports.Composers = airtableManager.composers;
 exports.Admins = airtableManager.admins;
 exports.Copy = airtableManager.copy;
-exports.Gradient = airtableManager.gradient;
+exports.Style = airtableManager.style;
 exports.AirtableManager = airtableManager;
