@@ -401,6 +401,7 @@ function updateLoadingAnimation() {
         [0, 1, 2, 3, 4, 5, 6].map(i => {
             drawZeroLine(waveforms[i], document.getElementById("group-"+i))
         })
+        document.getElementById('playAudio').classList.remove('hide');
     }
 }
 
@@ -835,6 +836,35 @@ function pauseAll(){
     audioElements.forEach(a => {a.currentTime = 0});
 }
 
+function addExitFullScreenButton(container){
+    const button = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    button.id = 'exit-fullscreen';
+    const buttonSize = 15;
+    button.setAttribute('href', './images/exit-fullscreen.png');
+    button.setAttribute('width', buttonSize);
+    button.setAttribute('height', buttonSize);
+    button.setAttribute('x', CONTAINER_WIDTH-buttonSize-10);
+    button.setAttribute('y', CONTAINER_HEIGHT-buttonSize-10);
+    button.style.visibility = 'hidden';
+
+    button.onclick =() => {
+        document.exitFullscreen().then(() => exitFullScreen());
+    }
+
+    container.append(button);
+    let mouseMoveTimeout = null;
+    container.addEventListener('mousemove', e => {
+        if(!isFullScreen) return;
+        if(mouseMoveTimeout) clearTimeout(mouseMoveTimeout);
+        button.style.visibility = '';
+        mouseMoveTimeout = setTimeout(() => {
+            button.style.visibility = 'hidden';
+        }, 2000)
+    });
+}
+
+const container = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
 function begin() {
     // document.getElementById('beginButton').classList.add('hide');
     // document.getElementById('fullscreen').classList.remove('hide');
@@ -849,7 +879,6 @@ function begin() {
     });
 
     //document.addEventListener("DOMContentLoaded", function() {
-    const container = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     if (DEBUG) {
         container.setAttribute("style", "border: 1px solid black;"); // just for visualization
     }
@@ -928,46 +957,58 @@ function begin() {
     //         delays[i].delayTime.value = getVisualSyncDelay(i);
     //     });
     // });
+
+    addExitFullScreenButton(container);
 }
 
-
+let isFullScreen = false;
 function goFullScreen() {
     const elem = document.getElementById('installation');
     const svgElem = document.getElementById('installation-svg');
+    const exitFullScreenBuffon = document.getElementById('exit-fullscreen');
+    // exitFullScreenBuffon.style.visibility = 'visible';
 
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
         elem.classList.add('css-selector');
         svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
     else if (elem.mozRequestFullScreen) {
         svgElem.mozRequestFullScreen();
         svgElem.classList.add('css-selector');
         svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
     else if (elem.webkitRequestFullscreen) {
         svgElem.style.position = 'absolute';
         svgElem.webkitRequestFullscreen();
         svgElem.classList.add('css-selector');
         svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
     else if (elem.msRequestFullscreen) {
         svgElem.msRequestFullscreen();
         svgElem.classList.add('css-selector');
         svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
 }
 
 
 function exitFullScreen() {
+    console.log("exiting fullscreen")
     const elem = document.getElementById('installation');
     const svgElem = document.getElementById('installation-svg');
+    const exitFullScreenBuffon = document.getElementById('exit-fullscreen');
 
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+        isFullScreen = false;
         svgElem.classList.remove('css-selector');
         elem.classList.remove('css-selector');
         svgElem.classList.remove('isFullscreen');
         svgElem.style.position = '';
+        exitFullScreenBuffon.style.visibility = 'hidden';
     }
 }
 

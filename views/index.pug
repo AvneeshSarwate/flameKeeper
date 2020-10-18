@@ -11,7 +11,7 @@ block content
       div(id="loadingProgress" class="hide")
         div #[span(id="loadingValue") 0]%#[img(src='./images/dots.gif' height='4px' style='margin-left: 2px;' alt='loading')]
       #installation
-      button(id="playAudio" class='custom-button') Start Audio
+      button(id="playAudio" class='custom-button hide') Start Audio
       div(id="user_controls" class="hide")
         div(id="time_slider_container")
             img(src="./images/clock.png" class="icon")
@@ -24,9 +24,9 @@ block content
                     div Jump to time:
                 span(id='text_slider_display' class='text-style')
             div(id="vol_container")
-                img(src="./images/volume.png" class="icon")
+                img(src="./images/volume_2.png" class="icon")
                 input(id="global_vol" class='global_vol' type="range" min='0' max='2' value='1' step='0.0001')
-                img(src="./images/fullscreen.png" id='fullscreen' class='icon')
+                img(src="./images/fullscreen_2.png" id='fullscreen' class='icon')
       br
       //- Introduction
       section.profileHeader
