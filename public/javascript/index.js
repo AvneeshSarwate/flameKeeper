@@ -67,7 +67,7 @@ const MAX_ZOOM_OUT = 3;
 document.getElementById('text_slider_display').innerHTML = new Date().toLocaleString();
 document.getElementById('time_slider').addEventListener('input', changeTime);
 document.getElementById('jump_to_history').addEventListener('click', jumpToHistory);
-document.getElementById('global_vol').addEventListener('input', changeVol);
+// document.getElementById('global_vol').addEventListener('input', changeVol);
 
 
 //commenting out time slider for now - might need to change firstTimeStamp => firstEntry
@@ -82,6 +82,8 @@ document.getElementById('global_vol').addEventListener('input', changeVol);
 // document.getElementById('beginButton').addEventListener('click', begin);
 document.getElementById('fullscreen').addEventListener('click', goFullScreen);
 document.getElementById('playAudio').addEventListener('click', playAudio);
+document.getElementById('volumeIcon').addEventListener('click', muteAudio);
+document.getElementById('muteIcon').addEventListener('click', unmuteAudio);
 
 let transportStartTime = null;
 let isPlaying = false;
@@ -94,6 +96,24 @@ function playAudio() {
         restartPlaybackAfterLoad(Date.now());
         isPlaying = true;
     });
+}
+
+
+let gloalVol = 1.0;
+let muted = false;
+
+function muteAudio() {
+    document.getElementById('volumeIcon').classList.add('hide');
+    document.getElementById('muteIcon').classList.remove('hide');
+    muted = true;
+    globalGain.gain.value = 0.0;
+}
+
+function unmuteAudio() {
+    document.getElementById('muteIcon').classList.add('hide');
+    document.getElementById('volumeIcon').classList.remove('hide');
+    muted = false;
+    globalGain.gain.value = gloalVol;
 }
 
 function restartPlaybackAfterLoad(startTime) {
@@ -133,9 +153,9 @@ let currentTime;
 let installationBlur;
 let drawPointBuffers = [];
 
-function changeVol(e) {
-    let vol = parseFloat(e.target.value);
-    globalGain.gain.value = vol;
+function changeVol(value) {
+    gloalVol = value;
+    if (!muted) globalGain.gain.value = gloalVol;
 }
 
 function changeTime(e) {
@@ -872,7 +892,15 @@ function begin() {
     // let vol_stuff = document.getElementsByClassName('global_vol');
     // vol_stuff[0].classList.remove("hide")
     // vol_stuff[1].classList.remove("hide")
-
+    let isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+    if (isMobile) {
+        // Set to max volume and hide volume control on mobile
+        changeVol(2.0);
+    } else {
+        // Show volume control on desktop
+        document.getElementById('volume-widget').classList.remove('hide');
+        createVolumeWidget("volume-widget", (val) => changeVol(2.0 * val), { startBar: 1 });
+    }
 
     audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');

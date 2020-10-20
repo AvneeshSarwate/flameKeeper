@@ -584,7 +584,7 @@ footer .footerNote {
     margin: 5px;
 }
 
-#fullscreen:hover {
+#fullscreen:hover, #volumeIcon:hover, #muteIcon:hover {
     filter: invert(0.9);
 }
 
