@@ -325,9 +325,9 @@ const waveforms = [
     }
 ];
 
-[0, 1, 2, 3, 4, 5, 6].map( i => {
-    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-})
+// [0, 1, 2, 3, 4, 5, 6].map( i => {
+//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+// })
 
 
 function setGradient(speed, angle, colors, zooms){
@@ -777,7 +777,7 @@ function getVisualSyncDelay(slotIndex) {
 
 let playerDur = i => players[i].buffer.length * players[i].sampleTime;
 
-let DEBUG_WAVE = 6;
+let DEBUG_WAVE = -1;
 function setUpForDebug(){
     muteAll();
     gains[DEBUG_WAVE].gain.value = 1;
