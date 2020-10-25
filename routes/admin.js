@@ -133,9 +133,9 @@ router.get('/dashboard', requiresLogin, function (req, res, next) {
 // create multiple history entries
 router.post('/upload', requiresLogin, async function (req, res, next) {
     try {
+        let authenticatedUser = req.session.composer || req.session.admin;
+        let authenticatedID = authenticatedUser.composerID || authenticatedUser.adminID;
         if (flameKeeper.locked) {
-            let authenticatedUser = req.session.composer || req.session.admin;
-            let authenticatedID = authenticatedUser.composerID || authenticatedUser.adminID;
             let msg = `composer or admin ${authenticatedID} attempted upload when flameKeeper is locked`;
             logger.warn(msg);
             res.status(403).send(msg);
@@ -171,13 +171,13 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                         reject(`volume must be 0-2, received ${volume}`);
                         return;
                     }
-                    let audioID = await state.addAudio(file.name, file.path, req.session.composer.composerID);
+                    let audioID = await state.addAudio(file.name, file.path, authenticatedID);
                     let newAudio = [ ...state.currentState.audio ];
                     newAudio[index] = {
                         "audioID": audioID,
                         "volume": volume
                     };
-                    await state.editCurrentState(req.session.composer.composerID, newAudio);
+                    await state.editCurrentState(authenticatedID, newAudio);
                 } catch (err) {
                     reject(err);
                     return;
