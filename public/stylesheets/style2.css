@@ -273,7 +273,7 @@ header .profileLogo .logoPlaceholder {
 }
 header .profilePhoto {
 	display: inline-block;
-	margin-bottom: 10%;
+	/* margin-bottom: 10%; */
 }
 header #installation {
 	display: inline-block;
@@ -705,6 +705,7 @@ footer .footerNote {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 /*

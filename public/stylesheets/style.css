@@ -9,10 +9,10 @@
 
 	/* Gradient as of 10/14/2020 */
 	--gradient-speed: 250s;
-    --gradient-def: linear-gradient(45deg, #7a7a7a, #b2b2b2, #f0f0f0, #f0f0f0, #b2b2b2, #7a7a7a);
-	--background-size: 10000% 10000%;
+    --gradient-def: linear-gradient(45deg, #FFF4E3, #DDDDDD, #FFFFFF);
+	--background-size: 1000% 1000%;
 
-	--font-color: rgba(255, 255, 255, 0.5);
+	--font-color: rgba(106, 106, 106, 0.9);
   }
 
 .css-selector {
@@ -495,6 +495,10 @@ footer .footerNote {
 
 .hide {
 	display: none;
+}
+
+.hide2 {
+	visibility: hidden;
 }
 
 .mutes:hover {

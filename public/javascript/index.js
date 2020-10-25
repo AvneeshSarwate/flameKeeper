@@ -325,6 +325,10 @@ const waveforms = [
     }
 ];
 
+[0, 1, 2, 3, 4, 5, 6].map( i => {
+    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+})
+
 
 function setGradient(speed, angle, colors, zooms){
     let speedString = speed+'s';
@@ -421,7 +425,7 @@ function updateLoadingAnimation() {
         [0, 1, 2, 3, 4, 5, 6].map(i => {
             drawZeroLine(waveforms[i], document.getElementById("group-"+i))
         })
-        document.getElementById('playAudio').classList.remove('hide');
+        document.getElementById('playAudio').classList.remove('hide2');
     }
 }
 
@@ -732,12 +736,12 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     let wf = waveforms[slotIndex];
     // if(width < wf.viewWidth * MAX_ZOOM_OUT){
         //todo - clean this up and to only copy over end-part of wave when file is large 
-        let numRepeats = Math.max(Math.floor(wf.viewWidth * MAX_ZOOM_OUT / width), 1); 
+        let numRepeats = Math.max(Math.floor(wf.viewWidth * MAX_ZOOM_OUT / width), 2); 
         let waveCopyStrings = [];
         for(let i = 0; i < numRepeats; i++){
             let repeat = points.map(([x, y]) => `${x-(i+1)*width},${y}`).join(" "); //copy of the waveform shifted i wavelengths
             repeatedWaveBuffer.push(points.map(([x, y]) => [x-(i+1)*width, y]));
-            topWaveBuffer.push(baseWaveArc.map(([x, y]) => [x-(i+1)*width, y]))
+            topWaveBuffer.push(baseWaveArc.map(([x, y]) => [x+(i+1)*width, y]))
             waveCopyStrings.push(repeat);
         }
         drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1), flipFunc, baseWaveArc, width, waveTop: topWaveBuffer.flat(1)};
@@ -773,12 +777,11 @@ function getVisualSyncDelay(slotIndex) {
 
 let playerDur = i => players[i].buffer.length * players[i].sampleTime;
 
-let DEBUG_WAVE = -1;
+let DEBUG_WAVE = 6;
 function setUpForDebug(){
-    DEBUG_WAVE = -1;
     muteAll();
-    gains[0].gain.value = 1;
-    delays[0].delayTime.value = 0;
+    gains[DEBUG_WAVE].gain.value = 1;
+    delays[DEBUG_WAVE].delayTime.value = 0;
 }
 
 
@@ -812,24 +815,21 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         offset = waveProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
         let nearFrac = Math.abs(.9 - (audioProg/waveforms[slotIndex].linePercent)) < 0.05
 
-        // let waveWidth = waveforms[slotIndex].viewWidth;
-        // let waveStart = Math.floor(drawPointBuffers[slotIndex].baseLength * waveProg);
-        // let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
-        // let pointSlice = drawPointBuffers[slotIndex].points.slice(waveStart, waveStart + waveSampNum);
-        // let interpolation = 0;// todo - can interpolate points to adjust for rounding the waveStart/end
-        // if(!pointSlice || !pointSlice[0]) debugger;
-        // let startX = pointSlice[0][0];
-        // let newPoints = pointSlice.map(([x, y]) => [x-startX+interpolation, y]);
-
         let waveWidth = waveforms[slotIndex].viewWidth;
         let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
+        let zoomSampNum = waveSampNum * waveZoom;
         let {baseWaveArc, flipFunc, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
-        let startInd = Math.floor(waveProg * baseLength);
-        let endInd = startInd + waveSampNum * waveZoom;
+        let startInd = Math.floor(waveProg * baseLength + (baseLength - zoomSampNum));
+        let endInd = startInd + zoomSampNum;
+        if(waveTop.length <= startInd || waveTop.length <= endInd) {
+            let aaaa = 5;
+        }
         let xStart = waveTop[startInd][0];
         let topSlice = waveTop.slice(startInd, endInd);
         let sliceWidth = topSlice.slice(-1)[0][0] - xStart;
         let zoomedTopSlice = topSlice.map(([x, y]) => [(x-xStart)/sliceWidth * waveWidth, y]);
+        zoomedTopSlice.splice(0, 0, [0, 0]);
+        zoomedTopSlice.push([waveWidth, 0]);
         let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
         let newPoints = zoomedTopSlice.concat(backwards);
 
@@ -839,7 +839,9 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         };
         
 
-        if(nearFrac && slotIndex == DEBUG_WAVE) console.log("audioProg", audioProg, waveforms[slotIndex].linePercent);
+        if(slotIndex == DEBUG_WAVE) {
+            console.log("audioProg", audioProg.toFixed(3), startInd, endInd, xStart, zoomedTopSlice.length, waveforms[slotIndex].linePercent);
+        }
 
         if(!isNaN(offset)) {
             let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");

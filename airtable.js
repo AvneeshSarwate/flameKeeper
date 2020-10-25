@@ -191,8 +191,10 @@ class Style {
             await asyncForEach(records, async record => {
                 let property = record.get("Property");
                 let value = record.get("Value");
-                if (property.startsWith(gradientPrefix)) style.gradient[property.slice(gradientPrefix.length)] = value;
-                else if (property.startsWith(fontPrefix)) style.font[property.slice(fontPrefix.length)] = value;
+                if(property && value) {
+                    if (property.startsWith(gradientPrefix)) style.gradient[property.slice(gradientPrefix.length)] = value;
+                    else if (property.startsWith(fontPrefix)) style.font[property.slice(fontPrefix.length)] = value;
+                }
             });
         } catch (err) {
             this.logger.error("unable to get style", err);
