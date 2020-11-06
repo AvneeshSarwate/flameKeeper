@@ -85,7 +85,7 @@ block content
       p.footerNote
         | Contact Us - 
         span #[a.customLink(target='_blank' href='mailto:info@metropolisensemble.org') Email] / #[a.customLink(target='_blank' href='https://www.instagram.com/metroensemble/?hl=en') Social]
-    
+    div(id="konvatest")
     <input id="fileSwap-0" type="file" style="display: none;" />
     <input id="fileSwap-1" type="file" style="display: none;" />
     <input id="fileSwap-2" type="file" style="display: none;" />
@@ -103,6 +103,7 @@ block content
       let timestamp = !{timestamp};
       let firstEntry = !{firstEntry};
 
+    script(nonce=nonce src='./javascript/konva.js')
     script(nonce=nonce src='./javascript/dat.gui.min.js')
     script(nonce=nonce src='./javascript/Tone.js')
     script(nonce=nonce src="https://code.jquery.com/pep/0.4.3/pep.js")

@@ -213,7 +213,7 @@ const ZIGZAG_WIDTH = 1;
 const ZIGZAG_V_LENGTH = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
 const ZIGZAG_H_LENGTH = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
 const ZIGZAG_LOADING_EXPONENTIAL = 0.0025;
-const SAMPLES_PER_SECOND = 120;
+const SAMPLES_PER_SECOND = 120 * 0.125;
 const PIXELS_PER_SECOND = 50;
 const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
 const NORMALIZE_DATA = true;
@@ -790,6 +790,7 @@ let USE_LINE_REDRAW = true;
 
 let waveInfo = [];
 
+let perWaveDrawCalls = [];
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -798,7 +799,8 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let polyline = document.getElementById('waveline-'+slotIndex);
     let frameCount = 0;
     function draw(ts) {
-        frameCount++;
+        requestAnimationFrame(draw);
+        // if(++frameCount % 2 == 0) return;
         let waveZoom = waveforms[slotIndex].waveZoom;
         let zoomedViewWidth = viewWidth*waveZoom;
 
@@ -844,14 +846,28 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         }
 
         if(!isNaN(offset)) {
-            let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
-            if(USE_LINE_REDRAW) polyline.setAttribute('points', pointString)
-            else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
+            // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
+            // if(USE_LINE_REDRAW) polyline.setAttribute('points', pointString)
+            // else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
+            if(kgl){
+                let group = kg[slotIndex];
+                kgLines[slotIndex].setPoints(newPoints.flat());
+            }
         }
-        requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
 }
+
+let kgl = null;
+function konvaDrawLoop(){
+    requestAnimationFrame(konvaDrawLoop);
+    if(kgl){
+        kgl.clear();
+        kgl.draw();
+    }
+}
+
+konvaDrawLoop();
 
 function pauseAll(){
     audioElements.forEach(a => a.pause());
@@ -989,6 +1005,87 @@ function begin() {
     // });
 
     addExitFullScreenButton(container);
+}
+
+let kg = []; //konva groups
+let kgLines = [];
+function drawKonva() {
+    // first we need to create a stage
+  var stage = new Konva.Stage({
+    container: 'konvatest',   // id of container <div>
+    width: CONTAINER_WIDTH,
+    height: CONTAINER_HEIGHT
+  });
+  
+  // then create layer
+  var layer = new Konva.Layer();
+  kgl = layer;
+  
+  // add the layer to the stage
+  stage.add(layer);
+
+  [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+    let group = new Konva.Group();
+    kg.push(group);
+    let svgGroup = document.getElementById("group-"+i);
+    let mv = svgGroup.transform.baseVal.consolidate().matrix;
+    let {a, b, c, d, e, f} = mv;
+    let matrixArrray = [a, b, c, d, e, f];
+    let xTrans = e;
+    let yTrans = f;
+    let theta = Math.atan2(c, d);
+    let transform = new Konva.Transform(matrixArrray);
+    let decomp = transform.decompose();
+
+    let svgRect = document.getElementById("bgRect-"+i);
+    let rect = new Konva.Rect({
+        width: svgRect.width.baseVal.value,
+        height: svgRect.height.baseVal.value,
+        fill: 'red',
+        stroke: 'black',
+        strokeWidth: 5
+    });
+    rect.fillRadialGradientColorStops(0, 'red', 0.5, 'blue', 1, 'green');
+
+    var poly = new Konva.Line({
+        points: [23, 20, 23, 160, 70, 93, 150, 109, 290, 139, 270, 93],
+        fill: '#00D2FF',
+        stroke: 'black',
+        strokeWidth: 5,
+        closed: true,
+      });
+
+    kdraw(i, decomp.x, decomp.y, decomp.rotation);
+
+    // group.rotation(theta * 180 / Math.PI);
+    // group.setOffsetX(xTrans);
+    // group.setOffsetY(yTrans);
+
+    // group.rotation(decomp.rotation);
+    // group.setOffsetX(decomp.x);
+    // group.setOffsetY(decomp.y);
+
+    group.add(poly);
+    kgLines.push(poly);
+    // group.add(rect);
+    layer.add(group);
+  });
+  
+  // draw the image
+  layer.draw();
+}
+
+function kdraw(i, x, y, rot){
+    kg[i].setX(x);
+    kg[i].setY(y);
+    kg[i].rotation(rot);
+    console.log("konv", i, x, y, rot);
+    kgl.clear();
+    kgl.draw();
+}
+
+function kvfull(){
+    document.getElementsByTagName('canvas')[0].requestFullscreen();
 }
 
 let isFullScreen = false;
