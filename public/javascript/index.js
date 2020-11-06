@@ -325,9 +325,9 @@ const waveforms = [
     }
 ];
 
-// [0, 1, 2, 3, 4, 5, 6].map( i => {
-//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-// })
+[0, 1, 2, 3, 4, 5, 6].map( i => {
+    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+})
 
 
 function setGradient(speed, angle, colors, zooms){
@@ -363,11 +363,11 @@ function refreshStyle() {
 }
 
 // Enable style changing from airtable TODO: remove
-setTimeout(() => {
-    setInterval(() => {
-        refreshStyle();
-    }, 2 * 1000);
-}, 1000 * 2);
+// setTimeout(() => {
+//     setInterval(() => {
+//         refreshStyle();
+//     }, 2 * 1000);
+// }, 1000 * 2);
 
 
 function createZigZag() {
@@ -846,12 +846,13 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         }
 
         if(!isNaN(offset)) {
-            // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
-            // if(USE_LINE_REDRAW) polyline.setAttribute('points', pointString)
-            // else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
+            
             if(kgl){
-                let group = kg[slotIndex];
                 kgLines[slotIndex].setPoints(newPoints.flat());
+            } else {
+                let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
+                if(USE_LINE_REDRAW) polyline.setAttribute('points', pointString)
+                else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
             }
         }
     }
