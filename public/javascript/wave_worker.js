@@ -15,6 +15,7 @@ onmessage = function(e){
         let newPoints = calculateWavePoints(d[0], d[1], d[2], d[3]);
         let ptString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
         postMessage(['ptString', d[0], ptString]);
+        // postMessage(['framePoints', d[0], newPoints]);
     }
 }
 

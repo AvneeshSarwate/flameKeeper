@@ -842,9 +842,13 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg) {
 
 
 let pointStrings = [0, 1, 2, 3, 4, 5, 6].map(i => '0,0');
+let framePoints = [0, 1, 2, 3, 4, 5, 6].map(i => [[0, 0]]);
 waveWorker.onmessage = function(e){
     if(e.data[0] === 'ptString'){
         pointStrings[e.data[1]] = e.data[2];
+    }
+    if(e.data[0] === 'framePoints'){
+        framePoints[e.data[1]] = e.data[2];
     }
 }
 
@@ -868,13 +872,13 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         let waveProg = isPlaying ? audioProg : fakeAudioProg;
 
         waveWorker.postMessage(['getString', slotIndex, viewWidth, waveProg, pixelsPerSample]);
-
+        // if(kgl) return;
         if(controllerProps.manualProg) waveProg = controllerProps['prog'+slotIndex] % .999;
 
         if(!isNaN(offset)) {
             
             if(kgl){
-                kgLines[slotIndex].setPoints(newPoints.flat());
+                kgLines[slotIndex].setPoints(framePoints[slotIndex].flat());
             } else {
                 // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
                 // let pointString = newPoints.flat()
@@ -901,8 +905,8 @@ let meter = new FPSMeter();
 function konvaDrawLoop(){
     requestAnimationFrame(konvaDrawLoop);
     meter.tick();
+    // console.log("draws", waveDraws.length);
     waveDraws.forEach(d => d());
-    console.log("draws", waveDraws.length);
     if(kgl){
         kgl.clear();
         kgl.draw();
@@ -1093,7 +1097,7 @@ function drawKonva() {
         points: [23, 20, 23, 160, 70, 93, 150, 109, 290, 139, 270, 93],
         fill: '#00D2FF',
         stroke: 'black',
-        strokeWidth: 5,
+        strokeWidth: 0.5,
         closed: true,
       });
 
