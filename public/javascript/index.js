@@ -1,6 +1,9 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
+
+let waveWorker = new Worker('./javascript/wave_worker.js');
+
 let swapClick = i => document.getElementById('fileSwap-'+i).click();
 let controllerProps = {
     zoom0: 1.29,
@@ -213,7 +216,7 @@ const ZIGZAG_WIDTH = 1;
 const ZIGZAG_V_LENGTH = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
 const ZIGZAG_H_LENGTH = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
 const ZIGZAG_LOADING_EXPONENTIAL = 0.0025;
-const SAMPLES_PER_SECOND = 120 * 0.125;
+const SAMPLES_PER_SECOND = 120 * 0.25;
 const PIXELS_PER_SECOND = 50;
 const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
 const NORMALIZE_DATA = true;
@@ -329,6 +332,7 @@ const waveforms = [
     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
 })
 
+waveWorker.postMessage(['waveforms', waveforms]);
 
 function setGradient(speed, angle, colors, zooms){
     let speedString = speed+'s';
@@ -745,6 +749,12 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
             waveCopyStrings.push(repeat);
         }
         drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1), flipFunc, baseWaveArc, width, waveTop: topWaveBuffer.flat(1)};
+        
+        let workerPointBuf = Object.assign({}, drawPointBuffers[slotIndex]);
+        workerPointBuf.flipFunc = 'removed'; //cant serialize functions
+        workerPointBuf.waveformHeight = waveformHeight;
+        waveWorker.postMessage(['drawPointBuffers', slotIndex, workerPointBuf]);
+        
         line.setAttribute("points", pointsJoined + " " + waveCopyStrings.join(" "));
     // } else {
     //     let endSlice = getWaveEndSlice(points, wf.viewWidth * MAX_ZOOM_OUT);
@@ -790,7 +800,56 @@ let USE_LINE_REDRAW = true;
 
 let waveInfo = [];
 
+
+function calculateWavePoints(slotIndex, viewWidth, waveProg) {
+    let waveZoom = waveforms[slotIndex].waveZoom;
+    let zoomedViewWidth = viewWidth*waveZoom; 
+
+    let waveWidth = waveforms[slotIndex].viewWidth;
+    let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
+    let zoomSampNum = waveSampNum * waveZoom;
+    let {baseWaveArc, flipFunc, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
+    let startInd = Math.floor(waveProg * baseLength + (baseLength - zoomSampNum));
+    let endInd = startInd + zoomSampNum;
+    if(waveTop.length <= startInd || waveTop.length <= endInd) {
+        let aaaa = 5;
+    }
+    let xStart = waveTop[startInd][0];
+    let topSlice = waveTop.slice(startInd, endInd);
+    let sliceWidth = topSlice.slice(-1)[0][0] - xStart;
+    let zoomedTopSlice = topSlice.map(([x, y]) => [(x-xStart)/sliceWidth * waveWidth, y]);
+    zoomedTopSlice.splice(0, 0, [0, 0]);
+    zoomedTopSlice.push([waveWidth, 0]);
+    let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
+    let newPoints = zoomedTopSlice.concat(backwards);
+    let topLen = zoomedTopSlice.length;
+    for(let i = 0; i < topLen; i++){
+
+    }
+
+    waveInfo[slotIndex] = {
+        width: zoomedTopSlice.slice(-1)[0][0] - zoomedTopSlice[0][0],
+        waveProg
+    };
+    
+
+    if(slotIndex == DEBUG_WAVE) {
+        console.log("audioProg", audioProg.toFixed(3), startInd, endInd, xStart, zoomedTopSlice.length, waveforms[slotIndex].linePercent);
+    }
+
+    return newPoints;
+}
+
+
+let pointStrings = [0, 1, 2, 3, 4, 5, 6].map(i => '0,0');
+waveWorker.onmessage = function(e){
+    if(e.data[0] === 'ptString'){
+        pointStrings[e.data[1]] = e.data[2];
+    }
+}
+
 let perWaveDrawCalls = [];
+let useWorker = true;
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -798,70 +857,52 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     if(!USE_LINE_REDRAW) svg.setAttribute("viewBox", `${offset} 0 ${viewWidth*waveZoom} ${viewHeight}`);
     let polyline = document.getElementById('waveline-'+slotIndex);
     let frameCount = 0;
+    let lastPointString = '0,0';
     function draw(ts) {
-        requestAnimationFrame(draw);
-        // if(++frameCount % 2 == 0) return;
-        let waveZoom = waveforms[slotIndex].waveZoom;
-        let zoomedViewWidth = viewWidth*waveZoom;
+        // requestAnimationFrame(draw);
 
         let dur = playerDur(slotIndex);
-        let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur; 
-
-        if (!svg.parentElement) return; //if this wave has been removed, don't requeue animation for it
+        let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur;
 
         let fakeAudioProg = (Date.now()/1000 % dur)/dur;
         let waveProg = isPlaying ? audioProg : fakeAudioProg;
 
+        waveWorker.postMessage(['getString', slotIndex, viewWidth, waveProg, pixelsPerSample]);
+
         if(controllerProps.manualProg) waveProg = controllerProps['prog'+slotIndex] % .999;
-
-        offset = waveProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
-        let nearFrac = Math.abs(.9 - (audioProg/waveforms[slotIndex].linePercent)) < 0.05
-
-        let waveWidth = waveforms[slotIndex].viewWidth;
-        let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
-        let zoomSampNum = waveSampNum * waveZoom;
-        let {baseWaveArc, flipFunc, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
-        let startInd = Math.floor(waveProg * baseLength + (baseLength - zoomSampNum));
-        let endInd = startInd + zoomSampNum;
-        if(waveTop.length <= startInd || waveTop.length <= endInd) {
-            let aaaa = 5;
-        }
-        let xStart = waveTop[startInd][0];
-        let topSlice = waveTop.slice(startInd, endInd);
-        let sliceWidth = topSlice.slice(-1)[0][0] - xStart;
-        let zoomedTopSlice = topSlice.map(([x, y]) => [(x-xStart)/sliceWidth * waveWidth, y]);
-        zoomedTopSlice.splice(0, 0, [0, 0]);
-        zoomedTopSlice.push([waveWidth, 0]);
-        let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
-        let newPoints = zoomedTopSlice.concat(backwards);
-
-        waveInfo[slotIndex] = {
-            width: zoomedTopSlice.slice(-1)[0][0] - zoomedTopSlice[0][0],
-            waveProg
-        };
-        
-
-        if(slotIndex == DEBUG_WAVE) {
-            console.log("audioProg", audioProg.toFixed(3), startInd, endInd, xStart, zoomedTopSlice.length, waveforms[slotIndex].linePercent);
-        }
 
         if(!isNaN(offset)) {
             
             if(kgl){
                 kgLines[slotIndex].setPoints(newPoints.flat());
             } else {
-                let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
-                if(USE_LINE_REDRAW) polyline.setAttribute('points', pointString)
+                // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
+                // let pointString = newPoints.flat()
+                let wavePtString = useWorker ? pointStrings[slotIndex] : lastPointString;
+                if(USE_LINE_REDRAW) polyline.setAttribute('points', wavePtString);
                 else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
+                if(!useWorker) {
+                    setTimeout(() => {
+                        let newPoints = calculateWavePoints(slotIndex, viewWidth, waveProg);
+                        lastPointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
+                    }, 5);
+                }
             }
         }
+        // meter.tick();
     }
-    requestAnimationFrame(draw);
+    waveDraws.push(draw);
+    // requestAnimationFrame(draw);
 }
+let waveDraws = [];
 
 let kgl = null;
+let meter = new FPSMeter();
 function konvaDrawLoop(){
     requestAnimationFrame(konvaDrawLoop);
+    meter.tick();
+    waveDraws.forEach(d => d());
+    console.log("draws", waveDraws.length);
     if(kgl){
         kgl.clear();
         kgl.draw();
