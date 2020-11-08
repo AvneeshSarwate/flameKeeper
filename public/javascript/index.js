@@ -795,9 +795,6 @@ function setUpForDebug(){
 }
 
 
-let USE_LINE_REDRAW = true;
-
-
 let waveInfo = [];
 
 
@@ -853,7 +850,8 @@ waveWorker.onmessage = function(e){
 }
 
 let perWaveDrawCalls = [];
-let useWorker = true;
+let USE_LINE_REDRAW = false;
+let USE_WORKER = false;
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -875,17 +873,21 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         // if(kgl) return;
         if(controllerProps.manualProg) waveProg = controllerProps['prog'+slotIndex] % .999;
 
+        let waveZoom = waveforms[slotIndex].waveZoom;
+        let zoomedViewWidth = viewWidth*waveZoom; 
+        offset = waveProg * (waveformWidth + zoomedViewWidth*0) - zoomedViewWidth;
+
         if(!isNaN(offset)) {
             
-            if(kgl){
+            if(kgl){//if a konva layer exists render with konva instead
                 kgLines[slotIndex].setPoints(framePoints[slotIndex].flat());
             } else {
                 // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
                 // let pointString = newPoints.flat()
-                let wavePtString = useWorker ? pointStrings[slotIndex] : lastPointString;
+                let wavePtString = USE_WORKER ? pointStrings[slotIndex] : lastPointString;
                 if(USE_LINE_REDRAW) polyline.setAttribute('points', wavePtString);
                 else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
-                if(!useWorker) {
+                if(!USE_WORKER && USE_LINE_REDRAW) {
                     setTimeout(() => {
                         let newPoints = calculateWavePoints(slotIndex, viewWidth, waveProg);
                         lastPointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
@@ -895,10 +897,9 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         }
         // meter.tick();
     }
-    waveDraws.push(draw);
+    perWaveDrawCalls.push(draw);
     // requestAnimationFrame(draw);
 }
-let waveDraws = [];
 
 let kgl = null;
 let meter = new FPSMeter();
@@ -906,7 +907,7 @@ function konvaDrawLoop(){
     requestAnimationFrame(konvaDrawLoop);
     meter.tick();
     // console.log("draws", waveDraws.length);
-    waveDraws.forEach(d => d());
+    perWaveDrawCalls.forEach(d => d());
     if(kgl){
         kgl.clear();
         kgl.draw();

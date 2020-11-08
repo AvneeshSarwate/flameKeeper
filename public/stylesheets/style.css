@@ -15,7 +15,7 @@
 	--font-color: rgba(106, 106, 106, 0.9);
   }
 
-.css-selector {
+/* .css-selector {
     background: var(--gradient-def);
     background-size: var(--background-size);
 
@@ -23,28 +23,42 @@
     -moz-animation: AnimationName var(--gradient-speed) ease infinite;
     -o-animation: AnimationName var(--gradient-speed) ease infinite;
     animation: AnimationName var(--gradient-speed) ease infinite;
+} */
+
+@-webkit-keyframes GradientAnimation {
+    0%{background-position:0% 97%}
+    50%{background-position:100% 4%}
+    100%{background-position:0% 97%}
+}
+@-moz-keyframes GradientAnimation {
+    0%{background-position:0% 97%}
+    50%{background-position:100% 4%}
+    100%{background-position:0% 97%}
+}
+@-o-keyframes GradientAnimation {
+    0%{background-position:0% 97%}
+    50%{background-position:100% 4%}
+    100%{background-position:0% 97%}
+}
+@keyframes GradientAnimation { 
+    0%{background-position:0% 97%}
+    50%{background-position:100% 4%}
+    100%{background-position:0% 97%}
 }
 
-@-webkit-keyframes AnimationName {
-    0%{background-position:0% 97%}
-    50%{background-position:100% 4%}
-    100%{background-position:0% 97%}
+.css-selector {
+    /* background: #FFF4E3; */
+    animation: colorchange var(--gradient-speed) ease infinite;
 }
-@-moz-keyframes AnimationName {
-    0%{background-position:0% 97%}
-    50%{background-position:100% 4%}
-    100%{background-position:0% 97%}
+
+@keyframes colorchange {
+    0%   {background: #FFF4E3; }
+    33%  {background: #DDDDDD; }
+    66%  {background: #FFFFFF; }
+    100%   {background: #FFF4E3; }
 }
-@-o-keyframes AnimationName {
-    0%{background-position:0% 97%}
-    50%{background-position:100% 4%}
-    100%{background-position:0% 97%}
-}
-@keyframes AnimationName { 
-    0%{background-position:0% 97%}
-    50%{background-position:100% 4%}
-    100%{background-position:0% 97%}
-}
+
+
 
 html {
 	background-color: transparent;
