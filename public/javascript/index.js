@@ -852,8 +852,8 @@ waveWorker.onmessage = function(e){
 
 let perWaveDrawCalls = [];
 let hasLineRedrawFlag = (new URLSearchParams(document.location.search).get('USE_LINE_REDRAW')) === 'true';
-let USE_LINE_REDRAW = hasLineRedrawFlag;
-let USE_WORKER = isMobile || hasLineRedrawFlag;
+let USE_LINE_REDRAW = isMobile || hasLineRedrawFlag;
+let USE_WORKER = USE_LINE_REDRAW;
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
