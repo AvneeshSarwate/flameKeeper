@@ -851,7 +851,7 @@ waveWorker.onmessage = function(e){
 }
 
 let perWaveDrawCalls = [];
-let hasLineRedrawFlag = !!(new URLSearchParams(document.location.search).get('USE_LINE_REDRAW'));
+let hasLineRedrawFlag = (new URLSearchParams(document.location.search).get('USE_LINE_REDRAW')) === 'true';
 let USE_LINE_REDRAW = hasLineRedrawFlag;
 let USE_WORKER = isMobile || hasLineRedrawFlag;
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
@@ -1137,7 +1137,7 @@ function kvfull(){
     document.getElementsByTagName('canvas')[0].requestFullscreen();
 }
 
-let ANIMATE_BACKGROUND = !!(new URLSearchParams(document.location.search).get('ANIMATE_BACKGROUND'));
+let ANIMATE_BACKGROUND = (new URLSearchParams(document.location.search).get('ANIMATE_BACKGROUND')) === 'true';
 let backgroundStyle = ANIMATE_BACKGROUND ? 'animated-background' : 'static-background';
 
 let bodyElem = document.getElementsByClassName('css-selector')[0];
