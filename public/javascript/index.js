@@ -1,6 +1,7 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
+let isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
 
 let waveWorker = new Worker('./javascript/wave_worker.js');
 
@@ -328,9 +329,9 @@ const waveforms = [
     }
 ];
 
-[0, 1, 2, 3, 4, 5, 6].map( i => {
-    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-})
+// [0, 1, 2, 3, 4, 5, 6].map( i => {
+//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+// })
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
@@ -850,8 +851,9 @@ waveWorker.onmessage = function(e){
 }
 
 let perWaveDrawCalls = [];
-let USE_LINE_REDRAW = false;
-let USE_WORKER = false;
+let hasLineRedrawFlag = !!(new URLSearchParams(document.location.search).get('USE_LINE_REDRAW'));
+let USE_LINE_REDRAW = hasLineRedrawFlag;
+let USE_WORKER = isMobile || hasLineRedrawFlag;
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -869,7 +871,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         let fakeAudioProg = (Date.now()/1000 % dur)/dur;
         let waveProg = isPlaying ? audioProg : fakeAudioProg;
 
-        waveWorker.postMessage(['getString', slotIndex, viewWidth, waveProg, pixelsPerSample]);
+        if(USE_WORKER && USE_LINE_REDRAW) waveWorker.postMessage(['getString', slotIndex, viewWidth, waveProg, pixelsPerSample]);
         // if(kgl) return;
         if(controllerProps.manualProg) waveProg = controllerProps['prog'+slotIndex] % .999;
 
@@ -957,7 +959,7 @@ function begin() {
     // let vol_stuff = document.getElementsByClassName('global_vol');
     // vol_stuff[0].classList.remove("hide")
     // vol_stuff[1].classList.remove("hide")
-    let isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+
     if (isMobile) {
         // Set to max volume and hide volume control on mobile
         changeVol(2.0);
