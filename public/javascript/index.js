@@ -1137,6 +1137,13 @@ function kvfull(){
     document.getElementsByTagName('canvas')[0].requestFullscreen();
 }
 
+let ANIMATE_BACKGROUND = !!(new URLSearchParams(document.location.search).get('ANIMATE_BACKGROUND'));
+let backgroundStyle = ANIMATE_BACKGROUND ? 'animated-background' : 'static-background';
+
+let bodyElem = document.getElementsByClassName('css-selector')[0];
+bodyElem.classList.remove('css-selector');
+bodyElem.classList.add(backgroundStyle);
+
 let isFullScreen = false;
 function goFullScreen() {
     const elem = document.getElementById('installation');
@@ -1146,26 +1153,26 @@ function goFullScreen() {
 
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-        elem.classList.add('css-selector');
+        elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
     }
     else if (elem.mozRequestFullScreen) {
         svgElem.mozRequestFullScreen();
-        svgElem.classList.add('css-selector');
+        svgElem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
     }
     else if (elem.webkitRequestFullscreen) {
         svgElem.style.position = 'absolute';
         svgElem.webkitRequestFullscreen();
-        svgElem.classList.add('css-selector');
+        svgElem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
     }
     else if (elem.msRequestFullscreen) {
         svgElem.msRequestFullscreen();
-        svgElem.classList.add('css-selector');
+        svgElem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
     }
@@ -1180,8 +1187,8 @@ function exitFullScreen() {
 
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
         isFullScreen = false;
-        svgElem.classList.remove('css-selector');
-        elem.classList.remove('css-selector');
+        svgElem.classList.remove(backgroundStyle);
+        elem.classList.remove(backgroundStyle);
         svgElem.classList.remove('isFullscreen');
         svgElem.style.position = '';
         exitFullScreenBuffon.style.visibility = 'hidden';

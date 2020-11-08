@@ -51,6 +51,14 @@
     animation: colorchange var(--gradient-speed) ease infinite;
 }
 
+.static-background {
+    background: #FFF4E3;
+}
+
+.animated-background {
+    animation: colorchange var(--gradient-speed) ease infinite;
+}
+
 @keyframes colorchange {
     0%   {background: #FFF4E3; }
     33%  {background: #DDDDDD; }
