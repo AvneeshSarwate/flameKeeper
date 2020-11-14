@@ -876,7 +876,9 @@ waveWorker.onmessage = function(e){
 let perWaveDrawCalls = [];
 let hasLineRedrawFlag = (new URLSearchParams(document.location.search).get('USE_LINE_REDRAW')) === 'true';
 let USE_LINE_REDRAW = isMobile || hasLineRedrawFlag;
-let USE_WORKER = USE_LINE_REDRAW;
+let workerFlag = (new URLSearchParams(document.location.search).get('USE_WORKER'));
+let USE_WORKER = workerFlag != null ? workerFlag : USE_LINE_REDRAW;
+let BATCH_DRAW_CALLS = true;
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -886,7 +888,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let frameCount = 0;
     let lastPointString = '0,0';
     function draw(ts) {
-        // requestAnimationFrame(draw);
+        if(!BATCH_DRAW_CALLS) requestAnimationFrame(draw);
 
         let dur = playerDur(slotIndex);
         let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur;
@@ -922,8 +924,8 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         }
         // meter.tick();
     }
-    perWaveDrawCalls.push(draw);
-    // requestAnimationFrame(draw);
+    if(BATCH_DRAW_CALLS)perWaveDrawCalls.push(draw);
+    else requestAnimationFrame(draw);
 }
 
 let kgl = null;
@@ -932,7 +934,7 @@ function konvaDrawLoop(){
     requestAnimationFrame(konvaDrawLoop);
     meter.tick();
     // console.log("draws", waveDraws.length);
-    perWaveDrawCalls.forEach(d => d());
+    if(BATCH_DRAW_CALLS) perWaveDrawCalls.forEach(d => d());
     if(kgl){
         kgl.clear();
         kgl.draw();
