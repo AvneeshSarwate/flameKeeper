@@ -119,11 +119,11 @@ function refreshStyle() {
 }
 
 // Enable style changing from airtable TODO: remove
-setTimeout(() => {
-    setInterval(() => {
-        refreshStyle();
-    }, 2 * 1000);
-}, 1000 * 2);
+// setTimeout(() => {
+//     setInterval(() => {
+//         refreshStyle();
+//     }, 2 * 1000);
+// }, 1000 * 2);
 
 
 function enableEditing(){

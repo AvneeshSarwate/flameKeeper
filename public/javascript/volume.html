@@ -1,0 +1,19 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <p>foo</p>
+    <div id="vol"></div>
+
+    <script src="volumeWidget.js"></script>
+    <script>
+        createVolumeWidget("vol", val => console.log(val), { startBar: 1, barColor: "rgba(106, 106, 106, 0.2)", barHighlightedColor: "rgba(106, 106, 106, 0.7)" });
+    </script>
+</body>
+
+</html>

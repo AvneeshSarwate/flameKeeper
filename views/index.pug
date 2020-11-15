@@ -9,7 +9,7 @@ block content
           a(href='/')
             img(src='./images/me-logo-wht.png' alt='sample logo')
       div(id="loadingProgress" class="hide")
-        div #[span(id="loadingValue") 0]%#[img(src='./images/dots.gif' height='4px' style='margin-left: 2px;' alt='loading')]
+        div #[span(id="loadingValue") 0]%#[img(id="loadingGif" src='./images/dots.gif' height='4px' style='margin-left: 2px;' alt='loading')]
       #installation
       button(id="playAudio" class='custom-button hide2') Start Audio
       div(id="user_controls" class="hide")
@@ -77,14 +77,6 @@ block content
         img(id='composer-hover-img')
         div(id='composer-hover-text')
 
-    footer
-      hr
-      p.footerDisclaimer
-        | &copy; 2020 Metropolis Ensemble - 
-        span All Rights Reserved
-      p.footerNote
-        | Contact Us - 
-        span #[a.customLink(target='_blank' href='mailto:info@metropolisensemble.org') Email] / #[a.customLink(target='_blank' href='https://www.instagram.com/metroensemble/?hl=en') Social]
     div(id="konvatest")
     <input id="fileSwap-0" type="file" style="display: none;" />
     <input id="fileSwap-1" type="file" style="display: none;" />

@@ -143,6 +143,7 @@ router.get('/past-composers', function (req, res, next) {
     });
 
     res.render("past_composers", {
+        copy: Copy.copy,
         composerInfo: composers,
         nonce: res.locals.nonce
     });

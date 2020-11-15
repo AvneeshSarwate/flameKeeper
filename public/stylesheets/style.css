@@ -12,7 +12,8 @@
     --gradient-def: linear-gradient(45deg, #FFF4E3, #DDDDDD, #FFFFFF);
 	--background-size: 1000% 1000%;
 
-	--font-color: rgba(106, 106, 106, 0.9);
+	--font-color: 106, 106, 106;
+	--font-text: rgba(var(--font-color), 0.9);
   }
 
 /* .css-selector {
@@ -90,8 +91,8 @@ header .profileLogo .logoPlaceholder {
 	text-align: center;
 }
 header .logoPlaceholder img {
-	max-width: 350px;	
-	opacity: 0.5;
+	max-width: 350px;
+	filter: brightness(0) saturate(100%) invert(40%) sepia(100%) saturate(0%) hue-rotate(216deg) brightness(103%) contrast(86%);
 }
 header .logoPlaceholder span {
 	width: 80px;
@@ -107,34 +108,34 @@ header .profilePhoto img {
 header .profilePhoto {
 	width: 100px;
 	border-radius: 50%;
-	height: 100px;
+	/* height: 100px; */
 	clear: both;
 }
 header .profileHeader a {
-	color: var(--font-color);
+	color: var(--font-text);
 }
 header .profileHeader h1 {
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-size: 1.3em;
 	font-weight: 700;
 	line-height: 14px;
 }
 header .profileHeader h3 {
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-size: 1em;
 	font-weight: 200;
 	line-height: 1.3em;
 }
 hr {
-	background-color: rgba(255,255,255,0.30);
+	background-color: rgba(var(--font-color), 0.6);
 	height: 2px;
 	border: 0px;
 }
 header .profileHeader p {
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-size: 1.1em;
 	font-weight: 300;
 	line-height: 1.8;
@@ -147,16 +148,17 @@ header .profileHeader p {
 
 .sectionContent a, #composer-bio a, .customLink{
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 }
 
 .sectionContent a:hover, #composer-bio a:hover, .customLink:hover {
 	opacity: 0.8;
 	text-decoration: none;
+	cursor: pointer;
 }
 
 .sectionContent a:focus, #composer-bio a:focus, .customLink:focus {
-	outline-color: var(--font-color);
+	outline-color: var(--font-text);
 }
 
 .mainContent .socialNetworkNavBar {
@@ -181,7 +183,7 @@ header .profileHeader p {
 }
 .section1 .sectionTitle, .section2 .sectionTitle {
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-size: 1.2em;
 	font-weight: 700;
 	text-transform: uppercase;
@@ -196,27 +198,27 @@ header .profileHeader p {
 	font-family: 'Rubik', sans-serif;
 	font-size: 14px;
 	font-weight: 100;
-	color: var(--font-color);
+	color: var(--font-text);
 }
 .mainContent .section1 .section1Content span {
-	color: var(--font-color);
+	color: var(--font-text);
 	font-family: 'Rubik', sans-serif;
 }
 .section2 .sectionContentTitle, .section1 .sectionContentTitle, .socialNetworkNav .sectionContentTitle, .section1Content h2 {
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-size: 1.8em;
 	font-weight: 700;
 }
 .section2 .sectionContentSubTitle, .section1 .sectionContentSubTitle, .socialNetworkNav .sectionContentSubTitle {
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-size: 1.0em;
 	font-weight: 400;
 }
 .section2 .sectionContent, .section1 .sectionContent, .socialNetworkNav .sectionContent, .section1Content p {
 	font-family: 'Rubik', sans-serif;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-size: 1.2em;
 	font-weight: 100;
 	line-height: 1.8;
@@ -254,22 +256,22 @@ footer .footerDisclaimer {
 	font-family: 'Rubik', sans-serif;
 	font-size: 14px;
 	line-height: 18px;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-weight: 700;
 }
 footer .footerDisclaimer span {
-	color: var(--font-color);
+	color: var(--font-text);
 	font-weight: 400;
 }
 footer .footerNote {
 	font-family: 'Rubik', sans-serif;
 	font-size: 14px;
 	line-height: 18px;
-	color: var(--font-color);
+	color: var(--font-text);
 	font-weight: 700;
 }
 footer .footerNote span {
-	color: var(--font-color);
+	color: var(--font-text);
 	font-weight: 400;
 }
 
@@ -546,25 +548,31 @@ footer .footerNote {
 .custom-button {
 	font-family: 'Rubik', sans-serif;
 	font-weight: 700;
-	color: var(--font-color);
+	color: var(--font-text);
 	padding: 0.5em 0.5em;
 	text-align: center;
 	text-decoration: none;
-	border: 2px solid rgba(255, 255, 255, 0.25);
+	border: 2px solid rgba(var(--font-color), 0.7);
 	border-radius: 0px;
-	background-color: rgba(255, 255, 255, 0.0);
+	background-color: rgba(var(--font-color), 0.0);
 }
 
 .custom-button:hover {
-	background-color: rgba(255, 255, 255, 0.1);
+	cursor: pointer;
+	background-color: rgba(var(--font-color), 0.1);
 }
 
 .custom-button:active {
-	background-color: rgba(255, 255, 255, 0.2);
+	background-color: rgba(var(--font-color), 0.2);
 }
 
 .custom-button:focus {
 	outline: none;
+}
+
+.snapshot-button {
+	width: 40px;
+	margin: 2px;
 }
 
 #beginButton {
@@ -606,12 +614,13 @@ footer .footerNote {
 
 .icon {
     height: 30px;
-    filter: invert(1) brightness(0.8);
+	filter: brightness(0) saturate(100%) invert(44%) sepia(0%) saturate(1181%) hue-rotate(174deg) brightness(91%) contrast(83%);
     margin: 5px;
 }
 
 #fullscreen:hover, #volumeIcon:hover, #muteIcon:hover {
-    filter: invert(0.9);
+	cursor: pointer;
+    filter: brightness(0) saturate(100%) invert(69%) sepia(2%) saturate(0%) hue-rotate(337deg) brightness(91%) contrast(86%);
 }
 
 #time_slider_container {
@@ -682,10 +691,11 @@ footer .footerNote {
 	font-family: 'Rubik', sans-serif;
 	font-weight: 700;
 	padding: 0.5em 0.5em;
-	color: rgba(255, 255, 255, 0.5);
+	color: var(--font-text);
 	text-decoration: none;
-	border: 2px solid rgba(255, 255, 255, 0.25);
+	border: 2px solid rgba(var(--font-color), 0.7);
 	border-radius: 2px;
+	width: 60px;
 }
 
 #loadingProgress.hide {
@@ -699,6 +709,12 @@ footer .footerNote {
     width: 200px;
 }
 
+#history-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
 
 /*
 from - https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/

@@ -6,7 +6,8 @@ block content
       .profileLogo
         //-- Profile logo. Add a img tag in place of <span>.
         p.logoPlaceholder
-          img(src='./images/me-logo-wht.png' alt='sample logo')      
+          a(href='/')
+            img(src='./images/me-logo-wht.png' alt='sample logo')      
       #installation
         //- - let files = fileInfo.Name;
 
@@ -52,15 +53,6 @@ block content
         p
           | Introductory text about the project goes here. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in.
         br
-
-    footer
-      hr
-      p.footerDisclaimer
-        | &copy; 2020 Metropolis Ensemble - 
-        span All Rights Reserved
-      p.footerNote
-        | Contact Us - 
-        span Email / Social
 
     <input id="fileSwap-0" type="file" style="display: none;" />
     <input id="fileSwap-1" type="file" style="display: none;" />

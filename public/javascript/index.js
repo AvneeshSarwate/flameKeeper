@@ -1,7 +1,30 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
-let isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+// Not sufficient
+// let isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+
+// Per MDN: https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent#Mobile_Device_Detection
+let isMobile = false;
+if ("maxTouchPoints" in navigator) {
+    isMobile = navigator.maxTouchPoints > 0;
+} else if ("msMaxTouchPoints" in navigator) {
+    isMobile = navigator.msMaxTouchPoints > 0;
+} else {
+    var mQ = window.matchMedia && matchMedia("(pointer:coarse)");
+    if (mQ && mQ.media === "(pointer:coarse)") {
+        isMobile = !!mQ.matches;
+    } else if ('orientation' in window) {
+        isMobile = true; // deprecated, but good fallback
+    } else {
+        // Only as a last resort, fall back to user agent sniffing
+        var UA = navigator.userAgent;
+        isMobile = (
+            /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+            /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
+        );
+    }
+}
 
 let waveWorker = new Worker('./javascript/wave_worker.js');
 
@@ -966,7 +989,13 @@ function begin() {
     } else {
         // Show volume control on desktop
         document.getElementById('volume-widget').classList.remove('hide');
-        createVolumeWidget("volume-widget", (val) => changeVol(2.0 * val), { startBar: 1 });
+        createVolumeWidget("volume-widget", (val) => changeVol(2.0 * val), 
+            { 
+                startBar: 1, 
+                barColor: "rgba(106, 106, 106, 0.2)", 
+                barHighlightedColor: "rgba(106, 106, 106, 0.7)" 
+            }
+        );
     }
 
     audioCtx.resume().then(() => {
