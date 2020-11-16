@@ -15,7 +15,7 @@ onmessage = function(e){
         let newPoints = calculateWavePoints(d[0], d[1], d[2], d[3]);
         let ptString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
         postMessage(['ptString', d[0], ptString]);
-        // postMessage(['framePoints', d[0], newPoints]);
+        postMessage(['framePoints', d[0], newPoints]);
     }
 }
 
@@ -42,8 +42,9 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
     zoomedTopSlice.splice(0, 0, [0, 0]);
     zoomedTopSlice.push([waveWidth, 0]);
     let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
-    let newPoints = zoomedTopSlice.concat(backwards);
-    let topLen = zoomedTopSlice.length;
+    let newPoints = [];
+    if(waveforms[slotIndex].mirrored) newPoints = zoomedTopSlice.concat(backwards);
+    else newPoints = zoomedTopSlice.concat([backwards[0], backwards.slice(-1)[0]]);
 
     return newPoints;
 }

@@ -352,9 +352,9 @@ const waveforms = [
     }
 ];
 
-// [0, 1, 2, 3, 4, 5, 6].map( i => {
-//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-// })
+[0, 1, 2, 3, 4, 5, 6].map( i => {
+    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+})
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
@@ -1089,6 +1089,7 @@ function begin() {
 
 let kg = []; //konva groups
 let kgLines = [];
+let USE_KONVA = false;
 function drawKonva() {
     // first we need to create a stage
   var stage = new Konva.Stage({
@@ -1118,9 +1119,10 @@ function drawKonva() {
     let decomp = transform.decompose();
 
     let svgRect = document.getElementById("bgRect-"+i);
+    let halveHeight = waveforms[i].mirrored ? 1 : 2;
     let rect = new Konva.Rect({
         width: svgRect.width.baseVal.value,
-        height: svgRect.height.baseVal.value,
+        height: svgRect.height.baseVal.value / halveHeight,
         fill: 'red',
         stroke: 'black',
         strokeWidth: 5
@@ -1135,15 +1137,14 @@ function drawKonva() {
         closed: true,
       });
 
-    kdraw(i, decomp.x, decomp.y, decomp.rotation);
+    kdraw(i, decomp.x, decomp.y, decomp.rotation, decomp.scaleX, decomp.scaleY);
 
-    // group.rotation(theta * 180 / Math.PI);
-    // group.setOffsetX(xTrans);
-    // group.setOffsetY(yTrans);
+    
+    let wave = waveforms[i];
+    let mirrored = waveforms[i].mirrored;
 
-    // group.rotation(decomp.rotation);
-    // group.setOffsetX(decomp.x);
-    // group.setOffsetY(decomp.y);
+    // group.setOffsetX(wave.viewWidth/2);
+    // group.setOffsetY(wave.viewHeight * (mirrored ? 1 : 0.5));
 
     group.add(poly);
     kgLines.push(poly);
@@ -1153,12 +1154,16 @@ function drawKonva() {
   
   // draw the image
   layer.draw();
+
+  USE_KONVA = true;
 }
 
-function kdraw(i, x, y, rot){
+function kdraw(i, x, y, rot, scaleX, scaleY){
     kg[i].setX(x);
     kg[i].setY(y);
     kg[i].rotation(rot);
+    kg[i].scaleX(scaleX);
+    kg[i].scaleY(scaleY);
     console.log("konv", i, x, y, rot);
     kgl.clear();
     kgl.draw();
