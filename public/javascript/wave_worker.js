@@ -26,6 +26,7 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
     let zoomedViewWidth = viewWidth*waveZoom; 
 
     let waveWidth = waveforms[slotIndex].viewWidth;
+    let mirrored = waveforms[slotIndex].mirrored;
     let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
     let zoomSampNum = waveSampNum * waveZoom;
     let {baseWaveArc, waveformHeight, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
@@ -39,11 +40,13 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
     let topSlice = waveTop.slice(startInd, endInd);
     let sliceWidth = topSlice.slice(-1)[0][0] - xStart;
     let zoomedTopSlice = topSlice.map(([x, y]) => [(x-xStart)/sliceWidth * waveWidth, y]);
-    zoomedTopSlice.splice(0, 0, [0, 0]);
-    zoomedTopSlice.push([waveWidth, 0]);
+    // zoomedTopSlice = [[waveWidth/2, 20]];
+    let endptY = mirrored ? waveformHeight : waveformHeight;
+    zoomedTopSlice.splice(0, 0, [0, endptY]);
+    zoomedTopSlice.push([waveWidth, endptY]);
     let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
     let newPoints = [];
-    if(waveforms[slotIndex].mirrored) newPoints = zoomedTopSlice.concat(backwards);
+    if(mirrored) newPoints = zoomedTopSlice.concat(backwards);
     else newPoints = zoomedTopSlice.concat([backwards[0], backwards.slice(-1)[0]]);
 
     return newPoints;
