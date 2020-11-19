@@ -28,13 +28,16 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
     let waveWidth = waveforms[slotIndex].viewWidth;
     let mirrored = waveforms[slotIndex].mirrored;
     let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
-    let zoomSampNum = waveSampNum * waveZoom;
+    let zoomSampNum = Math.floor(waveSampNum * waveZoom);
     let {baseWaveArc, waveformHeight, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
     let flipFunc = y => waveformHeight * 2 - y;
-    let startInd = Math.floor(waveProg * baseLength + (baseLength - zoomSampNum));
+    let startInd = Math.floor(waveProg * baseLength);
     let endInd = startInd + zoomSampNum;
-    if(waveTop.length <= startInd || waveTop.length <= endInd) {
+    if(waveTop.length <= startInd || waveTop.length < endInd) {
         let aaaa = 5;
+    }
+    if(!waveTop[startInd]) {
+        let fuck = 5;
     }
     let xStart = waveTop[startInd][0];
     let topSlice = waveTop.slice(startInd, endInd);

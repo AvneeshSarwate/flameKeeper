@@ -353,7 +353,7 @@ const waveforms = [
 ];
 
 // [0, 1, 2, 3, 4, 5, 6].map( i => {
-//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+//     waveforms[i].url = `./audio/FlameDrummer${i+1}_short.mp3`;
 // })
 
 waveWorker.postMessage(['waveforms', waveforms]);
@@ -766,7 +766,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     let wf = waveforms[slotIndex];
     // if(width < wf.viewWidth * MAX_ZOOM_OUT){
         //todo - clean this up and to only copy over end-part of wave when file is large 
-        let numRepeats = Math.max(Math.floor(wf.viewWidth * MAX_ZOOM_OUT / width), 2); 
+        let numRepeats = Math.max(Math.ceil(baseLength * MAX_ZOOM_OUT / width), 2); 
         let waveCopyStrings = [];
         for(let i = 0; i < numRepeats; i++){
             let repeat = points.map(([x, y]) => `${x-(i+1)*width},${y}`).join(" "); //copy of the waveform shifted i wavelengths
