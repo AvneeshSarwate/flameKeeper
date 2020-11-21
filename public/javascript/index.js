@@ -1088,20 +1088,30 @@ function begin() {
 let kg = []; //konva groups
 let kgLines = [];
 let USE_KONVA = false;
-function drawKonva() {
-    // first we need to create a stage
-  var stage = new Konva.Stage({
+
+var stage = new Konva.Stage({
     container: 'installation-konva',   // id of container <div>
     width: CONTAINER_WIDTH,
     height: CONTAINER_HEIGHT
-  });
-  
-  // then create layer
-  var layer = new Konva.Layer();
-  kgl = layer;
-  
-  // add the layer to the stage
-  stage.add(layer);
+});
+// then create layer
+var layer = new Konva.Layer();
+kgl = layer;
+
+// add the layer to the stage
+stage.add(layer);
+layer.draw();
+
+let kcc = document.getElementsByClassName("konvajs-content")[0]; //container div for a canvas created by konva
+let kc = kcc.children[0]; //canvas element created by konva
+//remove a bunch of inline styles set by konva that mess up css rules set on parent elements
+kcc.style.width = kcc.style.height = kc.style.width = kc.style.height = kc.style.position = '';
+kc.style.maxWidth = '100%';
+
+
+
+function drawKonva() {
+    // first we need to create a stage
 
   [0, 1, 2, 3, 4, 5, 6].forEach(i => {
     let group = new Konva.Group();
