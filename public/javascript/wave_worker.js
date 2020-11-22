@@ -2,6 +2,7 @@
 
 let waveforms = undefined;
 let drawPointBuffers = [];
+let rescaleVal = 1;
 
 onmessage = function(e){
     if(e.data[0] === 'waveforms') {
@@ -17,6 +18,7 @@ onmessage = function(e){
         postMessage(['ptString', d[0], ptString]);
         postMessage(['framePoints', d[0], newPoints]);
     }
+    if(e.data[0] === 'rescaleVal') rescaleVal = e.data[1];
 }
 
 function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
@@ -52,5 +54,5 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
     if(mirrored) newPoints = zoomedTopSlice.concat(backwards);
     else newPoints = zoomedTopSlice.concat([backwards[0], backwards.slice(-1)[0]]);
 
-    return newPoints;
+    return newPoints.map(([x, y]) => [x*rescaleVal, y*rescaleVal]);
 }

@@ -1089,10 +1089,17 @@ let kg = []; //konva groups
 let kgLines = [];
 let USE_KONVA = false;
 
+let renderedWidth = parseInt(getComputedStyle(document.getElementById('installation')).getPropertyValue('width').slice(0, -2))
+let HEIGHT_RATIO = 2/3;
+let rescale = () => renderedWidth / CONTAINER_WIDTH;
+waveWorker.postMessage(['rescaleVal', rescale()]);
+
+
+
 var stage = new Konva.Stage({
     container: 'installation-konva',   // id of container <div>
-    width: CONTAINER_WIDTH,
-    height: CONTAINER_HEIGHT
+    width: renderedWidth,
+    height: renderedWidth * HEIGHT_RATIO
 });
 // then create layer
 var layer = new Konva.Layer();
@@ -1107,6 +1114,7 @@ let kc = kcc.children[0]; //canvas element created by konva
 //remove a bunch of inline styles set by konva that mess up css rules set on parent elements
 kcc.style.width = kcc.style.height = kc.style.width = kc.style.height = kc.style.position = '';
 kc.style.maxWidth = '100%';
+kc.style.width = '100%';
 
 
 
@@ -1146,7 +1154,7 @@ function drawKonva() {
         closed: true,
       });
 
-    kdraw(i, decomp.x, decomp.y, decomp.rotation, decomp.scaleX, decomp.scaleY);
+    kdraw(i, decomp.x*rescale(), decomp.y*rescale(), decomp.rotation, decomp.scaleX, decomp.scaleY);
 
     
     let wave = waveforms[i];
@@ -1162,7 +1170,7 @@ function drawKonva() {
   });
 
   var zigzag = new Konva.Line({
-    points: ZIG_ZAG_POINTS.flat(),
+    points: ZIG_ZAG_POINTS.flat().map(p => p*rescale()),
     stroke: ZIGZAG_COLOR,
     strokeWidth: 1,
   });
