@@ -82,6 +82,10 @@ body {
 	padding-right: 2.275%;
 }
 /* Header */
+.backLink {
+	margin-top: 20px;
+	text-align: right;
+}
 header {
 	text-align: center;
 	display: block;
@@ -97,7 +101,7 @@ header .logoPlaceholder img {
 header .logoPlaceholder span {
 	width: 80px;
 	height: 22px;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-size: 30px;
 	font-weight: 700;
 	line-height: 53px;
@@ -115,14 +119,14 @@ header .profileHeader a {
 	color: var(--font-text);
 }
 header .profileHeader h1 {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 	font-size: 1.3em;
 	font-weight: 700;
 	line-height: 14px;
 }
 header .profileHeader h3 {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 	font-size: 1em;
 	font-weight: 200;
@@ -134,7 +138,7 @@ hr {
 	border: 0px;
 }
 header .profileHeader p {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 	font-size: 1.1em;
 	font-weight: 300;
@@ -147,7 +151,7 @@ header .profileHeader p {
 }
 
 .sectionContent a, #composer-bio a, .customLink{
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 }
 
@@ -182,7 +186,7 @@ header .profileHeader p {
 	display: block;
 }
 .section1 .sectionTitle, .section2 .sectionTitle {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 	font-size: 1.2em;
 	font-weight: 700;
@@ -195,29 +199,29 @@ header .profileHeader p {
 }
 
 .mainContent .section1 .section1Content, .mainContent .section2 .section2Content {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-size: 14px;
 	font-weight: 100;
 	color: var(--font-text);
 }
 .mainContent .section1 .section1Content span {
 	color: var(--font-text);
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 .section2 .sectionContentTitle, .section1 .sectionContentTitle, .socialNetworkNav .sectionContentTitle, .section1Content h2 {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 	font-size: 1.8em;
 	font-weight: 700;
 }
 .section2 .sectionContentSubTitle, .section1 .sectionContentSubTitle, .socialNetworkNav .sectionContentSubTitle {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 	font-size: 1.0em;
 	font-weight: 400;
 }
 .section2 .sectionContent, .section1 .sectionContent, .socialNetworkNav .sectionContent, .section1Content p {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: var(--font-text);
 	font-size: 1.2em;
 	font-weight: 100;
@@ -238,7 +242,7 @@ header .profileHeader p {
 	background-color: rgba(153,153,153,1.00);
 }
 .externalResourcesNav .externalResources a {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	color: rgba(255,255,255,1.00);
 	font-size: 14px;
 	font-weight: 400;
@@ -253,7 +257,7 @@ header .profileHeader p {
 }
 /* Footer */
 footer .footerDisclaimer {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-size: 14px;
 	line-height: 18px;
 	color: var(--font-text);
@@ -264,7 +268,7 @@ footer .footerDisclaimer span {
 	font-weight: 400;
 }
 footer .footerNote {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-size: 14px;
 	line-height: 18px;
 	color: var(--font-text);
@@ -325,7 +329,7 @@ header .profileHeader {
 .mainContent .section1 .section1Content {
 	display: inline-block;
 	text-align: left;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 .mainContent .section2 {
 	display: block;
@@ -346,7 +350,7 @@ header .profileHeader {
 footer {
 	display: block;
 	text-align: center;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 }
 
@@ -359,7 +363,7 @@ header {
 }
 header .profileLogo .logoPlaceholder {
 	display: inline-block;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 header .profilePhoto {
 	float: left;
@@ -387,7 +391,7 @@ header .profileHeader {
 .mainContent .section1 .section1Content {
 	display: block;
 	margin: 0% 0% 0% 20%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	margin-top: 5%;
 	margin-bottom: 5%;
 }
@@ -397,7 +401,7 @@ header .profileHeader {
 .section2 .section2Content {
 	padding: 0px;
 	margin-left: 20%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	margin-top: 5%;
 	margin-bottom: 5%;
 }
@@ -418,12 +422,12 @@ header .profileHeader {
 footer .footerDisclaimer {
 	float: left;
 	margin-left: 3%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 footer .footerNote {
 	float: right;
 	margin-right: 3%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 }
 
@@ -458,7 +462,7 @@ header .profileHeader {
 	margin-right: 0%;
 	margin-left: 26%;
 	margin-bottom: 0%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 .mainContent .section2 {
 	clear: both;
@@ -466,7 +470,7 @@ header .profileHeader {
 .section2 .section2Content {
 	padding: 0px;
 	margin-left: 26%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 .mainContent .externalResourcesNav {
 	margin-top: 40px;
@@ -483,12 +487,12 @@ header .profileHeader {
 footer .footerDisclaimer {
 	float: left;
 	margin-left: 3%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 footer .footerNote {
 	float: right;
 	margin-right: 3%;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 }
 
@@ -540,13 +544,13 @@ footer .footerNote {
  }
 
 .text-style {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-weight: 300;
 	color: rgba(255, 255, 255, 0.5);
 }
 
 .custom-button {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-weight: 700;
 	color: var(--font-text);
 	padding: 0.5em 0.5em;
@@ -663,7 +667,7 @@ footer .footerNote {
     display: flex;
 	flex-direction: row;
     align-items: center;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Raleway', sans-serif;
     font-weight: 700;
     padding: 0.5em 0.5em;
     color: rgba(var(--font-color), 0.5);
@@ -688,7 +692,7 @@ footer .footerNote {
 	display: block;
 	position: absolute;
 	align-items: center;
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-weight: 700;
 	padding: 0.5em 0.5em;
 	color: var(--font-text);
@@ -703,7 +707,7 @@ footer .footerNote {
 }
 
 .global_vol {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Raleway', sans-serif;
 	font-weight: 700;
     color: rgba(255, 255, 255, 0.5);
     width: 200px;
