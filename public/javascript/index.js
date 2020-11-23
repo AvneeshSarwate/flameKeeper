@@ -315,7 +315,7 @@ const waveforms = [
         mirrored: false,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `rotate(270 47.5 30) translate(-222.5 402.5)`,
+        transform: `rotate(270 47.5 15) translate(-237.5 387.5)`,
         zIndex: -1,
         panAmount: 0,
         delay: 2.27, 
@@ -910,6 +910,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
             
             if(USE_KONVA){//if a konva layer exists render with konva instead
                 kgLines[slotIndex].setPoints(framePoints[slotIndex].flat());
+                ctx.clearRect(0, 0, kc.width, kc.height);
             } else {
                 // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
                 // let pointString = newPoints.flat()
@@ -1089,11 +1090,49 @@ let kg = []; //konva groups
 let kgLines = [];
 let USE_KONVA = false;
 
-let renderedWidth = parseInt(getComputedStyle(document.getElementById('installation')).getPropertyValue('width').slice(0, -2))
+let renderedWidth = 960; parseInt(getComputedStyle(document.getElementById('installation')).getPropertyValue('width').slice(0, -2));
+let renderedHeight = 640; parseInt(getComputedStyle(document.getElementById('installation')).getPropertyValue('height').slice(0, -2));
+console.log("rendered width/height", renderedWidth, renderedHeight);
 let HEIGHT_RATIO = 2/3;
-let rescale = () => renderedWidth / CONTAINER_WIDTH;
+let rescale = () => {return {x: renderedWidth / CONTAINER_WIDTH, y: renderedHeight/CONTAINER_HEIGHT} };
 waveWorker.postMessage(['rescaleVal', rescale()]);
 
+function resizeOnChange(){
+    let newWidth = parseInt(getComputedStyle(kc).getPropertyValue('width').slice(0, -2));
+    let newHeight = parseInt(getComputedStyle(kc).getPropertyValue('height').slice(0, -2));
+
+     manuallyResizeCanvas(newWidth, newHeight)
+}
+
+function manuallyResizeCanvas(newWidth, newHeight){
+    console.log("new canvas dim", newWidth, newHeight);
+    //reset group transforms
+    renderedWidth = newWidth;
+    renderedHeight = newHeight;
+    kc.width = CONTAINER_WIDTH * rescale().x;
+    kc.height = CONTAINER_HEIGHT * rescale().y;
+    waveWorker.postMessage(['rescaleVal', rescale()]);
+
+    [0, 1, 2, 3, 4, 5, 6].map(i => {
+        resetKonvaGroupTransform(i);
+    });
+
+    zigzag.setPoints(ZIG_ZAG_POINTS.flat().map((p, i) => {
+        let scale = i % 2 === 0 ? rescale().x : rescale().y;
+        return p*scale;
+    }));
+
+    kgl.clear();
+}
+
+function resetKonvaGroupTransform(i){
+    let decomp = getTransformDecompFromSVG(i);
+    setGroupTransform(i, decomp.x*rescale().x, decomp.y*rescale().y, decomp.rotation, decomp.scaleX, decomp.scaleY);
+}
+
+window.onresize = (e) => {
+//    resizeOnChange();
+}
 
 
 var stage = new Konva.Stage({
@@ -1103,6 +1142,7 @@ var stage = new Konva.Stage({
 });
 // then create layer
 var layer = new Konva.Layer();
+var zigzag = null;
 kgl = layer;
 
 // add the layer to the stage
@@ -1111,6 +1151,7 @@ layer.draw();
 
 let kcc = document.getElementsByClassName("konvajs-content")[0]; //container div for a canvas created by konva
 let kc = kcc.children[0]; //canvas element created by konva
+let ctx = kc.getContext('2d');
 //remove a bunch of inline styles set by konva that mess up css rules set on parent elements
 kcc.style.width = kcc.style.height = kc.style.width = kc.style.height = kc.style.position = '';
 kc.style.maxWidth = '100%';
@@ -1124,15 +1165,6 @@ function drawKonva() {
   [0, 1, 2, 3, 4, 5, 6].forEach(i => {
     let group = new Konva.Group();
     kg.push(group);
-    let svgGroup = document.getElementById("group-"+i);
-    let mv = svgGroup.transform.baseVal.consolidate().matrix;
-    let {a, b, c, d, e, f} = mv;
-    let matrixArrray = [a, b, c, d, e, f];
-    let xTrans = e;
-    let yTrans = f;
-    let theta = Math.atan2(c, d);
-    let transform = new Konva.Transform(matrixArrray);
-    let decomp = transform.decompose();
 
     //link - rect-test
     // let svgRect = document.getElementById("bgRect-"+i);
@@ -1152,9 +1184,10 @@ function drawKonva() {
         stroke: 'gray',
         strokeWidth: 0.5,
         closed: true,
-      });
+    });
 
-    kdraw(i, decomp.x*rescale(), decomp.y*rescale(), decomp.rotation, decomp.scaleX, decomp.scaleY);
+    let decomp = getTransformDecompFromSVG(i);
+    setGroupTransform(i, decomp.x*rescale().x, decomp.y*rescale().y, decomp.rotation, decomp.scaleX, decomp.scaleY);
 
     
     let wave = waveforms[i];
@@ -1169,8 +1202,11 @@ function drawKonva() {
     layer.add(group);
   });
 
-  var zigzag = new Konva.Line({
-    points: ZIG_ZAG_POINTS.flat().map(p => p*rescale()),
+  zigzag = new Konva.Line({
+    points: ZIG_ZAG_POINTS.flat().map((p, i) => {
+        let scale = i % 2 === 0 ? rescale().x : rescale().y;
+        return p*scale;
+    }),
     stroke: ZIGZAG_COLOR,
     strokeWidth: 1,
   });
@@ -1183,19 +1219,31 @@ function drawKonva() {
   USE_KONVA = true;
 }
 
-function kdraw(i, x, y, rot, scaleX, scaleY){
+function getTransformDecompFromSVG(i){
+    let svgGroup = document.getElementById("group-"+i);
+    let mv = svgGroup.transform.baseVal.consolidate().matrix;
+    let {a, b, c, d, e, f} = mv;
+    let matrixArrray = [a, b, c, d, e, f];
+    let transform = new Konva.Transform(matrixArrray);
+    let decomp = transform.decompose();
+    return decomp;
+}
+
+function setGroupTransform(i, x, y, rot, scaleX, scaleY){
     kg[i].setX(x);
     kg[i].setY(y);
     kg[i].rotation(rot);
     kg[i].scaleX(scaleX);
     kg[i].scaleY(scaleY);
-    console.log("konv", i, x, y, rot);
     kgl.clear();
     kgl.draw();
 }
 
 function kvfull(){
-    document.getElementsByTagName('canvas')[0].requestFullscreen();
+    kcc.requestFullscreen().then(r => {
+        console.log("canvas fullscrenned", r);
+        setTimeout(resizeOnChange, 10);
+    });
 }
 
 let ANIMATE_BACKGROUND = (new URLSearchParams(document.location.search).get('ANIMATE_BACKGROUND')) === 'true';
@@ -1213,7 +1261,9 @@ function goFullScreen() {
     // exitFullScreenBuffon.style.visibility = 'visible';
 
     if (elem.requestFullscreen) {
-        elem.requestFullscreen();
+        elem.requestFullscreen().then(r => {
+            resizeOnChange();
+        });
         elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
