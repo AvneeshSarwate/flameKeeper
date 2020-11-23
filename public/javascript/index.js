@@ -910,7 +910,6 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
             
             if(USE_KONVA){//if a konva layer exists render with konva instead
                 kgLines[slotIndex].setPoints(framePoints[slotIndex].flat());
-                ctx.clearRect(0, 0, kc.width, kc.height);
             } else {
                 // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
                 // let pointString = newPoints.flat()
@@ -939,7 +938,8 @@ function konvaDrawLoop(){
     // console.log("draws", waveDraws.length);
     if(BATCH_DRAW_CALLS) perWaveDrawCalls.forEach(d => d());
     if(kgl){
-        kgl.clear();
+        ctx.clearRect(0, 0, kc.width, kc.height);
+        debugDraw();
         kgl.draw();
     }
 }
@@ -1094,15 +1094,22 @@ let renderedWidth = 960; parseInt(getComputedStyle(document.getElementById('inst
 let renderedHeight = 640; parseInt(getComputedStyle(document.getElementById('installation')).getPropertyValue('height').slice(0, -2));
 console.log("rendered width/height", renderedWidth, renderedHeight);
 let HEIGHT_RATIO = 2/3;
-let rescale = () => {return {x: renderedWidth / CONTAINER_WIDTH, y: renderedHeight/CONTAINER_HEIGHT} };
+let rescale = () => {
+    let xScale = renderedWidth / CONTAINER_WIDTH;
+    let yScale = renderedHeight/CONTAINER_HEIGHT;
+    let minScale = Math.min(xScale, yScale);
+    return {x: minScale, y: minScale} };
 waveWorker.postMessage(['rescaleVal', rescale()]);
 
 function resizeOnChange(){
-    let newWidth = parseInt(getComputedStyle(kc).getPropertyValue('width').slice(0, -2));
-    let newHeight = parseInt(getComputedStyle(kc).getPropertyValue('height').slice(0, -2));
+    let installationRoot = document.getElementById('installation');
+    let newWidth = parseInt(getComputedStyle(installationRoot).getPropertyValue('width').slice(0, -2));
+    let newHeight = parseInt(getComputedStyle(installationRoot).getPropertyValue('height').slice(0, -2));
 
      manuallyResizeCanvas(newWidth, newHeight)
 }
+
+let debugDraw = () => {};
 
 function manuallyResizeCanvas(newWidth, newHeight){
     console.log("new canvas dim", newWidth, newHeight);
@@ -1142,11 +1149,13 @@ var stage = new Konva.Stage({
 });
 // then create layer
 var layer = new Konva.Layer();
+var debugLayer = new Konva.Layer();
 var zigzag = null;
 kgl = layer;
 
 // add the layer to the stage
 stage.add(layer);
+stage.add(debugLayer);
 layer.draw();
 
 let kcc = document.getElementsByClassName("konvajs-content")[0]; //container div for a canvas created by konva
@@ -1157,7 +1166,14 @@ kcc.style.width = kcc.style.height = kc.style.width = kc.style.height = kc.style
 kc.style.maxWidth = '100%';
 kc.style.width = '100%';
 
-
+let debugRect = new Konva.Rect({
+    width: 100,
+    height: 100,
+    fill: 'red',
+    stroke: 'black',
+    strokeWidth: 5
+});
+debugLayer.add(debugRect);
 
 function drawKonva() {
     // first we need to create a stage
@@ -1262,7 +1278,7 @@ function goFullScreen() {
 
     if (elem.requestFullscreen) {
         elem.requestFullscreen().then(r => {
-            resizeOnChange();
+            setTimeout(resizeOnChange, 100);
         });
         elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
@@ -1297,6 +1313,7 @@ function exitFullScreen() {
     const exitFullScreenBuffon = document.getElementById('exit-fullscreen');
 
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+        setTimeout(resizeOnChange, 100);
         isFullScreen = false;
         svgElem.classList.remove(backgroundStyle);
         elem.classList.remove(backgroundStyle);
