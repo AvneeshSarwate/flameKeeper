@@ -1278,7 +1278,10 @@ function goFullScreen() {
 
     if (elem.requestFullscreen) {
         elem.requestFullscreen().then(r => {
-            setTimeout(resizeOnChange, 100);
+            setTimeout(() => {
+                resizeOnChange();
+                kc.style.maxWidth = renderedHeight / HEIGHT_RATIO + 'px';
+            }, 100);
         });
         elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
@@ -1313,6 +1316,10 @@ function exitFullScreen() {
     const exitFullScreenBuffon = document.getElementById('exit-fullscreen');
 
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+        setTimeout(() => {
+            resizeOnChange();
+            kc.style.maxWidth = '100%';
+        }, 100);
         setTimeout(resizeOnChange, 100);
         isFullScreen = false;
         svgElem.classList.remove(backgroundStyle);
