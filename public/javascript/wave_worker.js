@@ -36,7 +36,7 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
     let zoomSampNum = Math.floor(waveSampNum * waveZoom);
     let {baseWaveArc, waveformHeight, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
     let flipFunc = y => waveformHeight * 2 - y;
-    let startInd = Math.floor(waveProg * baseLength);
+    let startInd = Math.floor(waveProg * baseLength - zoomSampNum + (waveTop.length - baseLength));
     let endInd = startInd + zoomSampNum;
     if(waveTop.length <= startInd || waveTop.length < endInd) {
         let aaaa = 5;
