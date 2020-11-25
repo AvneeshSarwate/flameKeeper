@@ -352,9 +352,9 @@ const waveforms = [
     }
 ];
 
-// [0, 1, 2, 3, 4, 5, 6].map( i => {
-//     waveforms[i].url = `./audio/FlameDrummer${i+1}_short.mp3`;
-// })
+[0, 1, 2, 3, 4, 5, 6].map( i => {
+    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+})
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
@@ -1101,10 +1101,12 @@ let rescale = () => {
     return {x: minScale, y: minScale} };
 waveWorker.postMessage(['rescaleVal', rescale()]);
 
-function resizeOnChange(){
+function resizeOnChange(explicitWidth, explicitHeight){
     let installationRoot = document.getElementById('installation');
-    let newWidth = parseInt(getComputedStyle(installationRoot).getPropertyValue('width').slice(0, -2));
-    let newHeight = parseInt(getComputedStyle(installationRoot).getPropertyValue('height').slice(0, -2));
+    let elementWidth = parseInt(getComputedStyle(installationRoot).getPropertyValue('width').slice(0, -2));
+    let elementHeight = parseInt(getComputedStyle(installationRoot).getPropertyValue('height').slice(0, -2));
+    let newWidth = explicitWidth ? explicitWidth : elementWidth;
+    let newHeight = explicitHeight ? explicitHeight : elementHeight;
 
      manuallyResizeCanvas(newWidth, newHeight)
 }
@@ -1294,11 +1296,18 @@ function goFullScreen() {
         isFullScreen = true;
     }
     else if (elem.webkitRequestFullscreen) {
-        svgElem.style.position = 'absolute';
-        svgElem.webkitRequestFullscreen();
-        svgElem.classList.add(backgroundStyle);
+        elem.webkitRequestFullscreen();
+        setTimeout(() => {
+            resizeOnChange(960, 640);
+            let containerHeight = parseInt(getComputedStyle(elem).height.slice(0, -2));
+            kcc.style.maxWidth = containerHeight / HEIGHT_RATIO + 'px';
+            console.log('install bound safari', containerHeight / HEIGHT_RATIO, containerHeight)
+        }, 100);
+        elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
+        kcc.style.width = '100%';
+        elem.style.width = '100%';
     }
     else if (elem.msRequestFullscreen) {
         svgElem.msRequestFullscreen();
@@ -1319,6 +1328,7 @@ function exitFullScreen() {
         setTimeout(() => {
             resizeOnChange();
             kc.style.maxWidth = '100%';
+            kcc.style.maxWidth = '100%';
         }, 100);
         setTimeout(resizeOnChange, 100);
         isFullScreen = false;
