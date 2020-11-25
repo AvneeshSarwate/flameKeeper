@@ -1290,8 +1290,28 @@ function goFullScreen() {
         isFullScreen = true;
     }
     else if (elem.mozRequestFullScreen) {
-        svgElem.mozRequestFullScreen();
-        svgElem.classList.add(backgroundStyle);
+        // max resolution full screen
+        // elem.mozRequestFullScreen().then(r => {
+        //     setTimeout(() => {
+        //         resizeOnChange();
+        //         kc.style.maxWidth = renderedHeight / HEIGHT_RATIO + 'px';
+        //     }, 100);
+        // });
+
+
+        //fixed resolution full screen
+        elem.mozRequestFullScreen().then(r => {
+        setTimeout(() => {
+                resizeOnChange(960, 640);
+                let containerHeight = parseInt(getComputedStyle(elem).height.slice(0, -2));
+                kcc.style.maxWidth = containerHeight / HEIGHT_RATIO + 'px';
+                console.log('install bound safari', containerHeight / HEIGHT_RATIO, containerHeight)
+            }, 100);
+        });
+        kcc.style.width = '100%';
+        elem.style.width = '100%';
+
+        elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
     }
