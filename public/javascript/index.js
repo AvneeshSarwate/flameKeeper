@@ -115,6 +115,7 @@ document.getElementById('muteIcon').addEventListener('click', unmuteAudio);
 let transportStartTime = null;
 let isPlaying = false;
 function playAudio() {
+    console.log("start audio pressed")
     document.getElementById('user_controls').classList.remove('hide');
     document.getElementById('playAudio').classList.add('hide');
     Tone.start();
@@ -405,6 +406,14 @@ const ZIG_ZAG_POINTS = [
     [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 2],
     [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 3]
 ];
+let ZIGZAG_LENGTH = 0;
+let ZIGZAG_SEGMENT_LENGTHS = [];
+ZIG_ZAG_POINTS.slice(0, -1).forEach((p, i) => {
+    let p2 = ZIG_ZAG_POINTS[i+1];
+    let segLen = ( (p2[0]-p[0])**2 + (p2[1]-p[1])**2 )**0.5;
+    ZIGZAG_LENGTH += segLen;
+    ZIGZAG_SEGMENT_LENGTHS.push(segLen);
+})
 
 function createZigZag() {
     const points = ZIG_ZAG_POINTS
@@ -484,12 +493,12 @@ function animateLoading(t) {
 
     // // When the next file is fully loaded the path
     // //  should be this long
-    // let segmentLength = pathLen / 7;
+    let segmentLength = ZIGZAG_LENGTH / 7;
 
     // // Determine current length based on exponential approach
     // //  to nextLengthMilestone
-    // let relT = t - lastFileLoadedTimestamp;
-    // let drawLen = (filesLoaded * segmentLength) + (segmentLength * (1 - (Math.E ** (-1 * ZIGZAG_LOADING_EXPONENTIAL * relT))))
+    let relT = t - lastFileLoadedTimestamp;
+    let drawLen = (filesLoaded * segmentLength) + (segmentLength * (1 - (Math.E ** (-1 * ZIGZAG_LOADING_EXPONENTIAL * relT))))
 
     // // Path length is drawn by setting the offset as pathLen - drawLen
     // path.style.strokeDashoffset = Math.max(pathLen - drawLen, 0);
@@ -500,7 +509,39 @@ function animateLoading(t) {
     // loadingValue.innerHTML = percentComplete;
 
     // Continue animating
+    if(zigzag) {
+        zigzag.setPoints(fracZigZagPoints(drawLen/ZIGZAG_LENGTH).flat().map(p => p*rescale().x));
+        console.log("load line", drawLen/ZIGZAG_LENGTH);
+    }
     loadingAnimationCallback = requestAnimationFrame(animateLoading);
+}
+
+let lerp = (n1, n2, a) => n1*(1-a) + n2*a;
+let lerp2 = (v1, v2, a) => [lerp(v1[0], v2[0], a), lerp(v1[1], v2[1], a)];
+
+function fracZigZagPoints(frac){
+    let cumulativeLength = ZIGZAG_SEGMENT_LENGTHS[0];
+    let fracLen = ZIGZAG_LENGTH * frac;
+    let segmentInd = 0;
+
+    while(cumulativeLength < fracLen) {
+        segmentInd++;
+        cumulativeLength += ZIGZAG_SEGMENT_LENGTHS[segmentInd];
+    }
+
+    let cutSegmentStart = ZIG_ZAG_POINTS[segmentInd];
+    let cutsegmentEnd = ZIG_ZAG_POINTS[segmentInd+1];
+
+    let wholeSementsCumLength = cumulativeLength - ZIGZAG_SEGMENT_LENGTHS[segmentInd];
+    let fracSegmentLength = fracLen - wholeSementsCumLength;
+    let segmentCutFraction = fracSegmentLength / ZIGZAG_SEGMENT_LENGTHS[segmentInd]
+
+    let cutSegmentNewPoint = lerp2(cutSegmentStart, cutsegmentEnd, segmentCutFraction);
+
+    let fracPoints = ZIG_ZAG_POINTS.slice(0, segmentInd+1);
+    fracPoints.push(cutSegmentNewPoint);
+
+    return fracPoints;
 }
 
 function animateAudioData(toneBuffer, slotIndex) {
@@ -876,7 +917,7 @@ waveWorker.onmessage = function(e){
 }
 
 let perWaveDrawCalls = [];
-let hasLineRedrawFlag = (new URLSearchParams(document.location.search).get('USE_LINE_REDRAW')) === 'true';
+let hasLineRedrawFlag = true; //(new URLSearchParams(document.location.search).get('USE_LINE_REDRAW')) === 'true';
 let USE_LINE_REDRAW = isMobile || hasLineRedrawFlag;
 let workerFlag = (new URLSearchParams(document.location.search).get('USE_WORKER'));
 let USE_WORKER = workerFlag != null ? workerFlag : USE_LINE_REDRAW;
@@ -1152,7 +1193,14 @@ var stage = new Konva.Stage({
 // then create layer
 var layer = new Konva.Layer();
 var debugLayer = new Konva.Layer();
-var zigzag = null;
+
+var zigzag = new Konva.Line({
+    points: [0, 0],
+    stroke: ZIGZAG_COLOR,
+    strokeWidth: 1,
+});
+layer.add(zigzag);;
+
 kgl = layer;
 
 // add the layer to the stage
@@ -1214,22 +1262,13 @@ function drawKonva() {
     // group.setOffsetX(wave.viewWidth/2);
     // group.setOffsetY(wave.viewHeight * (mirrored ? 1 : 0.5));
 
+    zigzag.setPoints(fracZigZagPoints(1).flat().map(p => p*rescale().x));
+
     group.add(poly);
     kgLines.push(poly);
     // group.add(rect);
     layer.add(group);
   });
-
-  zigzag = new Konva.Line({
-    points: ZIG_ZAG_POINTS.flat().map((p, i) => {
-        let scale = i % 2 === 0 ? rescale().x : rescale().y;
-        return p*scale;
-    }),
-    stroke: ZIGZAG_COLOR,
-    strokeWidth: 1,
-  });
-
-  layer.add(zigzag);
   
   // draw the image
   layer.draw();
