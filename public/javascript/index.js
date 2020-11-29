@@ -477,14 +477,14 @@ function stopLoadingAnimation() {
     console.log("loading time", Date.now() - startLoading);
     console.log("loading animation avg FPS", animationFrames / (Date.now() - startLoading));
     drawKonva();
-    animateFadeIn(2);
+    animateFadeIn(8, 2);
 }
 
 function setWaveAlphas(a) {
     kgLines.map(wave => wave.stroke(`rgba(127, 127, 127, ${a})`).fill(`rgba(127, 127, 127, ${a})`));
 }
 
-function animateFadeIn(fadeTime){
+function animateFadeIn(fadeTime, pow){
     let fadeStart = performance.now()/1000;
 
     function fadeFunc(t) {
@@ -492,7 +492,7 @@ function animateFadeIn(fadeTime){
         let animationFrac = animationProg / fadeTime;
         // console.log("fade frac", animationFrac);
         if(animationFrac < 1) {
-            setWaveAlphas(animationFrac);
+            setWaveAlphas(animationFrac**pow);
             requestAnimationFrame(fadeFunc);
         } else {
             setWaveAlphas(1);
@@ -534,7 +534,7 @@ function animateLoading(t) {
     // Continue animating
     if(zigzag) {
         zigzag.setPoints(fracZigZagPoints(drawLen/ZIGZAG_LENGTH).flat().map(p => p*rescale().x));
-        console.log("load line", drawLen/ZIGZAG_LENGTH);
+        // console.log("load line", drawLen/ZIGZAG_LENGTH);
     }
     loadingAnimationCallback = requestAnimationFrame(animateLoading);
 }
@@ -638,22 +638,33 @@ let hoverInfo = document.getElementById('composer-hover');
 let infoShowingForBg = null;
 hoverInfo.onclick = () => {
     hoverInfo.classList.add('hide');
+    console.log("hide hover hover")
     infoShowingForBg = null;
 }
-document.onclick = () => {
-    if(infoShowingForBg != null) {
-        hoverInfo.classList.add('hide');
-        infoShowingForBg = null;
-    }
-}
-
+// document.onclick = () => {
+//     if(infoShowingForBg != null) {
+//         console.log("hide hover doc");
+//         hoverInfo.classList.add('hide');
+//         infoShowingForBg = null;
+//     }
+// }
+let inBox = (pt, box) => box.x <= pt.x && pt.x <= box.x + box.width && box.y <= pt.y && pt.y <= box.y + box.height;
 let bgInfoClick = (e) => {
-    let ind = parseInt(e.target.id.split("-")[1]);
-    if(ind === infoShowingForBg){
+    let ind = 'clickNotOnWave';
+    let pointer = e.currentTarget.pointerPos;
+    console.log("pointer click", pointer);
+    kgLines.forEach((wave, i) => {
+        let bbox = wave.getClientRect();
+        let isInBox = inBox(pointer, bbox);
+        if(isInBox) ind = i;
+    });
+    console.log("info click ind", ind);
+    if(ind === infoShowingForBg || ind == 'clickNotOnWave'){
         hoverInfo.classList.add('hide');
+        console.log("hide hover same wave or no wave")
         infoShowingForBg = null;
     } else {
-        bgRect = document.getElementById('bgRect-'+ind);
+
         let hoverImg = document.getElementById('composer-hover-img');
         let hoverText = document.getElementById('composer-hover-text');
 
@@ -663,7 +674,8 @@ let bgInfoClick = (e) => {
         hoverImg.src = audio_composer.photo;
         hoverText.innerText = `Uploaded by ${audio_composer.name} \non ${audio_time}`;
 
-        let {top, left} = bgRect.getBoundingClientRect();
+        let top = e.evt.pageY;
+        let left = e.evt.pageX;
         console.log("composer hover val", top, left, Date.now());
         hoverInfo.style.top = top+'px';
         hoverInfo.style.left = left+'px';
@@ -671,7 +683,7 @@ let bgInfoClick = (e) => {
         hoverInfo.classList.remove('hide');
         infoShowingForBg = ind;
     }
-    e.stopPropagation();
+    e.evt.stopPropagation();
 }
 
 function drawWaveformBackground(wf, group, i) {
@@ -697,13 +709,6 @@ function drawWaveformBackground(wf, group, i) {
     group.appendChild(bgRect);
 
     group.onclick = bgInfoClick;
-
-    // bgRect.onmouseenter = () => { 
-    //     showInfo();
-    // };
-    // bgRect.onmouseleave = () => {
-    //     hoverInfo.classList.add('hide');
-    // }
 }
 
 function fadeInAnimation(index) {
@@ -1239,6 +1244,9 @@ kc.style.maxWidth = '100%';
 kc.style.width = '100%';
 
 
+stage.on('click', bgInfoClick);
+
+
 if(DEBUG) {
     var debugLayer = new Konva.Layer();
     let debugRect = new Konva.Rect({
@@ -1275,7 +1283,7 @@ function drawKonva() {
         points: [23, 20, 23, 160, 70, 93, 150, 109, 290, 139, 270, 93],
         fill: 'gray',
         stroke: 'gray',
-        strokeWidth: 0.5,
+        strokeWidth: 1,
         closed: true
     });
 
