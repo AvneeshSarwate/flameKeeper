@@ -115,6 +115,7 @@ document.getElementById('muteIcon').addEventListener('click', unmuteAudio);
 let transportStartTime = null;
 let isPlaying = false;
 function playAudio() {
+    console.log("start audio pressed")
     document.getElementById('user_controls').classList.remove('hide');
     document.getElementById('playAudio').classList.add('hide');
     Tone.start();
@@ -240,7 +241,7 @@ const ZIGZAG_WIDTH = 1;
 const ZIGZAG_V_LENGTH = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
 const ZIGZAG_H_LENGTH = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
 const ZIGZAG_LOADING_EXPONENTIAL = 0.0025;
-const SAMPLES_PER_SECOND = 120 * 0.25;
+const SAMPLES_PER_SECOND = 120 * 0.5;
 const PIXELS_PER_SECOND = 50;
 const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
 const NORMALIZE_DATA = true;
@@ -315,7 +316,7 @@ const waveforms = [
         mirrored: false,
         viewHeight: 30,
         viewWidth: 190,
-        transform: `rotate(270 47.5 30) translate(-222.5 402.5)`,
+        transform: `rotate(270 47.5 15) translate(-237.5 387.5)`,
         zIndex: -1,
         panAmount: 0,
         delay: 2.27, 
@@ -352,9 +353,9 @@ const waveforms = [
     }
 ];
 
-// [0, 1, 2, 3, 4, 5, 6].map( i => {
-//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-// })
+[0, 1, 2, 3, 4, 5, 6].map( i => {
+    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+})
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
@@ -397,18 +398,27 @@ function refreshStyle() {
 //     }, 2 * 1000);
 // }, 1000 * 2);
 
+const ZIG_ZAG_POINTS = [
+    [HPAD, VPAD],
+    [HPAD, VPAD + ZIGZAG_V_LENGTH],
+    [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH],
+    [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH * 2],
+    [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 2],
+    [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 3]
+];
+let ZIGZAG_LENGTH = 0;
+let ZIGZAG_SEGMENT_LENGTHS = [];
+ZIG_ZAG_POINTS.slice(0, -1).forEach((p, i) => {
+    let p2 = ZIG_ZAG_POINTS[i+1];
+    let segLen = ( (p2[0]-p[0])**2 + (p2[1]-p[1])**2 )**0.5;
+    ZIGZAG_LENGTH += segLen;
+    ZIGZAG_SEGMENT_LENGTHS.push(segLen);
+})
 
 function createZigZag() {
-    const points = [
-        [HPAD, VPAD],
-        [HPAD, VPAD + ZIGZAG_V_LENGTH],
-        [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH],
-        [HPAD + ZIGZAG_H_LENGTH, VPAD + ZIGZAG_V_LENGTH * 2],
-        [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 2],
-        [HPAD + ZIGZAG_H_LENGTH * 2, VPAD + ZIGZAG_V_LENGTH * 3]
-    ]
-        .map(([x, y]) => `${x},${y}`)
-        .join(" ");
+    const points = ZIG_ZAG_POINTS
+                    .map(([x, y]) => `${x},${y}`)
+                    .join(" ");
 
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute('d', 'M' + points);
@@ -431,12 +441,12 @@ let lastFileLoadedTimestamp;
 let loadingAnimationCallback;
 
 function startLoadingAnimation() {
-    let loadingProgress = document.getElementById("loadingProgress");
-    let zigZag = document.getElementById("zigZag");
-    let { zigZagTop, zigZagLeft } = zigZag.getBoundingClientRect();
-    loadingProgress.style.top = `${zigZagTop }px`;
-    loadingProgress.style.left = `${zigZagLeft}px`;
-    loadingProgress.classList.remove('hide');
+    // let loadingProgress = document.getElementById("loadingProgress");
+    // let zigZag = document.getElementById("zigZag");
+    // let { zigZagTop, zigZagLeft } = zigZag.getBoundingClientRect();
+    // loadingProgress.style.top = `${zigZagTop }px`;
+    // loadingProgress.style.left = `${zigZagLeft}px`;
+    // loadingProgress.classList.remove('hide');
 
     startLoading = Date.now();
     newFileLoaded = true;
@@ -448,11 +458,11 @@ function updateLoadingAnimation() {
     newFileLoaded = true;
     if (filesLoaded == 7) {
         stopLoadingAnimation();
-        let path = document.getElementById("zigZag");
-        path.style.strokeDashoffset = 0;
-        [0, 1, 2, 3, 4, 5, 6].map(i => {
-            drawZeroLine(waveforms[i], document.getElementById("group-"+i))
-        })
+        // let path = document.getElementById("zigZag");
+        // path.style.strokeDashoffset = 0;
+        // [0, 1, 2, 3, 4, 5, 6].map(i => {
+        //     drawZeroLine(waveforms[i], document.getElementById("group-"+i))
+        // })
         document.getElementById('playAudio').classList.remove('hide2');
     }
 }
@@ -462,10 +472,34 @@ function stopLoadingAnimation() {
     filesLoaded = 0;
     lastFileLoadedTimestamp = undefined;
     newFileLoaded = false;
-    loadingProgress.classList.add('hide');
+    // loadingProgress.classList.add('hide');
     console.log("loading animation frames", animationFrames);
     console.log("loading time", Date.now() - startLoading);
     console.log("loading animation avg FPS", animationFrames / (Date.now() - startLoading));
+    drawKonva();
+    animateFadeIn(8, 2);
+}
+
+function setWaveAlphas(a) {
+    kgLines.map(wave => wave.stroke(`rgba(127, 127, 127, ${a})`).fill(`rgba(127, 127, 127, ${a})`));
+}
+
+function animateFadeIn(fadeTime, pow){
+    let fadeStart = performance.now()/1000;
+
+    function fadeFunc(t) {
+        let animationProg = t/1000 - fadeStart;
+        let animationFrac = animationProg / fadeTime;
+        // console.log("fade frac", animationFrac);
+        if(animationFrac < 1) {
+            setWaveAlphas(animationFrac**pow);
+            requestAnimationFrame(fadeFunc);
+        } else {
+            setWaveAlphas(1);
+        }
+    }
+
+    requestAnimationFrame(fadeFunc);
 }
 
 function animateLoading(t) {
@@ -476,29 +510,61 @@ function animateLoading(t) {
         newFileLoaded = false;
     }
 
-    // Get SVG path element and its length
-    let path = document.getElementById("zigZag");
-    let pathLen = path.getTotalLength();
+    // // Get SVG path element and its length
+    // let path = document.getElementById("zigZag");
+    // let pathLen = path.getTotalLength();
 
-    // When the next file is fully loaded the path
-    //  should be this long
-    let segmentLength = pathLen / 7;
+    // // When the next file is fully loaded the path
+    // //  should be this long
+    let segmentLength = ZIGZAG_LENGTH / 7;
 
-    // Determine current length based on exponential approach
-    //  to nextLengthMilestone
+    // // Determine current length based on exponential approach
+    // //  to nextLengthMilestone
     let relT = t - lastFileLoadedTimestamp;
     let drawLen = (filesLoaded * segmentLength) + (segmentLength * (1 - (Math.E ** (-1 * ZIGZAG_LOADING_EXPONENTIAL * relT))))
 
-    // Path length is drawn by setting the offset as pathLen - drawLen
-    path.style.strokeDashoffset = Math.max(pathLen - drawLen, 0);
+    // // Path length is drawn by setting the offset as pathLen - drawLen
+    // path.style.strokeDashoffset = Math.max(pathLen - drawLen, 0);
 
-    // Update percentage
-    let loadingValue = document.getElementById("loadingValue");
-    let percentComplete = Math.round(100 * drawLen / pathLen);
-    loadingValue.innerHTML = percentComplete;
+    // // Update percentage
+    // let loadingValue = document.getElementById("loadingValue");
+    // let percentComplete = Math.round(100 * drawLen / pathLen);
+    // loadingValue.innerHTML = percentComplete;
 
     // Continue animating
+    if(zigzag) {
+        zigzag.setPoints(fracZigZagPoints(drawLen/ZIGZAG_LENGTH).flat().map(p => p*rescale().x));
+        // console.log("load line", drawLen/ZIGZAG_LENGTH);
+    }
     loadingAnimationCallback = requestAnimationFrame(animateLoading);
+}
+
+let lerp = (n1, n2, a) => n1*(1-a) + n2*a;
+let lerp2 = (v1, v2, a) => [lerp(v1[0], v2[0], a), lerp(v1[1], v2[1], a)];
+
+function fracZigZagPoints(frac){
+    let cumulativeLength = ZIGZAG_SEGMENT_LENGTHS[0];
+    let fracLen = ZIGZAG_LENGTH * frac;
+    let segmentInd = 0;
+
+    while(cumulativeLength < fracLen) {
+        segmentInd++;
+        cumulativeLength += ZIGZAG_SEGMENT_LENGTHS[segmentInd];
+    }
+
+    let cutSegmentStart = ZIG_ZAG_POINTS[segmentInd];
+    let cutsegmentEnd = ZIG_ZAG_POINTS[segmentInd+1];
+
+    let wholeSementsCumLength = cumulativeLength - ZIGZAG_SEGMENT_LENGTHS[segmentInd];
+    let fracSegmentLength = fracLen - wholeSementsCumLength;
+    let segmentCutFraction = fracSegmentLength / ZIGZAG_SEGMENT_LENGTHS[segmentInd]
+
+    let cutSegmentNewPoint = lerp2(cutSegmentStart, cutsegmentEnd, segmentCutFraction);
+
+    let fracPoints = ZIG_ZAG_POINTS.slice(0, segmentInd+1);
+    fracPoints.push(cutSegmentNewPoint);
+
+    return fracPoints;
 }
 
 function animateAudioData(toneBuffer, slotIndex) {
@@ -572,22 +638,33 @@ let hoverInfo = document.getElementById('composer-hover');
 let infoShowingForBg = null;
 hoverInfo.onclick = () => {
     hoverInfo.classList.add('hide');
+    console.log("hide hover hover")
     infoShowingForBg = null;
 }
-document.onclick = () => {
-    if(infoShowingForBg != null) {
-        hoverInfo.classList.add('hide');
-        infoShowingForBg = null;
-    }
-}
-
+// document.onclick = () => {
+//     if(infoShowingForBg != null) {
+//         console.log("hide hover doc");
+//         hoverInfo.classList.add('hide');
+//         infoShowingForBg = null;
+//     }
+// }
+let inBox = (pt, box) => box.x <= pt.x && pt.x <= box.x + box.width && box.y <= pt.y && pt.y <= box.y + box.height;
 let bgInfoClick = (e) => {
-    let ind = parseInt(e.target.id.split("-")[1]);
-    if(ind === infoShowingForBg){
+    let ind = 'clickNotOnWave';
+    let pointer = e.currentTarget.pointerPos;
+    console.log("pointer click", pointer);
+    kgLines.forEach((wave, i) => {
+        let bbox = wave.getClientRect();
+        let isInBox = inBox(pointer, bbox);
+        if(isInBox) ind = i;
+    });
+    console.log("info click ind", ind);
+    if(ind === infoShowingForBg || ind == 'clickNotOnWave'){
         hoverInfo.classList.add('hide');
+        console.log("hide hover same wave or no wave")
         infoShowingForBg = null;
     } else {
-        bgRect = document.getElementById('bgRect-'+ind);
+
         let hoverImg = document.getElementById('composer-hover-img');
         let hoverText = document.getElementById('composer-hover-text');
 
@@ -597,7 +674,8 @@ let bgInfoClick = (e) => {
         hoverImg.src = audio_composer.photo;
         hoverText.innerText = `Uploaded by ${audio_composer.name} \non ${audio_time}`;
 
-        let {top, left} = bgRect.getBoundingClientRect();
+        let top = e.evt.pageY;
+        let left = e.evt.pageX;
         console.log("composer hover val", top, left, Date.now());
         hoverInfo.style.top = top+'px';
         hoverInfo.style.left = left+'px';
@@ -605,7 +683,7 @@ let bgInfoClick = (e) => {
         hoverInfo.classList.remove('hide');
         infoShowingForBg = ind;
     }
-    e.stopPropagation();
+    e.evt.stopPropagation();
 }
 
 function drawWaveformBackground(wf, group, i) {
@@ -631,13 +709,6 @@ function drawWaveformBackground(wf, group, i) {
     group.appendChild(bgRect);
 
     group.onclick = bgInfoClick;
-
-    // bgRect.onmouseenter = () => { 
-    //     showInfo();
-    // };
-    // bgRect.onmouseleave = () => {
-    //     hoverInfo.classList.add('hide');
-    // }
 }
 
 function fadeInAnimation(index) {
@@ -764,7 +835,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
     let wf = waveforms[slotIndex];
     // if(width < wf.viewWidth * MAX_ZOOM_OUT){
         //todo - clean this up and to only copy over end-part of wave when file is large 
-        let numRepeats = Math.max(Math.floor(wf.viewWidth * MAX_ZOOM_OUT / width), 2); 
+        let numRepeats = Math.max(Math.ceil(baseLength * MAX_ZOOM_OUT / width), 2); 
         let waveCopyStrings = [];
         for(let i = 0; i < numRepeats; i++){
             let repeat = points.map(([x, y]) => `${x-(i+1)*width},${y}`).join(" "); //copy of the waveform shifted i wavelengths
@@ -874,9 +945,11 @@ waveWorker.onmessage = function(e){
 }
 
 let perWaveDrawCalls = [];
-let hasLineRedrawFlag = (new URLSearchParams(document.location.search).get('USE_LINE_REDRAW')) === 'true';
+let hasLineRedrawFlag = true; //(new URLSearchParams(document.location.search).get('USE_LINE_REDRAW')) === 'true';
 let USE_LINE_REDRAW = isMobile || hasLineRedrawFlag;
-let USE_WORKER = USE_LINE_REDRAW;
+let workerFlag = (new URLSearchParams(document.location.search).get('USE_WORKER'));
+let USE_WORKER = workerFlag != null ? workerFlag : USE_LINE_REDRAW;
+let BATCH_DRAW_CALLS = true;
 function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let waveZoom = waveforms[slotIndex].waveZoom;
     let offset = -1 * viewWidth;
@@ -886,7 +959,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
     let frameCount = 0;
     let lastPointString = '0,0';
     function draw(ts) {
-        // requestAnimationFrame(draw);
+        if(!BATCH_DRAW_CALLS) requestAnimationFrame(draw);
 
         let dur = playerDur(slotIndex);
         let audioProg = ( ( (Tone.Transport.now()-transportStartTime) + loopOffsets[slotIndex] ) % dur)/dur;
@@ -904,7 +977,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 
         if(!isNaN(offset)) {
             
-            if(kgl){//if a konva layer exists render with konva instead
+            if(USE_KONVA){//if a konva layer exists render with konva instead
                 kgLines[slotIndex].setPoints(framePoints[slotIndex].flat());
             } else {
                 // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
@@ -922,8 +995,8 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         }
         // meter.tick();
     }
-    perWaveDrawCalls.push(draw);
-    // requestAnimationFrame(draw);
+    if(BATCH_DRAW_CALLS)perWaveDrawCalls.push(draw);
+    else requestAnimationFrame(draw);
 }
 
 let kgl = null;
@@ -932,9 +1005,10 @@ function konvaDrawLoop(){
     requestAnimationFrame(konvaDrawLoop);
     meter.tick();
     // console.log("draws", waveDraws.length);
-    perWaveDrawCalls.forEach(d => d());
+    if(BATCH_DRAW_CALLS) perWaveDrawCalls.forEach(d => d());
     if(kgl){
-        kgl.clear();
+        ctx.clearRect(0, 0, kc.width, kc.height);
+        debugDraw();
         kgl.draw();
     }
 }
@@ -974,14 +1048,9 @@ function addExitFullScreenButton(container){
 }
 
 const container = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+container.style.display = 'none';
 
 function begin() {
-    // document.getElementById('beginButton').classList.add('hide');
-    // document.getElementById('fullscreen').classList.remove('hide');
-    // document.getElementById('playAudio').classList.remove('hide');
-    // let vol_stuff = document.getElementsByClassName('global_vol');
-    // vol_stuff[0].classList.remove("hide")
-    // vol_stuff[1].classList.remove("hide")
 
     if (isMobile) {
         // Set to max volume and hide volume control on mobile
@@ -1013,21 +1082,21 @@ function begin() {
     container.id = 'installation-svg';
     container.setAttribute("preserveAspectRatio", "none");
 
-    // Create blur filter
-    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-    container.appendChild(defs);
-    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-    filter.id = 'blurFilter';
-    filter.setAttribute('x', '0%');
-    filter.setAttribute('y', '0%');
-    defs.appendChild(filter);
-    installationBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
-    installationBlur.setAttribute('in', 'SourceGraphic');
-    installationBlur.setAttribute('stdDeviation', '0'); // Start with no blur
-    filter.appendChild(installationBlur);
+    // // Create blur filter
+    // const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    // container.appendChild(defs);
+    // const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    // filter.id = 'blurFilter';
+    // filter.setAttribute('x', '0%');
+    // filter.setAttribute('y', '0%');
+    // defs.appendChild(filter);
+    // installationBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+    // installationBlur.setAttribute('in', 'SourceGraphic');
+    // installationBlur.setAttribute('stdDeviation', '0'); // Start with no blur
+    // filter.appendChild(installationBlur);
 
-    // Set blur on container
-    container.setAttribute('filter', "url('#blurFilter')");
+    // // Set blur on container
+    // container.setAttribute('filter', "url('#blurFilter')");
 
     container.appendChild(createZigZag());
     startLoadingAnimation();
@@ -1036,7 +1105,8 @@ function begin() {
         group.setAttribute("transform", wf.transform);
         group.setAttribute("id", "group-" + i);
 
-        drawWaveformBackground(wf, group, i);
+        //link - rect-test
+        // drawWaveformBackground(wf, group, i);
 
         if (wf.zIndex < 0) {
             container.prepend(group);
@@ -1087,83 +1157,185 @@ function begin() {
 
 let kg = []; //konva groups
 let kgLines = [];
-function drawKonva() {
-    // first we need to create a stage
-  var stage = new Konva.Stage({
-    container: 'konvatest',   // id of container <div>
-    width: CONTAINER_WIDTH,
-    height: CONTAINER_HEIGHT
-  });
-  
-  // then create layer
-  var layer = new Konva.Layer();
-  kgl = layer;
-  
-  // add the layer to the stage
-  stage.add(layer);
+let USE_KONVA = false;
 
-  [0, 1, 2, 3, 4, 5, 6].forEach(i => {
-    let group = new Konva.Group();
-    kg.push(group);
-    let svgGroup = document.getElementById("group-"+i);
-    let mv = svgGroup.transform.baseVal.consolidate().matrix;
-    let {a, b, c, d, e, f} = mv;
-    let matrixArrray = [a, b, c, d, e, f];
-    let xTrans = e;
-    let yTrans = f;
-    let theta = Math.atan2(c, d);
-    let transform = new Konva.Transform(matrixArrray);
-    let decomp = transform.decompose();
+let renderedWidth = 960; parseInt(getComputedStyle(document.getElementById('installation')).getPropertyValue('width').slice(0, -2));
+let renderedHeight = 640; parseInt(getComputedStyle(document.getElementById('installation')).getPropertyValue('height').slice(0, -2));
+console.log("rendered width/height", renderedWidth, renderedHeight);
+let HEIGHT_RATIO = 2/3;
+let rescale = () => {
+    let xScale = renderedWidth / CONTAINER_WIDTH;
+    let yScale = renderedHeight/CONTAINER_HEIGHT;
+    let minScale = Math.min(xScale, yScale);
+    return {x: minScale, y: minScale} };
+waveWorker.postMessage(['rescaleVal', rescale()]);
 
-    let svgRect = document.getElementById("bgRect-"+i);
-    let rect = new Konva.Rect({
-        width: svgRect.width.baseVal.value,
-        height: svgRect.height.baseVal.value,
+function resizeOnChange(explicitWidth, explicitHeight){
+    let installationRoot = document.getElementById('installation');
+    let elementWidth = parseInt(getComputedStyle(installationRoot).getPropertyValue('width').slice(0, -2));
+    let elementHeight = parseInt(getComputedStyle(installationRoot).getPropertyValue('height').slice(0, -2));
+    let newWidth = explicitWidth ? explicitWidth : elementWidth;
+    let newHeight = explicitHeight ? explicitHeight : elementHeight;
+
+     manuallyResizeCanvas(newWidth, newHeight)
+}
+
+let debugDraw = () => {};
+
+function manuallyResizeCanvas(newWidth, newHeight){
+    console.log("new canvas dim", newWidth, newHeight);
+    //reset group transforms
+    renderedWidth = newWidth;
+    renderedHeight = newHeight;
+    kc.width = CONTAINER_WIDTH * rescale().x;
+    kc.height = CONTAINER_HEIGHT * rescale().y;
+    waveWorker.postMessage(['rescaleVal', rescale()]);
+
+    [0, 1, 2, 3, 4, 5, 6].map(i => {
+        resetKonvaGroupTransform(i);
+    });
+
+    zigzag.setPoints(ZIG_ZAG_POINTS.flat().map((p, i) => {
+        let scale = i % 2 === 0 ? rescale().x : rescale().y;
+        return p*scale;
+    }));
+
+    kgl.clear();
+}
+
+function resetKonvaGroupTransform(i){
+    let decomp = getTransformDecompFromSVG(i);
+    setGroupTransform(i, decomp.x*rescale().x, decomp.y*rescale().y, decomp.rotation, decomp.scaleX, decomp.scaleY);
+}
+
+window.onresize = (e) => {
+//    resizeOnChange();
+}
+
+
+var stage = new Konva.Stage({
+    container: 'installation-konva',   // id of container <div>
+    width: renderedWidth,
+    height: renderedWidth * HEIGHT_RATIO
+});
+// then create layer
+var layer = new Konva.Layer();
+
+var zigzag = new Konva.Line({
+    points: [0, 0],
+    stroke: ZIGZAG_COLOR,
+    strokeWidth: 1,
+});
+layer.add(zigzag);;
+
+kgl = layer;
+
+// add the layer to the stage
+stage.add(layer);
+
+layer.draw();
+
+let kcc = document.getElementsByClassName("konvajs-content")[0]; //container div for a canvas created by konva
+let kc = kcc.children[0]; //canvas element created by konva
+let ctx = kc.getContext('2d');
+//remove a bunch of inline styles set by konva that mess up css rules set on parent elements
+kcc.style.width = kcc.style.height = kc.style.width = kc.style.height = kc.style.position = '';
+kc.style.maxWidth = '100%';
+kc.style.width = '100%';
+
+
+stage.on('click', bgInfoClick);
+
+
+if(DEBUG) {
+    var debugLayer = new Konva.Layer();
+    let debugRect = new Konva.Rect({
+        width: 100,
+        height: 100,
         fill: 'red',
         stroke: 'black',
         strokeWidth: 5
     });
-    rect.fillRadialGradientColorStops(0, 'red', 0.5, 'blue', 1, 'green');
+    debugLayer.add(debugRect);
+    stage.add(debugLayer);
+}
+
+function drawKonva() {
+    // first we need to create a stage
+
+  [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+    let group = new Konva.Group();
+    kg.push(group);
+
+    //link - rect-test
+    // let svgRect = document.getElementById("bgRect-"+i);
+    // let halveHeight = waveforms[i].mirrored ? 1 : 2;
+    // let rect = new Konva.Rect({
+    //     width: svgRect.width.baseVal.value,
+    //     height: svgRect.height.baseVal.value / halveHeight,
+    //     fill: 'red',
+    //     stroke: 'black',
+    //     strokeWidth: 5
+    // });
+    // rect.fillRadialGradientColorStops(0, 'red', 0.5, 'blue', 1, 'green');
 
     var poly = new Konva.Line({
         points: [23, 20, 23, 160, 70, 93, 150, 109, 290, 139, 270, 93],
-        fill: '#00D2FF',
-        stroke: 'black',
-        strokeWidth: 0.5,
-        closed: true,
-      });
+        fill: 'gray',
+        stroke: 'gray',
+        strokeWidth: 1,
+        closed: true
+    });
 
-    kdraw(i, decomp.x, decomp.y, decomp.rotation);
+    let decomp = getTransformDecompFromSVG(i);
+    setGroupTransform(i, decomp.x*rescale().x, decomp.y*rescale().y, decomp.rotation, decomp.scaleX, decomp.scaleY);
 
-    // group.rotation(theta * 180 / Math.PI);
-    // group.setOffsetX(xTrans);
-    // group.setOffsetY(yTrans);
+    
+    let wave = waveforms[i];
+    let mirrored = waveforms[i].mirrored;
 
-    // group.rotation(decomp.rotation);
-    // group.setOffsetX(decomp.x);
-    // group.setOffsetY(decomp.y);
+    // group.setOffsetX(wave.viewWidth/2);
+    // group.setOffsetY(wave.viewHeight * (mirrored ? 1 : 0.5));
+
+    zigzag.setPoints(fracZigZagPoints(1).flat().map(p => p*rescale().x));
 
     group.add(poly);
     kgLines.push(poly);
-    // group.add(rect);
     layer.add(group);
+
   });
   
   // draw the image
   layer.draw();
+
+  USE_KONVA = true;
 }
 
-function kdraw(i, x, y, rot){
+function getTransformDecompFromSVG(i){
+    let svgGroup = document.getElementById("group-"+i);
+    let mv = svgGroup.transform.baseVal.consolidate().matrix;
+    let {a, b, c, d, e, f} = mv;
+    let matrixArrray = [a, b, c, d, e, f];
+    let transform = new Konva.Transform(matrixArrray);
+    let decomp = transform.decompose();
+    return decomp;
+}
+
+function setGroupTransform(i, x, y, rot, scaleX, scaleY){
     kg[i].setX(x);
     kg[i].setY(y);
     kg[i].rotation(rot);
-    console.log("konv", i, x, y, rot);
+    kg[i].scaleX(scaleX);
+    kg[i].scaleY(scaleY);
     kgl.clear();
     kgl.draw();
 }
 
 function kvfull(){
-    document.getElementsByTagName('canvas')[0].requestFullscreen();
+    kcc.requestFullscreen().then(r => {
+        console.log("canvas fullscrenned", r);
+        setTimeout(resizeOnChange, 10);
+    });
 }
 
 let ANIMATE_BACKGROUND = (new URLSearchParams(document.location.search).get('ANIMATE_BACKGROUND')) === 'true';
@@ -1181,23 +1353,55 @@ function goFullScreen() {
     // exitFullScreenBuffon.style.visibility = 'visible';
 
     if (elem.requestFullscreen) {
-        elem.requestFullscreen();
+        elem.requestFullscreen().then(r => {
+            setTimeout(() => {
+                resizeOnChange();
+                kc.style.maxWidth = renderedHeight / HEIGHT_RATIO + 'px';
+            }, 100);
+        });
         elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
     }
     else if (elem.mozRequestFullScreen) {
-        svgElem.mozRequestFullScreen();
-        svgElem.classList.add(backgroundStyle);
+        // max resolution full screen
+        // elem.mozRequestFullScreen().then(r => {
+        //     setTimeout(() => {
+        //         resizeOnChange();
+        //         kc.style.maxWidth = renderedHeight / HEIGHT_RATIO + 'px';
+        //     }, 100);
+        // });
+
+
+        //fixed resolution full screen
+        elem.mozRequestFullScreen().then(r => {
+        setTimeout(() => {
+                resizeOnChange(960, 640);
+                let containerHeight = parseInt(getComputedStyle(elem).height.slice(0, -2));
+                kcc.style.maxWidth = containerHeight / HEIGHT_RATIO + 'px';
+                console.log('install bound safari', containerHeight / HEIGHT_RATIO, containerHeight)
+            }, 100);
+        });
+        kcc.style.width = '100%';
+        elem.style.width = '100%';
+
+        elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
     }
     else if (elem.webkitRequestFullscreen) {
-        svgElem.style.position = 'absolute';
-        svgElem.webkitRequestFullscreen();
-        svgElem.classList.add(backgroundStyle);
+        elem.webkitRequestFullscreen();
+        setTimeout(() => {
+            resizeOnChange(960, 640);
+            let containerHeight = parseInt(getComputedStyle(elem).height.slice(0, -2));
+            kcc.style.maxWidth = containerHeight / HEIGHT_RATIO + 'px';
+            console.log('install bound safari', containerHeight / HEIGHT_RATIO, containerHeight)
+        }, 100);
+        elem.classList.add(backgroundStyle);
         svgElem.classList.add('isFullscreen');
         isFullScreen = true;
+        kcc.style.width = '100%';
+        elem.style.width = '100%';
     }
     else if (elem.msRequestFullscreen) {
         svgElem.msRequestFullscreen();
@@ -1215,6 +1419,12 @@ function exitFullScreen() {
     const exitFullScreenBuffon = document.getElementById('exit-fullscreen');
 
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+        setTimeout(() => {
+            resizeOnChange();
+            kc.style.maxWidth = '100%';
+            kcc.style.maxWidth = '100%';
+        }, 100);
+        setTimeout(resizeOnChange, 100);
         isFullScreen = false;
         svgElem.classList.remove(backgroundStyle);
         elem.classList.remove(backgroundStyle);

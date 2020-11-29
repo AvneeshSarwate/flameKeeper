@@ -599,6 +599,13 @@ footer .footerNote {
 	font-size: 1em;
 }
 
+#installation-konva {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+
 #control_panel {
 	background-color: rgba(255, 255, 255, 0.50);
 	border: medium;

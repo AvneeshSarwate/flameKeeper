@@ -2,6 +2,7 @@
 
 let waveforms = undefined;
 let drawPointBuffers = [];
+let rescaleVal = {x: 1, y: 1};
 
 onmessage = function(e){
     if(e.data[0] === 'waveforms') {
@@ -15,7 +16,11 @@ onmessage = function(e){
         let newPoints = calculateWavePoints(d[0], d[1], d[2], d[3]);
         let ptString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
         postMessage(['ptString', d[0], ptString]);
-        // postMessage(['framePoints', d[0], newPoints]);
+        postMessage(['framePoints', d[0], newPoints]);
+    }
+    if(e.data[0] === 'rescaleVal') {
+        rescaleVal = e.data[1];
+        console.log("rescaleVal", rescaleVal);
     }
 }
 
@@ -26,24 +31,31 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
     let zoomedViewWidth = viewWidth*waveZoom; 
 
     let waveWidth = waveforms[slotIndex].viewWidth;
+    let mirrored = waveforms[slotIndex].mirrored;
     let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
-    let zoomSampNum = waveSampNum * waveZoom;
+    let zoomSampNum = Math.floor(waveSampNum * waveZoom);
     let {baseWaveArc, waveformHeight, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
     let flipFunc = y => waveformHeight * 2 - y;
-    let startInd = Math.floor(waveProg * baseLength + (baseLength - zoomSampNum));
+    let startInd = Math.floor(waveProg * baseLength - zoomSampNum + (waveTop.length - baseLength));
     let endInd = startInd + zoomSampNum;
-    if(waveTop.length <= startInd || waveTop.length <= endInd) {
+    if(waveTop.length <= startInd || waveTop.length < endInd) {
         let aaaa = 5;
+    }
+    if(!waveTop[startInd]) {
+        let fuck = 5;
     }
     let xStart = waveTop[startInd][0];
     let topSlice = waveTop.slice(startInd, endInd);
     let sliceWidth = topSlice.slice(-1)[0][0] - xStart;
     let zoomedTopSlice = topSlice.map(([x, y]) => [(x-xStart)/sliceWidth * waveWidth, y]);
-    zoomedTopSlice.splice(0, 0, [0, 0]);
-    zoomedTopSlice.push([waveWidth, 0]);
+    // zoomedTopSlice = [[waveWidth/2, 20]];
+    let endptY = mirrored ? waveformHeight : waveformHeight;
+    zoomedTopSlice.splice(0, 0, [0, endptY]);
+    zoomedTopSlice.push([waveWidth, endptY]);
     let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
-    let newPoints = zoomedTopSlice.concat(backwards);
-    let topLen = zoomedTopSlice.length;
+    let newPoints = [];
+    if(mirrored) newPoints = zoomedTopSlice.concat(backwards);
+    else newPoints = zoomedTopSlice.concat([backwards[0], backwards.slice(-1)[0]]);
 
-    return newPoints;
+    return newPoints.map(([x, y]) => [x*rescaleVal.x, y*rescaleVal.y]);
 }
