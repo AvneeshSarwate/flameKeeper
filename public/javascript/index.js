@@ -490,7 +490,7 @@ function animateFadeIn(fadeTime){
     function fadeFunc(t) {
         let animationProg = t/1000 - fadeStart;
         let animationFrac = animationProg / fadeTime;
-        console.log("fade frac", animationFrac);
+        // console.log("fade frac", animationFrac);
         if(animationFrac < 1) {
             setWaveAlphas(animationFrac);
             requestAnimationFrame(fadeFunc);
@@ -1215,7 +1215,6 @@ var stage = new Konva.Stage({
 });
 // then create layer
 var layer = new Konva.Layer();
-var debugLayer = new Konva.Layer();
 
 var zigzag = new Konva.Line({
     points: [0, 0],
@@ -1228,7 +1227,7 @@ kgl = layer;
 
 // add the layer to the stage
 stage.add(layer);
-stage.add(debugLayer);
+
 layer.draw();
 
 let kcc = document.getElementsByClassName("konvajs-content")[0]; //container div for a canvas created by konva
@@ -1239,14 +1238,19 @@ kcc.style.width = kcc.style.height = kc.style.width = kc.style.height = kc.style
 kc.style.maxWidth = '100%';
 kc.style.width = '100%';
 
-let debugRect = new Konva.Rect({
-    width: 100,
-    height: 100,
-    fill: 'red',
-    stroke: 'black',
-    strokeWidth: 5
-});
-debugLayer.add(debugRect);
+
+if(DEBUG) {
+    var debugLayer = new Konva.Layer();
+    let debugRect = new Konva.Rect({
+        width: 100,
+        height: 100,
+        fill: 'red',
+        stroke: 'black',
+        strokeWidth: 5
+    });
+    debugLayer.add(debugRect);
+    stage.add(debugLayer);
+}
 
 function drawKonva() {
     // first we need to create a stage
