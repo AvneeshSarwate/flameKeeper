@@ -477,6 +477,29 @@ function stopLoadingAnimation() {
     console.log("loading time", Date.now() - startLoading);
     console.log("loading animation avg FPS", animationFrames / (Date.now() - startLoading));
     drawKonva();
+    animateFadeIn(2);
+}
+
+function setWaveAlphas(a) {
+    kgLines.map(wave => wave.stroke(`rgba(127, 127, 127, ${a})`).fill(`rgba(127, 127, 127, ${a})`));
+}
+
+function animateFadeIn(fadeTime){
+    let fadeStart = performance.now()/1000;
+
+    function fadeFunc(t) {
+        let animationProg = t/1000 - fadeStart;
+        let animationFrac = animationProg / fadeTime;
+        console.log("fade frac", animationFrac);
+        if(animationFrac < 1) {
+            setWaveAlphas(animationFrac);
+            requestAnimationFrame(fadeFunc);
+        } else {
+            setWaveAlphas(1);
+        }
+    }
+
+    requestAnimationFrame(fadeFunc);
 }
 
 function animateLoading(t) {
@@ -1249,7 +1272,7 @@ function drawKonva() {
         fill: 'gray',
         stroke: 'gray',
         strokeWidth: 0.5,
-        closed: true,
+        closed: true
     });
 
     let decomp = getTransformDecompFromSVG(i);
@@ -1266,8 +1289,8 @@ function drawKonva() {
 
     group.add(poly);
     kgLines.push(poly);
-    // group.add(rect);
     layer.add(group);
+
   });
   
   // draw the image
