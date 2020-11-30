@@ -441,12 +441,12 @@ let lastFileLoadedTimestamp;
 let loadingAnimationCallback;
 
 function startLoadingAnimation() {
-    // let loadingProgress = document.getElementById("loadingProgress");
-    // let zigZag = document.getElementById("zigZag");
-    // let { zigZagTop, zigZagLeft } = zigZag.getBoundingClientRect();
-    // loadingProgress.style.top = `${zigZagTop }px`;
-    // loadingProgress.style.left = `${zigZagLeft}px`;
-    // loadingProgress.classList.remove('hide');
+    let loadingProgress = document.getElementById("loadingProgress");
+    let installation = document.getElementById("installation");
+    let { installationTop, installationLeft } = installation.getBoundingClientRect();
+    loadingProgress.style.top = `${installationTop }px`;
+    loadingProgress.style.left = `${installationLeft}px`;
+    loadingProgress.classList.remove('hide');
 
     startLoading = Date.now();
     newFileLoaded = true;
@@ -458,11 +458,6 @@ function updateLoadingAnimation() {
     newFileLoaded = true;
     if (filesLoaded == 7) {
         stopLoadingAnimation();
-        // let path = document.getElementById("zigZag");
-        // path.style.strokeDashoffset = 0;
-        // [0, 1, 2, 3, 4, 5, 6].map(i => {
-        //     drawZeroLine(waveforms[i], document.getElementById("group-"+i))
-        // })
         document.getElementById('playAudio').classList.remove('hide2');
     }
 }
@@ -478,6 +473,8 @@ function stopLoadingAnimation() {
     console.log("loading animation avg FPS", animationFrames / (Date.now() - startLoading));
     drawKonva();
     animateFadeIn(8, 2);
+    let loadingProgress = document.getElementById("loadingProgress");
+    loadingProgress.classList.add('hide');
 }
 
 function setWaveAlphas(a) {
@@ -510,10 +507,6 @@ function animateLoading(t) {
         newFileLoaded = false;
     }
 
-    // // Get SVG path element and its length
-    // let path = document.getElementById("zigZag");
-    // let pathLen = path.getTotalLength();
-
     // // When the next file is fully loaded the path
     // //  should be this long
     let segmentLength = ZIGZAG_LENGTH / 7;
@@ -522,18 +515,14 @@ function animateLoading(t) {
     // //  to nextLengthMilestone
     let relT = t - lastFileLoadedTimestamp;
     let drawLen = (filesLoaded * segmentLength) + (segmentLength * (1 - (Math.E ** (-1 * ZIGZAG_LOADING_EXPONENTIAL * relT))))
-
-    // // Path length is drawn by setting the offset as pathLen - drawLen
-    // path.style.strokeDashoffset = Math.max(pathLen - drawLen, 0);
-
+    let lineFrac = drawLen/ZIGZAG_LENGTH;
     // // Update percentage
-    // let loadingValue = document.getElementById("loadingValue");
-    // let percentComplete = Math.round(100 * drawLen / pathLen);
-    // loadingValue.innerHTML = percentComplete;
-
+    let loadingValue = document.getElementById("loadingValue");
+    let percentComplete = Math.round(100 * lineFrac);
+    loadingValue.innerHTML = percentComplete;
     // Continue animating
     if(zigzag) {
-        zigzag.setPoints(fracZigZagPoints(drawLen/ZIGZAG_LENGTH).flat().map(p => p*rescale().x));
+        zigzag.setPoints(fracZigZagPoints(lineFrac).flat().map(p => p*rescale().x));
         // console.log("load line", drawLen/ZIGZAG_LENGTH);
     }
     loadingAnimationCallback = requestAnimationFrame(animateLoading);
