@@ -1044,6 +1044,9 @@ function begin() {
     if (isMobile) {
         // Set to max volume and hide volume control on mobile
         changeVol(2.0);
+
+        // Hide fullscreen on mobile
+        document.getElementById('fullscreen').classList.add('hide');
     } else {
         // Show volume control on desktop
         document.getElementById('volume-widget').classList.remove('hide');

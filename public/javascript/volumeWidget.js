@@ -46,7 +46,7 @@ function createVolumeWidget(containerID, onChange, customOptions) {
     container.style.width = `${(options.numBars * (options.barWidthPx + options.barSpacingPx)) - options.barSpacingPx}px`;
     container.style.height = `${(options.numBars * options.barSmallestHeightPx) + options.barGrowthPx}px`;
     container.setAttribute("value", "0");
-    container.style.cursor = "pointer";
+    container.style.cursor = "grab";
 
     let getBarsFromPointerEvent = (e) => {
         let containerRect = container.getBoundingClientRect();
@@ -61,15 +61,22 @@ function createVolumeWidget(containerID, onChange, customOptions) {
         }
     };
 
+    // Used to check if bars need to change while grabbing and moving
+    let down = false;
+
     container.onpointermove = function (e) {
         let {currentBar, otherBars} = getBarsFromPointerEvent(e);
         currentBar.over();
         otherBars.map(bar => bar.notOver());
+        if (down) container.onpointerdown(e);
     };
 
     container.onpointerdown = function (e) {
         let { currentBar } = getBarsFromPointerEvent(e);
         currentBar.down();
+        container.setPointerCapture(e.pointerId);
+        container.style.cursor = "grabbing";
+        down = true;
     };
 
     container.onpointerleave = function (e) {
@@ -77,6 +84,15 @@ function createVolumeWidget(containerID, onChange, customOptions) {
         currentBar.notOver();
         otherBars.map(bar => bar.notOver());
     };
+
+    container.onpointerup = function (e) {
+        container.releasePointerCapture(e.pointerId);
+        container.style.cursor = "grab";
+        down = false;
+    }
+
+    // Used to debounce repeated calls to bar.down
+    let lastValue = (options.startBar + 1) / options.numBars;
 
     for (let i = 0; i < options.numBars; i++) {
         let bar = document.createElement("span");
@@ -116,7 +132,11 @@ function createVolumeWidget(containerID, onChange, customOptions) {
                 inactiveBar.setAttribute("active", "false");
                 inactiveBar.style.backgroundColor = options.barColor;
             }
-            onChange((i + 1) / options.numBars);
+            let newValue = (i + 1) / options.numBars;
+            if (newValue !== lastValue) {
+                lastValue = newValue;
+                onChange(newValue);
+            }
         }
     }
 }
