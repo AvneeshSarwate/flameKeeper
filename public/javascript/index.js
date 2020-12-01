@@ -353,9 +353,9 @@ const waveforms = [
     }
 ];
 
-[0, 1, 2, 3, 4, 5, 6].map( i => {
-    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-})
+// [0, 1, 2, 3, 4, 5, 6].map( i => {
+//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+// })
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
@@ -990,6 +990,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 
 let kgl = null;
 let meter = new FPSMeter();
+meter.hide();
 function konvaDrawLoop(){
     requestAnimationFrame(konvaDrawLoop);
     meter.tick();
