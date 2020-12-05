@@ -2,6 +2,7 @@ const AudioContext = window.AudioContext || window.webkitAudioContext
 const audioCtx = new AudioContext();
 
 var gui = new dat.GUI();
+gui.hide();
 let swapClick = i => document.getElementById('fileSwap-'+i).click();
 let controllerProps = {
     zoom0: 1.29,
@@ -21,7 +22,7 @@ let controllerProps = {
     swap_file_4: () => {swapClick(4)},
     swap_file_5: () => {swapClick(5)},
     swap_file_6: () => {swapClick(6)},
-    show_wave_numbers: true
+    show_wave_numbers: false
 };
 
 const MAX_ZOOM_OUT = 3;
@@ -679,7 +680,7 @@ function drawWaveformBackground(wf, group, i) {
     bgRect.setAttribute("height", view_height);
     bgRect.setAttribute("width", wf.viewWidth);
     bgRect.setAttribute("fill", TRANSPARENT_COLOR);
-    bgRect.setAttribute("stroke", 'white');
+    bgRect.setAttribute("stroke", 'black');
     bgRect.setAttribute('stroke-width', '0px');
     bgRect.setAttribute('id', 'bgRect-' + i);
 
@@ -688,6 +689,7 @@ function drawWaveformBackground(wf, group, i) {
     label.setAttribute("x", wf.viewWidth/2);
     label.setAttribute("y", view_height/2);
     label.setAttribute("fill", "red");
+    label.style.visibility = controllerProps.show_wave_numbers ? 'visible' : 'hidden';
 
     group.appendChild(label);
     group.appendChild(bgRect);
@@ -908,6 +910,7 @@ function begin() {
 
     //document.addEventListener("DOMContentLoaded", function() {
     const container = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    container.setAttribute('id', 'installation-svg');
     container.setAttribute("preserveAspectRatio", "none");
     if (DEBUG) {
         container.setAttribute("style", "border: 1px solid black;"); // just for visualization
@@ -949,32 +952,48 @@ function begin() {
 }
 
 
+let isFullScreen = false;
 function goFullScreen() {
     const elem = document.getElementById('installation');
+    const svgElem = document.getElementById('installation-svg');
+    const exitFullScreenBuffon = document.getElementById('exit-fullscreen');
+    // exitFullScreenBuffon.style.visibility = 'visible';
 
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-        elem.className += 'css-selector';
+        svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
     else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-        elem.className += 'css-selector';
+        svgElem.mozRequestFullScreen();
+        svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
     else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-        elem.className += 'css-selector';
+        svgElem.style.position = 'absolute';
+        svgElem.webkitRequestFullscreen();
+        svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
     else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-        elem.className += 'css-selector';
+        svgElem.msRequestFullscreen();
+        svgElem.classList.add('isFullscreen');
+        isFullScreen = true;
     }
 }
 
 
 function exitFullScreen() {
+    console.log("exiting fullscreen")
     const elem = document.getElementById('installation');
+    const svgElem = document.getElementById('installation-svg');
+    const exitFullScreenBuffon = document.getElementById('exit-fullscreen');
+
     if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-        elem.classList.remove('css-selector');
+        isFullScreen = false;
+        svgElem.classList.remove('isFullscreen');
+        svgElem.style.position = '';
+        exitFullScreenBuffon.style.visibility = 'hidden';
     }
 }
 

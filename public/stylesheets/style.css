@@ -48,8 +48,8 @@
 }
 
 .css-selector {
-    /* background: #FFF4E3; */
-    animation: colorchange var(--gradient-speed) ease infinite;
+    background: #FFF4E3;
+    /* animation: colorchange var(--gradient-speed) ease infinite; */
 }
 
 .static-background {
