@@ -112,6 +112,7 @@ document.getElementById('playAudio').addEventListener('click', playAudio);
 document.getElementById('volumeIcon').addEventListener('click', muteAudio);
 document.getElementById('muteIcon').addEventListener('click', unmuteAudio);
 
+
 let transportStartTime = null;
 let isPlaying = false;
 function playAudio() {
@@ -121,13 +122,35 @@ function playAudio() {
     Tone.start();
     Tone.Transport.start();
     Promise.all([playerPromises, drawPromises].flat()).then(() => {
-        restartPlaybackAfterLoad(Date.now());
+        restartPlaybackAfterLoad(offlineRecordStartTime);
         isPlaying = true;
     });
 }
 
 
-let gloalVol = 1.0;
+let seekOffsets = [];
+let offlineRecordStartTime = 1607212178316;
+let playStartTime = -1;
+
+function restartPlaybackAfterLoad(startTime) {
+    console.log("ready to play");
+    let nowTime = Tone.Transport.now() + 0.25;
+    transportStartTime = nowTime;
+    playStartTime = Date.now();
+    players.map((p, i) => {
+        let audioDur = p.buffer.length * p.sampleTime;
+        let uploadedTimestamp = audioData[i].uploadedAt;
+        let seekTime = ((startTime - uploadedTimestamp) / 1000) % audioDur;
+        seekOffsets.push(seekTime);
+        loopOffsets[i] = seekTime;
+        p.start(nowTime);
+        p.seek(seekTime+0.001, nowTime+0.001);
+        delays[i].delayTime.value = getVisualSyncDelay(i);
+    });
+    Tone.Transport.scheduleOnce((_) => installationBlur.setStdDeviation(0, 0), nowTime);
+}
+
+let globalVol = 1.0;
 let muted = false;
 
 function muteAudio() {
@@ -141,23 +164,7 @@ function unmuteAudio() {
     document.getElementById('muteIcon').classList.add('hide');
     document.getElementById('volumeIcon').classList.remove('hide');
     muted = false;
-    globalGain.gain.value = gloalVol;
-}
-
-function restartPlaybackAfterLoad(startTime) {
-    console.log("ready to play");
-    let nowTime = Tone.Transport.now() + 0.25;
-    transportStartTime = nowTime;
-    players.map((p, i) => {
-        let audioDur = p.buffer.length * p.sampleTime;
-        let uploadedTimestamp = audioData[i].uploadedAt;
-        let seekTime = ((startTime - uploadedTimestamp) / 1000) % audioDur;
-        loopOffsets[i] = seekTime;
-        p.start(nowTime);
-        p.seek(seekTime+0.001, nowTime+0.001);
-        delays[i].delayTime.value = getVisualSyncDelay(i);
-    });
-    Tone.Transport.scheduleOnce((_) => installationBlur.setStdDeviation(0, 0), nowTime);
+    globalGain.gain.value = glboalVol;
 }
 
 
@@ -182,8 +189,8 @@ let installationBlur;
 let drawPointBuffers = [];
 
 function changeVol(value) {
-    gloalVol = value;
-    if (!muted) globalGain.gain.value = gloalVol;
+    globalVol = value;
+    if (!muted) globalGain.gain.value = globalVol;
 }
 
 function changeTime(e) {
@@ -241,7 +248,7 @@ const ZIGZAG_WIDTH = 1;
 const ZIGZAG_V_LENGTH = Math.floor((CONTAINER_HEIGHT - VPAD * 2) / 3);
 const ZIGZAG_H_LENGTH = Math.floor((CONTAINER_WIDTH - HPAD * 2) / 2);
 const ZIGZAG_LOADING_EXPONENTIAL = 0.0025;
-const SAMPLES_PER_SECOND = 120 * 0.5;
+const SAMPLES_PER_SECOND = 120 * 1;
 const PIXELS_PER_SECOND = 50;
 const pixelsPerSample = PIXELS_PER_SECOND / SAMPLES_PER_SECOND;
 const NORMALIZE_DATA = true;
@@ -353,9 +360,9 @@ const waveforms = [
     }
 ];
 
-// [0, 1, 2, 3, 4, 5, 6].map( i => {
-//     waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-// })
+[0].map( i => {
+    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
+})
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
@@ -832,7 +839,7 @@ function visualize(audioBuffer, waveformHeight, slotIndex) {
             topWaveBuffer.push(baseWaveArc.map(([x, y]) => [x+(i+1)*width, y]))
             waveCopyStrings.push(repeat);
         }
-        drawPointBuffers[slotIndex] = {baseLength, points: repeatedWaveBuffer.flat(1), flipFunc, baseWaveArc, width, waveTop: topWaveBuffer.flat(1)};
+        drawPointBuffers[slotIndex] = {baseLength, waveformHeight, points: repeatedWaveBuffer.flat(1), flipFunc, baseWaveArc, width, waveTop: topWaveBuffer.flat(1)};
         
         let workerPointBuf = Object.assign({}, drawPointBuffers[slotIndex]);
         workerPointBuf.flipFunc = 'removed'; //cant serialize functions
@@ -882,55 +889,70 @@ function setUpForDebug(){
 let waveInfo = [];
 
 
-function calculateWavePoints(slotIndex, viewWidth, waveProg) {
+function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
+    if(!drawPointBuffers[slotIndex] || !waveforms) return [[0,0]];
+    
     let waveZoom = waveforms[slotIndex].waveZoom;
     let zoomedViewWidth = viewWidth*waveZoom; 
 
     let waveWidth = waveforms[slotIndex].viewWidth;
+    let mirrored = waveforms[slotIndex].mirrored;
     let waveSampNum = Math.floor(waveWidth/pixelsPerSample);
-    let zoomSampNum = waveSampNum * waveZoom;
-    let {baseWaveArc, flipFunc, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
-    let startInd = Math.floor(waveProg * baseLength + (baseLength - zoomSampNum));
+    let zoomSampNum = Math.floor(waveSampNum * waveZoom);
+    let {baseWaveArc, waveformHeight, width, baseLength, waveTop} = drawPointBuffers[slotIndex];
+    let flipFunc = y => waveformHeight * 2 - y;
+    let startInd = Math.floor(waveProg * baseLength - zoomSampNum + (waveTop.length - baseLength));
     let endInd = startInd + zoomSampNum;
-    if(waveTop.length <= startInd || waveTop.length <= endInd) {
+    if(waveTop.length <= startInd || waveTop.length < endInd) {
         let aaaa = 5;
+    }
+    if(!waveTop[startInd] || !waveTop[endInd]) {
+        let fuck = 5;
     }
     let xStart = waveTop[startInd][0];
     let topSlice = waveTop.slice(startInd, endInd);
     let sliceWidth = topSlice.slice(-1)[0][0] - xStart;
     let zoomedTopSlice = topSlice.map(([x, y]) => [(x-xStart)/sliceWidth * waveWidth, y]);
-    zoomedTopSlice.splice(0, 0, [0, 0]);
-    zoomedTopSlice.push([waveWidth, 0]);
+    // zoomedTopSlice = [[waveWidth/2, 20]];
+    let endptY = mirrored ? waveformHeight : waveformHeight;
+    zoomedTopSlice.splice(0, 0, [0, endptY]);
+    zoomedTopSlice.push([waveWidth, endptY]);
     let backwards = zoomedTopSlice.map(([x, y]) => [x, flipFunc(y)]).reverse();
-    let newPoints = zoomedTopSlice.concat(backwards);
-    let topLen = zoomedTopSlice.length;
-    for(let i = 0; i < topLen; i++){
+    let newPoints = [];
+    if(mirrored) newPoints = zoomedTopSlice.concat(backwards);
+    else newPoints = zoomedTopSlice.concat([backwards[0], backwards.slice(-1)[0]]);
 
-    }
+    let finalPoints = newPoints.map(([x, y]) => [x*rescaleVal.x, y*rescaleVal.y]);
 
-    waveInfo[slotIndex] = {
-        width: zoomedTopSlice.slice(-1)[0][0] - zoomedTopSlice[0][0],
-        waveProg
-    };
-    
+    finalPoints.map((fp, i) => {
+        let [x, y] = fp;
+        if(isNaN(x) || isNaN(y)) debugger;
+    })
 
-    if(slotIndex == DEBUG_WAVE) {
-        console.log("audioProg", audioProg.toFixed(3), startInd, endInd, xStart, zoomedTopSlice.length, waveforms[slotIndex].linePercent);
-    }
-
-    return newPoints;
+    return finalPoints;
 }
 
 
 let pointStrings = [0, 1, 2, 3, 4, 5, 6].map(i => '0,0');
 let framePoints = [0, 1, 2, 3, 4, 5, 6].map(i => [[0, 0]]);
-waveWorker.onmessage = function(e){
-    if(e.data[0] === 'ptString'){
-        pointStrings[e.data[1]] = e.data[2];
-    }
-    if(e.data[0] === 'framePoints'){
-        framePoints[e.data[1]] = e.data[2];
-    }
+// waveWorker.onmessage = function(e){
+//     if(e.data[0] === 'ptString'){
+//         pointStrings[e.data[1]] = e.data[2];
+//     }
+//     if(e.data[0] === 'framePoints'){
+//         framePoints[e.data[1]] = e.data[2];
+//     }
+// }
+
+let recordStartTime = 0;
+let useCCaptureProg = false;
+function startCCapture() {
+    //start ccapture
+    capturer.start();
+
+    recordStartTime = Date.now()/1000;
+    useCCaptureProg = true;
+    console.log(recordStartTime); //use this as the reference start time for grabbing audio later
 }
 
 let perWaveDrawCalls = [];
@@ -955,6 +977,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
 
         let fakeAudioProg = (Date.now()/1000 % dur)/dur;
         let waveProg = isPlaying ? audioProg : fakeAudioProg;
+        if(useCCaptureProg) waveProg = ((seekOffsets + (Date.now()/1000 - recordStartTime)) % dur) /dur;
 
         if(USE_WORKER && USE_LINE_REDRAW) waveWorker.postMessage(['getString', slotIndex, viewWidth, waveProg, pixelsPerSample]);
         // if(kgl) return;
@@ -967,20 +990,9 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         if(!isNaN(offset)) {
             
             if(USE_KONVA){//if a konva layer exists render with konva instead
+                framePoints[slotIndex] = calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample);
                 kgLines[slotIndex].setPoints(framePoints[slotIndex].flat());
-            } else {
-                // let pointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
-                // let pointString = newPoints.flat()
-                let wavePtString = USE_WORKER ? pointStrings[slotIndex] : lastPointString;
-                if(USE_LINE_REDRAW) polyline.setAttribute('points', wavePtString);
-                else svg.setAttribute("viewBox", `${offset} 0 ${zoomedViewWidth} ${viewHeight}`);
-                if(!USE_WORKER && USE_LINE_REDRAW) {
-                    setTimeout(() => {
-                        let newPoints = calculateWavePoints(slotIndex, viewWidth, waveProg);
-                        lastPointString = newPoints.map(([x, y]) => `${x},${y}`).join(" ");
-                    }, 5);
-                }
-            }
+            } 
         }
         // meter.tick();
     }
@@ -1001,9 +1013,18 @@ function konvaDrawLoop(){
         debugDraw();
         kgl.draw();
     }
+    if(useCCaptureProg) capturer.capture(kc);
 }
 
 konvaDrawLoop();
+
+var capturer = new CCapture( {
+	framerate: 120,
+    format: 'webm',
+    timeLimit: 11,
+    autoSaveTime: 10,
+    startTime: 0
+} );
 
 function pauseAll(){
     audioElements.forEach(a => a.pause());
@@ -1161,7 +1182,8 @@ let rescale = () => {
     let yScale = renderedHeight/CONTAINER_HEIGHT;
     let minScale = Math.min(xScale, yScale);
     return {x: minScale, y: minScale} };
-waveWorker.postMessage(['rescaleVal', rescale()]);
+// waveWorker.postMessage(['rescaleVal', rescale()]);
+let rescaleVal = rescale();
 
 function resizeOnChange(explicitWidth, explicitHeight){
     let installationRoot = document.getElementById('installation');
@@ -1182,7 +1204,8 @@ function manuallyResizeCanvas(newWidth, newHeight){
     renderedHeight = newHeight;
     kc.width = CONTAINER_WIDTH * rescale().x;
     kc.height = CONTAINER_HEIGHT * rescale().y;
-    waveWorker.postMessage(['rescaleVal', rescale()]);
+    // waveWorker.postMessage(['rescaleVal', rescale()]);
+    rescaleVal = rescale();
 
     [0, 1, 2, 3, 4, 5, 6].map(i => {
         resetKonvaGroupTransform(i);
@@ -1217,7 +1240,7 @@ var layer = new Konva.Layer();
 var zigzag = new Konva.Line({
     points: [0, 0],
     stroke: ZIGZAG_COLOR,
-    strokeWidth: 1,
+    strokeWidth: 2,
 });
 layer.add(zigzag);;
 
