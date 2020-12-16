@@ -9,41 +9,40 @@ block content
           a(href='/')
             img(src='./images/me-logo-wht.png' alt='sample logo')      
       #installation(class='css-selector')
-        //- - let files = fileInfo.Name;
 
         div(id='control_panel' class="controls hide")
-          div(id="time_warning_container")
+          div(id="time_warning_container" class="text-style")
             div(id='time_warning')
             br
           div(id='single_panel')
             span(id='jump_span')
-                button(id="jump_time_button") Jump to time (sec):
+                button(id="jump_time_button" class="custom-button") Jump to time (sec):
                 |
                 |
                 input(id='jump_time') 
             br
             br
             span(id='replace_file_span')
-              input(id='replace_file_input' type='file' accept='audio/mpeg')
+              input(id='replace_file_input' type='file' accept='audio/mpeg' class="custom-button")
             div(id='vol_span' class="hide")
-              label(for='vol' id='vol_label') New File Gain: 
+              label(for='vol' id='vol_label' class="text-style") New File Gain: 
               br
               input(id='vol' type='range' min='0' max='2' value='1' step='0.01')
               br
-              span(id='vol_val') 1
+              span(id='vol_val' class="text-style") 1
             br
             br
-            button(id='undo_button' class="hide") Undo
+            button(id='undo_button' class="custom-button hide") Undo
             |
             |
-            button(id='replace_file_submit' class="hide") Submit
+            button(id='replace_file_submit' class="custom-button hide") Submit
             br
             br
-            button(id="fullscreen") Fullscreen
+            button(id="fullscreen" class="custom-button") Fullscreen
         
         //-- TODO - change instructions copy depending on whether page is single or multi file replacement
 
-        button(id="beginButton" class='css-selector') BEGIN
+        button(id="beginButton" class='custom-button css-selector') Begin
       
       //- Identity details
       section.profileHeader

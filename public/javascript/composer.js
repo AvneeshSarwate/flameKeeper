@@ -373,7 +373,7 @@ const MUTE_COLOR = 'black';
 const HIGHLIGHT_COLOR = "#ff5050aa";
 const TRANSPARENT_COLOR = "#ffffff00";
 
-const DEBUG = true;
+const DEBUG = false;
 
 /*
 (note rotation y point should be 2x if mirrored == true)

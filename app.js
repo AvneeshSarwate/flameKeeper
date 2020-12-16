@@ -20,8 +20,8 @@ const csp = require(`helmet-csp`)
 const { state } = require('./state');
 const { flameKeeper } = require('./flameKeeper');
 
-// TODO: re-enable
-// flameKeeper.start();
+// Enables lock-out and ghost editing
+flameKeeper.start();
 
 
 // View engine setup
