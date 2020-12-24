@@ -183,7 +183,8 @@ function undoReplace() {
             audioElements[undoWave].play().then(() => {
                 audioElements[undoWave].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
                 delays[undoWave].delayTime.value = getVisualSyncDelay(undoWave);
-                audioElements.forEach(a => {a.currentTime = 0});
+                audioElements[undoWave].currentTime = (Date.now() - audioData[undoWave].uploadedAt)/1000 %  audioElements[undoWave].duration;
+                // audioElements.forEach(a => {a.currentTime = 0});
             });
         };
     });
@@ -349,7 +350,7 @@ function getInstallationByTimestamp(timestamp) {
             let newAudioPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i));
             Promise.all(newAudioPromises).then(audioElems => {
                 audioElems.map((a, i) => {
-                    a.play();
+                    a.play(); //not used currently
                     delays[i].delayTime.value = getVisualSyncDelay(i);
                 });
             })
@@ -606,7 +607,7 @@ function replaceAudioSlotWithFile(file, slotIndex) {
             audioElements[slotIndex].play().then(() => {
                 audioElements[slotIndex].oncanplaythrough = null; //prevent infinite loop - setting current time trigers 'canplaythrough' event
                 delays[slotIndex].delayTime.value = getVisualSyncDelay(slotIndex);
-                audioElements.forEach(a => {a.currentTime = 0});
+                // audioElements.forEach(a => {a.currentTime = 0});
             });
         }
     });
@@ -617,12 +618,6 @@ function createAudioElement(wf, slotIndex) {
     audio.crossOrigin = 'anonymous';
     if (returns.length > 0) audio.src = wf.url;
     audio.loop = true;
-
-    //- setTimeout(function() {
-    //-   audio.play();
-    //- }, 5000);
-
-    // audio.addEventListener("canplaythrough", () => { audio.play() });
 
     let audioPromise = new Promise((resolve) => {
         audio.oncanplaythrough = () => resolve(audio);
@@ -714,7 +709,7 @@ function drawWaveformBackground(wf, group, i) {
                 [waveColor, muteVol] = [WAVEFORM_COLOR, 1]
             }
             document.getElementById('waveline-'+i).setAttribute('fill', waveColor);
-            document.getElementById('zeroline-'+i).setAttribute('fill', waveColor);
+            document.getElementById('zeroline-'+i).setAttribute('stroke', waveColor);
             muteGains[i].gain.value = muteVol;
         };
 
@@ -947,6 +942,7 @@ function begin() {
         audioElements.map((a, i) => {
             a.play();
             delays[i].delayTime.value = getVisualSyncDelay(i);
+            audioElements[i].currentTime = (Date.now() - audioData[i].uploadedAt)/1000 %  audioElements[i].duration;
         });
     });
 }

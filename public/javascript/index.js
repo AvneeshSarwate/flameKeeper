@@ -1026,11 +1026,6 @@ var capturer = new CCapture( {
     startTime: 0
 } );
 
-function pauseAll(){
-    audioElements.forEach(a => a.pause());
-    audioElements.forEach(a => {a.currentTime = 0});
-}
-
 function addExitFullScreenButton(container){
     const button = document.createElementNS("http://www.w3.org/2000/svg", "image");
     button.id = 'exit-fullscreen';
