@@ -23,9 +23,9 @@ class FlameKeeper {
     }
 
     async checkState() {
-        // Update via log every minute
+        // Update via log every 10 minutes
         let update = false;
-        if (this.updateCounter == (60000 / this.freqMilliseconds)) update = true;
+        if (this.updateCounter == ((600000 / this.freqMilliseconds) - 1)) update = true;
 
         let lastEditDate = new Date(state.lastEdit);
         let lockoutDate = new Date(lastEditDate.getTime() + this.lockoutTimeMilliseconds);
@@ -51,11 +51,15 @@ class FlameKeeper {
     }
 
     async makeRandomEdit() {
-        // Ensure state is populated with at least some audio and a currentState
-        if (state.audio.length > 0 && state.currentState.audio && state.currentState.audio.length > 0) {
-            let activeComposerId = Composers.composers.filter(c => c.active)[0].composerID;
+        // Ensure state is populated with at least some audio, an active composer, and a currentState
+        if (state.audio.length > 0 &&
+            Composers.composers.filter(c => c.active).length > 0 &&
+            state.currentState.audio && state.currentState.audio.length > 0) {
+            let activeComposer = Composers.composers.filter(c => c.active)[0];
+            let activeComposerId = activeComposer.composerID;
+            let activeComposerName = activeComposer.name;
             
-            this.logger.info("FlameKeeper: composer window closed without edit, making ghost edit for: " + activeComposerId);
+            this.logger.info(`FlameKeeper: composer window closed without edit, making ghost edit for: ${activeComposerName} (${activeComposerId})`);
             let randomAudio = state.audio[Math.floor(Math.random() * state.audio.length)];
             let newVolume = 0.1 + Math.random() * 0.8; // Random between 0.1-0.9
             let newAudio = [...state.currentState.audio];
