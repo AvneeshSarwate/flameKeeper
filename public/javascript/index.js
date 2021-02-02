@@ -360,10 +360,6 @@ const waveforms = [
     }
 ];
 
-[0].map( i => {
-    waveforms[i].url = `./audio/FlameDrummer${i+1}.mp3`;
-})
-
 waveWorker.postMessage(['waveforms', waveforms]);
 
 function setGradient(speed, angle, colors, zooms){
