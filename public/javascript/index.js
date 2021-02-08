@@ -89,8 +89,6 @@ const MAX_ZOOM_OUT = 3;
 // gui.add(controllerProps, 'manualProg')
 
 
-
-
 document.getElementById('text_slider_display').innerHTML = new Date().toLocaleString();
 document.getElementById('time_slider').addEventListener('input', changeTime);
 document.getElementById('jump_to_history').addEventListener('click', jumpToHistory);
@@ -164,7 +162,7 @@ function unmuteAudio() {
     document.getElementById('muteIcon').classList.add('hide');
     document.getElementById('volumeIcon').classList.remove('hide');
     muted = false;
-    globalGain.gain.value = glboalVol;
+    globalGain.gain.value = globalVol;
 }
 
 
@@ -359,6 +357,10 @@ const waveforms = [
         linePercent: 0.911 //697/765
     }
 ];
+
+[0].map(i => {
+    waveforms[i].url = `./audio/FlameDrummer${i + 1}.mp3`;
+})
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
