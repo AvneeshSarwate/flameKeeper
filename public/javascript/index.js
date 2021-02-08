@@ -147,7 +147,7 @@ function restartPlaybackAfterLoad(startTime) {
         p.seek(seekTime+0.001, nowTime+0.001);
         delays[i].delayTime.value = getVisualSyncDelay(i);
     });
-    Tone.Transport.scheduleOnce((_) => installationBlur.setStdDeviation(0, 0), nowTime);
+    // Tone.Transport.scheduleOnce((_) => installationBlur.setStdDeviation(0, 0), nowTime);
 }
 
 let globalVol = 1.0;
@@ -228,7 +228,7 @@ function getInstallationByTimestamp(timestamp) {
 
             audioData = jsonData.loadedAudio;
             
-            installationBlur.setStdDeviation(5, 5);
+            // installationBlur.setStdDeviation(5, 5);
             let newPromises = audioData.map((ad, i) => resetWaveFromURL(ad.filename, ad.volume, timestamp, i)).flat();
             Promise.all(newPromises).then(() => {
                 restartPlaybackAfterLoad(timestamp);
