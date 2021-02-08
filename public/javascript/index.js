@@ -120,7 +120,7 @@ function playAudio() {
     Tone.start();
     Tone.Transport.start();
     Promise.all([playerPromises, drawPromises].flat()).then(() => {
-        restartPlaybackAfterLoad(offlineRecordStartTime);
+        restartPlaybackAfterLoad(Date.now());
         isPlaying = true;
     });
 }
@@ -357,10 +357,6 @@ const waveforms = [
         linePercent: 0.911 //697/765
     }
 ];
-
-[0].map(i => {
-    waveforms[i].url = `./audio/FlameDrummer${i + 1}.mp3`;
-})
 
 waveWorker.postMessage(['waveforms', waveforms]);
 
