@@ -929,14 +929,14 @@ function calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample) {
 
 let pointStrings = [0, 1, 2, 3, 4, 5, 6].map(i => '0,0');
 let framePoints = [0, 1, 2, 3, 4, 5, 6].map(i => [[0, 0]]);
-// waveWorker.onmessage = function(e){
-//     if(e.data[0] === 'ptString'){
-//         pointStrings[e.data[1]] = e.data[2];
-//     }
-//     if(e.data[0] === 'framePoints'){
-//         framePoints[e.data[1]] = e.data[2];
-//     }
-// }
+waveWorker.onmessage = function(e){
+    if(e.data[0] === 'ptString'){
+        pointStrings[e.data[1]] = e.data[2];
+    }
+    if(e.data[0] === 'framePoints'){
+        framePoints[e.data[1]] = e.data[2];
+    }
+}
 
 let recordStartTime = 0;
 let useCCaptureProg = false;
@@ -984,7 +984,7 @@ function animate(svg, waveformWidth, viewWidth, viewHeight, speed, slotIndex) {
         if(!isNaN(offset)) {
             
             if(USE_KONVA){//if a konva layer exists render with konva instead
-                framePoints[slotIndex] = calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample);
+                // framePoints[slotIndex] = calculateWavePoints(slotIndex, viewWidth, waveProg, pixelsPerSample);
                 kgLines[slotIndex].setPoints(framePoints[slotIndex].flat());
             } 
         }
@@ -1171,7 +1171,7 @@ let rescale = () => {
     let yScale = renderedHeight/CONTAINER_HEIGHT;
     let minScale = Math.min(xScale, yScale);
     return {x: minScale, y: minScale} };
-// waveWorker.postMessage(['rescaleVal', rescale()]);
+waveWorker.postMessage(['rescaleVal', rescale()]);
 let rescaleVal = rescale();
 
 function resizeOnChange(explicitWidth, explicitHeight){
@@ -1193,7 +1193,7 @@ function manuallyResizeCanvas(newWidth, newHeight){
     renderedHeight = newHeight;
     kc.width = CONTAINER_WIDTH * rescale().x;
     kc.height = CONTAINER_HEIGHT * rescale().y;
-    // waveWorker.postMessage(['rescaleVal', rescale()]);
+    waveWorker.postMessage(['rescaleVal', rescale()]);
     rescaleVal = rescale();
 
     [0, 1, 2, 3, 4, 5, 6].map(i => {
