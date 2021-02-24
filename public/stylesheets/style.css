@@ -824,8 +824,12 @@ input[type=range]:active::-ms-thumb {
     max-width: 50px;
 }
 
-.socialShares iframe {
-	margin-right: 8px;
+.socialShares a {
+	margin-right: 1em;
+}
+
+.socialShares div {
+	margin-top: 1em;
 }
 
 .twitter-share-button[style] { vertical-align: text-bottom !important; }
