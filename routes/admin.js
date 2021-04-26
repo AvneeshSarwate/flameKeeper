@@ -161,6 +161,8 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                     //     return
                     // }
                     let file = files.file;
+                    // Remove JSON reserved characters
+                    let filename = file.name.replace(/[",\\]/g, "");
                     let index = parseInt(fields.index);
                     if (!index == null || index < 0 || index > 6) {
                         reject(`index must be 0-6, received ${index}`);
@@ -171,7 +173,7 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                         reject(`volume must be 0-2, received ${volume}`);
                         return;
                     }
-                    let audioID = await state.addAudio(file.name, file.path, authenticatedID);
+                    let audioID = await state.addAudio(filename, file.path, authenticatedID);
                     let newAudio = [ ...state.currentState.audio ];
                     newAudio[index] = {
                         "audioID": audioID,
