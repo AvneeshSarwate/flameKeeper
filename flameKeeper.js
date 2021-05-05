@@ -1,6 +1,7 @@
 const { state } = require('./state');
 const { getLogger } = require('./logger');
 const { Composers } = require('./airtable');
+const STOP_GHOST = process.env.STOP_GHOST === "true";
 
 class FlameKeeper {
     constructor() {
@@ -51,6 +52,9 @@ class FlameKeeper {
     }
 
     async makeRandomEdit() {
+        //for some development situations, we grant limited access and don't want the dev app to attempt ghost edits
+        if(STOP_GHOST) return;
+
         // Ensure state is populated with at least some audio, an active composer, and a currentState
         if (state.audio.length > 0 &&
             Composers.composers.filter(c => c.active).length > 0 &&
