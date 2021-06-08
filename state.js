@@ -166,4 +166,6 @@ class State {
     }
 }
 
-exports.state = new State();
+const localStatePath = process.env.LOCAL_STATE_PATH;
+
+exports.state = new State(localStatePath);
