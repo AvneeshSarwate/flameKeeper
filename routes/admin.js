@@ -162,7 +162,7 @@ router.post('/upload', requiresLogin, async function (req, res, next) {
                     // }
                     let file = files.file;
                     // Remove JSON reserved characters
-                    let filename = file.name.replace(/[^a-zA-Z0-9_-]+/g, "");
+                    let filename = file.name.replace(/[^a-zA-Z0-9_-.]+/g, "");
                     let index = parseInt(fields.index);
                     if (!index == null || index < 0 || index > 6) {
                         reject(`index must be 0-6, received ${index}`);
