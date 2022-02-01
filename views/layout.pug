@@ -2,7 +2,7 @@ doctype html
 html(lang='en')
   head    
     meta(charset='utf-8')    
-    meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(name="viewport" content="width=device-width, initial-scale=1")
     title Flame Keepers | Metropolis Ensemble 
     link(rel="preconnect" href="https://fonts.gstatic.com")
     link(href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet")
@@ -18,12 +18,39 @@ html(lang='en')
     
   block content
     
-  footer
-      hr
-      p.footerDisclaimer
-        | &copy; 2020 Metropolis Ensemble - 
-        span All Rights Reserved
-      p.footerNote
-        | Contact Us - 
-        span #[a.customLink(target='_blank' href='mailto:info@metropolisensemble.org') Email] / #[a.customLink(target='_blank' href='https://www.instagram.com/metroensemble/?hl=en') Social]
-          
+footer.footerLayout
+  div.footerContainer
+    div.footerDisclaimer
+      div.content
+        h3 Stay Updated
+        p Who is keeping the flame next week?
+        p Receive updates in your inbox.
+        button(type='button', class='button', target='blank') 
+          a(href='https://metropolisensemble.org/mailing-list' target="_blank") Subscribe
+    div.footerNote
+      div.content
+        h3 About Metropolis
+        p We are dedicated to creating a future for classical music that is of and for the
+          time we live in. 
+        ul
+          li 
+            a(href='https://www.facebook.com/metropolisensemble' target="_blank")
+              img(src='images/social_facebook.png')
+          li 
+            a(href='http://instagram.com/metroensemble' target="_blank")
+              img(src='images/social_instagram.png')
+          li 
+            a(href='https://twitter.com/metroensemble' target="_blank")
+              img(src='images/social_twitter.png')
+          li 
+            a(href='mailto:info@metropolisensemble.org')
+              img(src='images/social_email.png')
+          li 
+            a(href='https://www.flickr.com/photos/metropolisensemble/' target="_blank")
+              img(src='images/social_flickr.png')
+          li 
+            a(href='http://vimeo.com/metropolis' target="_blank")
+              img(src='images/social_vimeo.png')
+
+        span
+          |&copy; 2020 Metropolis Ensemble

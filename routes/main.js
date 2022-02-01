@@ -25,14 +25,18 @@ let filterAudio = function(loadedSlot) {
     });
 
     let composerID = loadedSlot.composerID || undefined;
-    let composer = undefined;
-    if (composerID) {
+    var composer = undefined;
+    if (composerID != undefined) {
         composer = Composers.composers.filter(c => c.composerID === composerID)[0];
+        composer = Composers.composers[0];
+
     }
     if (loadedAudio.includes(undefined)) {
         logger.error("unable to find currentState audioID in uploaded audio");
         return undefined;
     }
+
+    console.log("main.js", composer);
 
     return {
         loadedAudio,
@@ -58,8 +62,6 @@ router.get('/', function (req, res, next) {
     let historyTimes = state.history.map(h => h.timestamp);
     historyTimes.sort();
     let firstEntry = historyTimes[0];
-
-    // console.log("composer at index", composer);
     
     res.render('index', {
         nonce: res.locals.nonce,
@@ -139,6 +141,7 @@ router.get('/past-composers', function (req, res, next) {
                                     .filter(s => s.composerID == c.composerID)
                                     .sort((s1, s2) => s1.timestamp < s2.timestamp)
         let enumeratedComposerTimestamps = sortedComposerStates.map((s, i) => [s.timestamp, i]);
+        console.log(state.history.length);
         c.history = enumeratedComposerTimestamps || [];
     });
 
