@@ -131,6 +131,8 @@ router.get('/history', function (req, res, next) {
 });
 
 router.get('/past-composers', function (req, res, next) {
+    // fill out state.json
+
     // Copy composers object
     let composers = [ ...Composers.composers ];
 
@@ -141,9 +143,10 @@ router.get('/past-composers', function (req, res, next) {
                                     .filter(s => s.composerID == c.composerID)
                                     .sort((s1, s2) => s1.timestamp < s2.timestamp)
         let enumeratedComposerTimestamps = sortedComposerStates.map((s, i) => [s.timestamp, i]);
-        console.log(state.history.length);
-        c.history = enumeratedComposerTimestamps || [];
+        c.history = enumeratedComposerTimestamps || ["a", "b", "c"];
+        c.history = [1, 2, 3, 4, 5];
     });
+
 
     res.render("past_composers", {
         copy: Copy.copy,

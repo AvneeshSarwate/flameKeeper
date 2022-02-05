@@ -49,7 +49,7 @@
 }
 
 .css-selector {
-    background: #191819;
+    background: #FFFFFF;
     /* animation: colorchange var(--gradient-speed) ease infinite; */
 }
 
@@ -74,7 +74,6 @@
 
 html {
 	width: 100%;
-	background-color: #191819;
 }
 
 body {
@@ -207,6 +206,19 @@ header .nowPlaying {
 	display: flex;
 	max-height: 300px;
 }
+header .pageHeader {
+	font-family: 'Raleway';
+    padding: 20px;
+}
+
+.pageHeader h1 {
+	font-size: 48px;
+}
+
+.pageHeader h3 {
+    font-size: 24px;
+    color: #cbcbcb;
+}
 
 main.mainLayout {
 	background: #FFFFFF;
@@ -216,6 +228,60 @@ main.mainLayout {
 .mainContent .socialNetworkNavBar .sectionContent {
 	float: left;
 	display: inline-block;
+}
+
+.composer {
+	display: flex;
+    margin-bottom: 100px;
+    padding: 50px;
+    background: #fdfbf8;
+    box-shadow: 1px 2px 5px 1px #2424240a;
+}
+
+.composer:last-child {
+	margin-bottom: 0px;
+}
+
+.composer .profilePhoto {
+	width: 300px;
+    height: 300px;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 150px;
+}
+
+.composer .profileHeader h1 {
+	color: #000;
+}
+
+.composer .profileHeader p {
+	color: #000;
+}
+
+.composer .profileHeader a {
+	color: #FFF;
+}
+
+.composer .profileHeader a:hover {
+	color: #000;
+}
+
+.composer .profileHeader p a {
+	color: #000;
+}
+
+header .composer .profilePhoto img {
+    height: 300px;
+    width: 300px;
+    width: 300px;
+    position: relative;
+    object-fit: cover;
+    border-radius: 150px;
+}
+
+header .composer .profilePhoto::after {
+	display: none;
 }
 
 #composer-bio a {
