@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const Airtable = require('airtable');
 const { asyncForEach, markdownToHTML } = require('./util');
 const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
-const baseID = "appDMw3lOAQTw8dGQ";
+const baseID = "appiuLzmVDcFCntEr";
 const base = airtable.base(baseID);
 const { getLogger } = require('./logger');
 
