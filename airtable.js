@@ -2,9 +2,11 @@ const crypto = require('crypto');
 const Airtable = require('airtable');
 const { asyncForEach, markdownToHTML } = require('./util');
 const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
-const baseID = "appiuLzmVDcFCntEr";
+const baseID = "appDMw3lOAQTw8dGQ";
 const base = airtable.base(baseID);
 const { getLogger } = require('./logger');
+
+const USING_TEST_BASE = baseID === "appDMw3lOAQTw8dGQ";
 
 class Composers {
     constructor() {
@@ -52,7 +54,7 @@ class Composers {
         let photoRecord = record.get("photo");
         if (photoRecord && photoRecord.length > 0) photo = photoRecord[0].url;
         return {
-            "composerID": record.id,
+            "composerID": USING_TEST_BASE ? record.get('test_id') : record.id,
             "name": record.get("name"),
             "bio": markdownToHTML(record.get("bio")),
             "photo": photo,
