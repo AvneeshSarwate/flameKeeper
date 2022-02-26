@@ -235,11 +235,7 @@ main.mainLayout {
     margin-bottom: 100px;
     padding: 50px;
     background: #fdfbf8;
-    box-shadow: 1px 2px 5px 1px #2424240a;
-}
-
-.composer:last-child {
-	margin-bottom: 0px;
+    box-shadow: 1px 2px 5px 1px #2424242b;
 }
 
 .composer .profilePhoto {
@@ -593,7 +589,7 @@ footer .footerContainer {
 }
 
 /* Media query for Mobile devices*/
-@media only screen and (min-width : 285px) and (max-width : 480px) {
+@media only screen and (min-width : 200px) and (max-width : 600px) {
 	/* Header */
 	header {
 		width: 100%;
@@ -714,6 +710,9 @@ footer .footerContainer {
 	}
 	.w3-bar-item.w3-button {
     	width: 100%;
+	}
+	.composer {
+		display: inherit;
 	}
 }
 
@@ -1092,7 +1091,6 @@ footer .footerContainer {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
 }
 
 /*
