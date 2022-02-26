@@ -166,6 +166,20 @@ function unmuteAudio() {
 }
 
 
+function tabMoreInfo(tabName, e) {
+    document.querySelectorAll('.w3-bar-item').forEach(function(button) {
+        button.style.borderBottom = 'none';
+    });
+    var i;
+    var x = document.getElementsByClassName("tabsInfo");
+    for (i = 0; i < x.length; i++) {
+        x[i].style.display = "none";
+        x[i].style.borderBottom = "none";
+    }
+    document.getElementById(tabName).style.display = "block";
+    e.target.style.borderBottom = "10px solid black";
+
+}
 
 let selected_waveform = null;
 let audioElements = [];

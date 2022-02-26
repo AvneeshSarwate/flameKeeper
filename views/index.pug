@@ -1,113 +1,121 @@
 extends layout
 block content  
   body(class='css-selector')
-    .backLink
-      a.customLink(href='https://metropolisensemble.org/') Back to site →
-    //-- Header content
-    header
-      .profileLogo
-        //-- Profile logo. Add a img tag in place of <span>.
-        p.logoPlaceholder
-          a(href='https://metropolisensemble.org/')
-            img(src='./images/me-logo-wht.png' alt='sample logo')
-      div(id="loadingProgress" class="hide")
-        div #[span(id="loadingValue") 0]%#[img(id="loadingGif" src='./images/dots.gif' height='4px' style='margin-left: 2px;' alt='loading')]
-      #installation
-        #installation-konva
-      button(id="playAudio" class='custom-button hide2') Start Audio
-      div(id="user_controls" class="hide")
-        div(id="time_slider_container")
-            img(src="./images/clock.png" class="icon")
-            input(id='time_slider' type='range' min='0' max='1' value='1' step='0.0001')
-        div(id="control_row_2")
-            div(id="time_slider_accessories" style="visibility: hidden;")
-                div(id="slider_accessories")
-                span(id='jump_to_history' class='custom-button') 
-                    img(src="./images/clock.png" class="icon")
-                    div Jump to time:
-                span(id='text_slider_display' class='text-style')
-            div(id="vol_container")
-                img(id="volumeIcon" src="./images/volume_2.png" class="icon")
-                img(id="muteIcon" src="./images/mute_2.png" class="icon hide")
-                div(id="volume-widget" class="hide" style="margin: 5px;")
-                img(src="./images/fullscreen_2.png" id='fullscreen' class='icon')
-      br
-      //- Introduction
-      section.profileHeader
-        h1 #{copy.title}
-        h3 #{copy.subtitle.toUpperCase()}
-        div !{copy.introduction}
-        //- Social shares
-        div.socialShares
-          a(target="_blank" href="https://twitter.com/metroensemble")
-            img(src="./images/twitter.png" width='24px')
-          a(target="_blank" href="https://www.facebook.com/metropolisensemble/")
-            img(src="./images/facebook.png" width='24px')
-          div
-            a.customLink(target="_blank" href="https://metropolisensemble.org/mailing-list") Who’s Keeping the Flame next week? Join the Mailing List Today
-          div
-            a.customLink(target="_blank" href="https://metropolisensemble.org/support") Keep the Flame Alive — Donate Now
-        br
-      hr
-      br
-      //- Current composer
-      - let composer = composerInfo;
-      if composer
-        .profilePhoto
-          //- Profile photo
-          img(src=composer.photo alt='sample' id='composer-photo')
-      section.profileHeader
-        if composer
-          h3(id='time-header') This Week&apos;s Curator
-          h1(id='composer-name') #{composer.name}
-          div(id='composer-bio') !{composer.bio}
-        p
-          a(href='/past-composers') See all our past curators &raquo;
-    //- content
-    section.mainContent
-      //- Detailed description of the installation
-      section.section1
-        h2.sectionTitle How It Works
-        hr.sectionTitleRule
-        .section1Content
-          div !{copy["how-it-works"]}
-      //- Contributors to the installation
-      section.section2
-        h2.sectionTitle Meet The Team
-        hr.sectionTitleRule
-        for admin in admins
-          article.section2Content
-            h2.sectionContentTitle #{admin.name}
-            h3.sectionContentSubTitle #{admin.role}
-            div.sectionContent !{admin.description}
-    
-    div(id='composer-hover' class='hide')
-        img(id='composer-hover-img')
-        div(id='composer-hover-text')
+    main.mainLayout
+      header
+        .navigationBar
+          //-- Profile logo. Add a img tag in place of <span>.
+          p.logoPlaceholder
+            a(href='/')
+              img(src='./images/me-logo-wht.png' alt='sample logo')
+          ul.linksContainer
+            li
+              a(href='https://metropolisensemble.org/support' target="_blank") Donate
+            li 
+              a(href='/past-composers') Explore All Contributors
+            li 
+              a(href='https://metropolisensemble.org/' target="_blank") About Metropolis
+        div(id="loadingProgress" class="hide")
+          div #[span(id="loadingValue") 0]%#[img(id="loadingGif" src='./images/dots.gif' height='4px' style='margin-left: 2px;' alt='loading')]
+        #installation
+          #installation-konva
+          div(id="headerContent")
+            h1 The Evolution of Sound
+            h2 A live-streaming perpetual sonic art installation created by Metropilis Ensemble and commissioning a new weekly contributor.
+            button(id="playAudio" class='custom-button hide2') &#10148; Start Audio
+        div(id="user_controls" class="hide")
+          div(id="time_slider_container")
+              img(src="./images/clock.png" class="icon")
+              input(id='time_slider' type='range' min='0' max='1' value='1' step='0.0001')
+          div(id="control_row_2")
+              div(id="time_slider_accessories" style="visibility: hidden;")
+                  div(id="slider_accessories")
+                  span(id='jump_to_history' class='custom-button') 
+                      img(src="./images/clock.png" class="icon")
+                      div Jump to time:
+                  span(id='text_slider_display' class='text-style')
+              div(id="vol_container")
+                  img(id="volumeIcon" src="./images/volume_2.png" class="icon")
+                  img(id="muteIcon" src="./images/mute_2.png" class="icon hide")
+                  div(id="volume-widget" class="hide" style="margin: 5px;")
+                  img(src="./images/fullscreen_2.png" id='fullscreen' class='icon')
 
-    div(id="konvatest")
-    <input id="fileSwap-0" type="file" style="display: none;" />
-    <input id="fileSwap-1" type="file" style="display: none;" />
-    <input id="fileSwap-2" type="file" style="display: none;" />
-    <input id="fileSwap-3" type="file" style="display: none;" />
-    <input id="fileSwap-4" type="file" style="display: none;" />
-    <input id="fileSwap-5" type="file" style="display: none;" />
-    <input id="fileSwap-6" type="file" style="display: none;" />
-    
-    //- expose server provided variables to main script
-    script(nonce=nonce).
-      let returns = JSON.parse(`!{fileNames}`);
-      let audioData = JSON.parse(`!{audio}`);
-      let allComposers = JSON.parse(`!{allComposers}`);
-      let isComposer = document.location.pathname == "/composer";
-      let timestamp = !{timestamp};
-      let firstEntry = !{firstEntry};
+        div.nowPlaying
+          - let composer = composerInfo;
+          if composer
+            .profilePhoto
+              //- Profile photo
+              img(src=composer.photo alt='sample' id='composer-photo')
+          section.profileHeader
+            if composer
+              h3(id='time-header') This Week&apos;s Curator
+              h1(id='composer-name') #{composer.name}
+              div(id='composer-bio') !{composer.bio}
+      
+      section.sectionTabs        
+        div.tabContent
+          div(class="w3-bar w3-black")
+            button(class="w3-bar-item w3-button" onclick="tabMoreInfo('About', event)" style="border-bottom: 10px solid black") About
+            button(class="w3-bar-item w3-button" onclick="tabMoreInfo('How', event)") How it Works
+            button(class="w3-bar-item w3-button" onclick="tabMoreInfo('Team', event)") Team
 
-    script(nonce=nonce src='./javascript/konva.js')
-    script(nonce=nonce src='./javascript/FPSMeter.js')
-    script(nonce=nonce src='./javascript/dat.gui.min.js')
-    script(nonce=nonce src='./javascript/Tone.js')
-    script(nonce=nonce src='./javascript/CCapture.all.min.js')
-    script(nonce=nonce src="https://code.jquery.com/pep/0.4.3/pep.js")
-    script(nonce=nonce src='./javascript/volumeWidget.js')
-    script(nonce=nonce src='./javascript/index.js')
+          div(id="About" class="tabsInfo")
+            h2 About the Project
+            p  A LIVE-STREAMING, PERPETUAL SONIC ART INSTALLATION
+            Flame Keepers is a perpetual music installation based on Jakub Ciupinski's concept and design. Commissioned, created, and launched by Metropolis Ensemble in response to COVID-19, Flame Keepers runs uninterrupted in real time, twenty-four hours a day, seven days a week.
+
+            p Invited artists are commissioned weekly to serve as musical custodians and creators, or Flame Keepers, tasked with supplying new original material every seven hours. As a result, the piece will evolve as an open-ended collective composition designed to run forever.
+
+            p We intend the Flame Keepers experience to be a virtual bonfire shared by a group of strangers worldwide, a concert that never ends, made in, and especially for, times of hardship and social isolation.
+
+          div(id="How" class="tabsInfo" style="display:none")
+            h2 How it Works
+            div !{copy["how-it-works"]}
+          
+          div(id="Team" class="tabsInfo" style="display:none")
+            h2 Meet the Team
+            for admin in admins
+              article.section2Content
+                h3.sectionContentTitle #{admin.name}
+                h4.sectionContentSubTitle #{admin.role}
+                div.sectionContent !{admin.description}
+
+      section.donateBox
+        div
+          h1 Support Flame Keepers
+         
+          a(href='https://metropolisensemble.org/support' target="_blank")
+            h4 Your donation 
+          h4 helps makes this project possible by providing support for 52 composers per year. 
+            
+      section.mainContent        
+        div(id='composer-hover' class='hide')
+            img(id='composer-hover-img')
+            div(id='composer-hover-text')
+
+      div(id="konvatest")
+      <input id="fileSwap-0" type="file" style="display: none;" />
+      <input id="fileSwap-1" type="file" style="display: none;" />
+      <input id="fileSwap-2" type="file" style="display: none;" />
+      <input id="fileSwap-3" type="file" style="display: none;" />
+      <input id="fileSwap-4" type="file" style="display: none;" />
+      <input id="fileSwap-5" type="file" style="display: none;" />
+      <input id="fileSwap-6" type="file" style="display: none;" />
+      
+      //- expose server provided variables to main script
+      script(nonce=nonce).
+        let returns = JSON.parse(`!{fileNames}`);
+        let audioData = JSON.parse(`!{audio}`);
+        let allComposers = JSON.parse(`!{allComposers}`);
+        let isComposer = document.location.pathname == "/composer";
+        let timestamp = !{timestamp};
+        let firstEntry = !{firstEntry};
+
+      script(nonce=nonce src='./javascript/konva.js')
+      script(nonce=nonce src='./javascript/FPSMeter.js')
+      script(nonce=nonce src='./javascript/dat.gui.min.js')
+      script(nonce=nonce src='./javascript/Tone.js')
+      script(nonce=nonce src='./javascript/CCapture.all.min.js')
+      script(nonce=nonce src="https://code.jquery.com/pep/0.4.3/pep.js")
+      script(nonce=nonce src='./javascript/volumeWidget.js')
+      script(nonce=nonce src='./javascript/index.js')

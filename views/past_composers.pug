@@ -5,43 +5,53 @@ extends layout
 block content
   body(class='css-selector')
     header
-      .profileLogo
+      .navigationBar
         //-- Profile logo. Add a img tag in place of <span>.
         p.logoPlaceholder
           a(href='/')
             img(src='./images/me-logo-wht.png' alt='sample logo')
+        ul.linksContainer
+          li
+            a(href='https://metropolisensemble.org/support' target="_blank") Donate
+          li 
+            a(href='/past-composers') Explore All Contributors
+          li 
+            a(href='https://metropolisensemble.org/' target="_blank") About Metropolis
+
+
       .installation
         
                  
-        section.profileHeader
+        section.pageHeader
           h1 #{copy["flashback-title"]}
           h3 #{copy["flashback-subtitle"].toUpperCase()}
           p !{copy["flashback-introduction"]}
-        hr
         br
         br
-        br
-        - let composers = composerInfo;             
-        each composer in composers ? composers : ['NO!!!']                                 
-          if (composer.id != '0')
-            - let photoSrc = composer.photo                           
-            .profilePhoto
-              //- Profile photo
-              img(src=`${photoSrc}` alt='sample logo')
-            //- Identity details
-            section.profileHeader
-              h3 
-              h1 #{composer.name}
-              p
-                | !{composer.bio}
-              if composer.history.length > 0
-                p 
-                    | Select a snapshot to jump back to:
-              div(id="history-container")
-                each h in composer.history
-                    a(href='/?history='+h[0] class='custom-button snapshot-button') !{h[1]+1}
-              p
-                        
+
+        section.composers
+          - let composers = composerInfo;             
+          each composer in composers ? composers : ['NO!!!']                                 
+            if (composer.id != '0')
+              div.composer
+                - let photoSrc = composer.photo                           
+                .profilePhoto
+                  //- Profile photo
+                  img(src=`${photoSrc}` alt='sample logo')
+                //- Identity details
+                section.profileHeader
+                  h3 
+                  h1 #{composer.name}
+                  p
+                    | !{composer.bio}
+                  if composer.history.length > 0
+                    p 
+                        | Select a snapshot to jump back to:
+                  div(id="history-container")
+                    each h in composer.history
+                        a(href='/?history='+h[0] class='custom-button snapshot-button') !{h[1]+1}
+                  p
+                          
           
           
                         
