@@ -5807,11 +5807,19 @@
 			"filename": "977bdee6-0e5a-442a-9c1c-d7039baf07fa-JLFK.Stem6_01.mp3",
 			"lengthSeconds": 93.84,
 			"uploadedAt": 1645714269956
+		},
+		{
+			"audioID": "3cdcc150-693a-42fe-9df3-d49a9adc3b07",
+			"composerID": "receZ6dUbTJq9TEQP",
+			"name": "JLFK.Stem7.cm_01-01.mp3",
+			"filename": "3cdcc150-693a-42fe-9df3-d49a9adc3b07-JLFK.Stem7.cm_01-01.mp3",
+			"lengthSeconds": 92.616,
+			"uploadedAt": 1645794400793
 		}
 	],
 	"currentState": {
 		"composerID": "receZ6dUbTJq9TEQP",
-		"timestamp": 1645764674800,
+		"timestamp": 1645895203993,
 		"audio": [
 			{
 				"audioID": "aa6d9f1f-7813-4151-a2f1-8cda8495051f",
@@ -5834,12 +5842,12 @@
 				"volume": 1
 			},
 			{
-				"audioID": "95a91189-700a-4f35-8ba4-319846cb13de",
-				"volume": 0.66
+				"audioID": "2a875374-3cf4-4585-bf8e-202110a830db",
+				"volume": 0.5079974817254403
 			},
 			{
-				"audioID": "56199313-c9cb-4701-b9b0-99fa5fe75505",
-				"volume": 1
+				"audioID": "5bdc9889-25af-436e-bf77-d24c8c2214b5",
+				"volume": 0.2764399838626058
 			}
 		]
 	},
@@ -35321,7 +35329,109 @@
 					"volume": 1
 				}
 			]
+		},
+		{
+			"composerID": "receZ6dUbTJq9TEQP",
+			"timestamp": 1645764674800,
+			"audio": [
+				{
+					"audioID": "aa6d9f1f-7813-4151-a2f1-8cda8495051f",
+					"volume": 1
+				},
+				{
+					"audioID": "977bdee6-0e5a-442a-9c1c-d7039baf07fa",
+					"volume": 1
+				},
+				{
+					"audioID": "ed6d8ad9-1ada-4b6e-97db-aaa844a370a6",
+					"volume": 1
+				},
+				{
+					"audioID": "353cede9-5187-480c-90f5-d1656c2af761",
+					"volume": 0.6678693677044597
+				},
+				{
+					"audioID": "353cede9-5187-480c-90f5-d1656c2af761",
+					"volume": 1
+				},
+				{
+					"audioID": "95a91189-700a-4f35-8ba4-319846cb13de",
+					"volume": 0.66
+				},
+				{
+					"audioID": "56199313-c9cb-4701-b9b0-99fa5fe75505",
+					"volume": 1
+				}
+			]
+		},
+		{
+			"composerID": "receZ6dUbTJq9TEQP",
+			"timestamp": 1645794400957,
+			"audio": [
+				{
+					"audioID": "aa6d9f1f-7813-4151-a2f1-8cda8495051f",
+					"volume": 1
+				},
+				{
+					"audioID": "977bdee6-0e5a-442a-9c1c-d7039baf07fa",
+					"volume": 1
+				},
+				{
+					"audioID": "ed6d8ad9-1ada-4b6e-97db-aaa844a370a6",
+					"volume": 1
+				},
+				{
+					"audioID": "353cede9-5187-480c-90f5-d1656c2af761",
+					"volume": 0.6678693677044597
+				},
+				{
+					"audioID": "353cede9-5187-480c-90f5-d1656c2af761",
+					"volume": 1
+				},
+				{
+					"audioID": "3cdcc150-693a-42fe-9df3-d49a9adc3b07",
+					"volume": 2
+				},
+				{
+					"audioID": "56199313-c9cb-4701-b9b0-99fa5fe75505",
+					"volume": 1
+				}
+			]
+		},
+		{
+			"composerID": "receZ6dUbTJq9TEQP",
+			"timestamp": 1645844802352,
+			"audio": [
+				{
+					"audioID": "aa6d9f1f-7813-4151-a2f1-8cda8495051f",
+					"volume": 1
+				},
+				{
+					"audioID": "977bdee6-0e5a-442a-9c1c-d7039baf07fa",
+					"volume": 1
+				},
+				{
+					"audioID": "ed6d8ad9-1ada-4b6e-97db-aaa844a370a6",
+					"volume": 1
+				},
+				{
+					"audioID": "353cede9-5187-480c-90f5-d1656c2af761",
+					"volume": 0.6678693677044597
+				},
+				{
+					"audioID": "353cede9-5187-480c-90f5-d1656c2af761",
+					"volume": 1
+				},
+				{
+					"audioID": "3cdcc150-693a-42fe-9df3-d49a9adc3b07",
+					"volume": 2
+				},
+				{
+					"audioID": "5bdc9889-25af-436e-bf77-d24c8c2214b5",
+					"volume": 0.2764399838626058
+				}
+			]
 		}
 	],
-	"lastEdit": 1645764674800
+	"lastEdit": 1645895203993
 }
