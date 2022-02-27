@@ -60,6 +60,12 @@ router.get('/', function (req, res, next) {
     let historyTimes = state.history.map(h => h.timestamp);
     historyTimes.sort();
     let firstEntry = historyTimes[0];
+
+    let sortedComposerStates = state.history
+                                    .filter(s => s.composerID == composer.composerID)
+                                    .sort((s1, s2) => s1.timestamp < s2.timestamp);
+    sortedComposerStates = sortedComposerStates.map((e, i) => [e.timestamp, i]);
+
     
     res.render('index', {
         nonce: res.locals.nonce,
@@ -76,6 +82,8 @@ router.get('/', function (req, res, next) {
             }
         })),
         timestamp: loadedSlotTimestamp,
+        sortedComposerStates: sortedComposerStates,
+        sortedComposerStates_str: JSON.stringify(sortedComposerStates),
         firstEntry
     });
 });

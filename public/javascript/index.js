@@ -117,6 +117,7 @@ function playAudio() {
     console.log("start audio pressed")
     document.getElementById('user_controls').classList.remove('hide');
     document.getElementById('playAudio').classList.add('hide');
+    document.getElementById('headerContent').classList.add('hide');
     Tone.start();
     Tone.Transport.start();
     Promise.all([playerPromises, drawPromises].flat()).then(() => {

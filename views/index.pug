@@ -51,6 +51,9 @@ block content
               h3(id='time-header') This Week&apos;s Curator
               h1(id='composer-name') #{composer.name}
               div(id='composer-bio') !{composer.bio}
+              div(id="history-container")
+                    each h in sortedComposerStates
+                        a(href='/?history='+h[0] class='custom-button snapshot-button') !{h[1]+1}
       
       section.sectionTabs        
         div.tabContent
@@ -110,6 +113,7 @@ block content
         let isComposer = document.location.pathname == "/composer";
         let timestamp = !{timestamp};
         let firstEntry = !{firstEntry};
+        let sortedComposerStates_str = !{sortedComposerStates_str};
 
       script(nonce=nonce src='./javascript/konva.js')
       script(nonce=nonce src='./javascript/FPSMeter.js')
