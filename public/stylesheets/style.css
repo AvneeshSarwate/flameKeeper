@@ -204,7 +204,6 @@ header .profileHeader p {
 header .nowPlaying {
 	background: #007357;
 	display: flex;
-	max-height: 300px;
 }
 header .pageHeader {
 	font-family: 'Raleway';
