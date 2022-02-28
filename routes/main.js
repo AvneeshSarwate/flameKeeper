@@ -55,6 +55,7 @@ router.get('/', function (req, res, next) {
 
     let loadedAudio = filteredAudio.loadedAudio;
     let composer = filteredAudio.composer;
+    composer = Composers.composers.filter(c => c.active)[0] || composer;
     let loadedSlotTimestamp = loadedSlot.timestamp;
 
     let historyTimes = state.history.map(h => h.timestamp);
