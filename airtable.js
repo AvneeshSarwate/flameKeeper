@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 const Airtable = require('airtable');
 const { asyncForEach, markdownToHTML } = require('./util');
+// Note that as of 02/2024 Airtable requires PATs instead of API keys. However
+// the SDK interface hasn't changed, and the PAT is still provided via the
+// apiKey param.
 const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
 const baseID = "appiuLzmVDcFCntEr";
 const base = airtable.base(baseID);
@@ -232,7 +235,7 @@ class AirtableManager {
             await this.style.getStyle();
             this.logger.debug("successfully re-synced airtable data");
         } catch (err) {
-            logger.error(err);
+            this.logger.error(err);
         }
     }
 }
