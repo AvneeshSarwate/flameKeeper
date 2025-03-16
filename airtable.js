@@ -8,6 +8,9 @@ const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
 const baseID = process.env.DEVELOPMENT_BASE_ID || "appiuLzmVDcFCntEr";
 const base = airtable.base(baseID);
 const { getLogger } = require("./logger");
+const constants = require("./constants");
+const mime = require("mime");
+const s3 = require("./s3");
 
 const USING_TEST_BASE = baseID === "appDMw3lOAQTw8dGQ";
 
@@ -29,12 +32,26 @@ class Composers {
         .all();
       await asyncForEach(records, async (record) => {
         let composer = this.parseComposer(record);
+        let updates = {};
         if (!composer.key) {
-          composer = await this.setComposerKey(composer);
-          composers.push(composer);
-        } else composers.push(composer);
+          updates = {
+            ...updates,
+            key: crypto.randomBytes(16).toString("hex"),
+          };
+        }
+        let photoUpdates = await this.validatePhoto(record, composer);
+        if (photoUpdates) {
+          updates = {
+            ...updates,
+            ...photoUpdates,
+          };
+        }
+        if (Object.keys(updates).length > 0) {
+          composer = await this.updateComposer(record.id, updates);
+        }
+        composers.push(composer);
       });
-      this.logger.debug("loaded admins");
+      this.logger.debug("loaded composers");
     } catch (err) {
       this.logger.error(`unable to get composers: ${err}`);
     }
@@ -42,12 +59,55 @@ class Composers {
     return this.composers;
   }
 
-  setComposerKey(composer) {
+  async validatePhoto(record, composer) {
+    let photoRecord = record.get("photo");
+    if (!photoRecord || photoRecord.length < 1) {
+      return;
+    }
+    let photoObj = photoRecord[0];
+    let knownPhotoID = record.get("s3_photo_id");
+    if (!knownPhotoID || knownPhotoID !== photoObj.id) {
+      let s3URL = await this.uploadPhotoToS3(
+        photoObj.id,
+        photoObj.url,
+        photoObj.type,
+        composer.name
+      );
+      return {
+        s3_photo_id: photoObj.id,
+        s3_photo_url: s3URL,
+      };
+    }
+  }
+
+  async uploadPhotoToS3(
+    airtablePhotoID,
+    airtablePhotoURL,
+    airtablePhotoType,
+    name
+  ) {
+    let response = await fetch(airtablePhotoURL);
+    let buffer = await response.arrayBuffer();
+    let bytes = new Uint8Array(buffer);
+    const filename = (
+      [name, airtablePhotoID].join("-") +
+      "." +
+      mime.getExtension(airtablePhotoType)
+    ).replace(/\s/g, "-");
+    let uploadParams = {
+      Bucket: constants.BUCKET_NAME,
+      Key: filename,
+      Body: bytes,
+      ACL: "public-read",
+    };
+    await s3.upload(uploadParams).promise();
+    return constants.filenameToS3URL(filename);
+  }
+
+  updateComposer(id, fields) {
     return new Promise((resolve, reject) => {
       this.composerTable
-        .update(composer.composerID, {
-          key: crypto.randomBytes(16).toString("hex"),
-        })
+        .update(id, fields)
         .then((record) => {
           resolve(this.parseComposer(record));
         })
@@ -56,14 +116,11 @@ class Composers {
   }
 
   parseComposer(record) {
-    let photo;
-    let photoRecord = record.get("photo");
-    if (photoRecord && photoRecord.length > 0) photo = photoRecord[0].url;
     return {
       composerID: USING_TEST_BASE ? record.get("test_id") : record.id,
       name: record.get("name"),
       bio: markdownToHTML(record.get("bio")),
-      photo: photo,
+      photo: record.get("s3_photo_url"),
       key: record.get("key"),
       active: record.get("active") || false,
     };
