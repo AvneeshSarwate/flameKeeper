@@ -5,7 +5,7 @@ const { asyncForEach, markdownToHTML } = require("./util");
 // the SDK interface hasn't changed, and the PAT is still provided via the
 // apiKey param.
 const airtable = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY });
-const baseID = "appiuLzmVDcFCntEr";
+const baseID = process.env.DEVELOPMENT_BASE_ID || "appiuLzmVDcFCntEr";
 const base = airtable.base(baseID);
 const { getLogger } = require("./logger");
 
@@ -17,7 +17,6 @@ class Composers {
     this.tableName = "Composers";
     this.composerTable = base(this.tableName);
     this.composers = [];
-    this.getComposers();
   }
 
   async getComposers() {
@@ -35,7 +34,7 @@ class Composers {
           composers.push(composer);
         } else composers.push(composer);
       });
-      this.logger.debug("composers loaded");
+      this.logger.debug("loaded admins");
     } catch (err) {
       this.logger.error(`unable to get composers: ${err}`);
     }
@@ -91,7 +90,6 @@ class Admins {
     this.tableName = "Admins";
     this.adminTable = base(this.tableName);
     this.admins = [];
-    this.getAdmins();
   }
 
   async getAdmins() {
@@ -106,7 +104,7 @@ class Admins {
         let admin = this.parseAdmin(record);
         admins.push(admin);
       });
-      this.logger.debug("admins loaded");
+      this.logger.debug("loaded admins");
     } catch (err) {
       this.logger.error("unable to get admins", err);
     }
@@ -146,7 +144,6 @@ class Copy {
     this.tableName = "Copy";
     this.copyTable = base(this.tableName);
     this.copy = {};
-    this.getCopy();
   }
 
   async getCopy() {
@@ -174,6 +171,7 @@ class Copy {
         }
         if (section) copy[section] = sectionCopy;
       });
+      this.logger.debug("loaded copy");
     } catch (err) {
       this.logger.error("unable to get copy", err);
     }
@@ -188,7 +186,6 @@ class Style {
     this.tableName = "Style";
     this.styleTable = base(this.tableName);
     this.style = {};
-    this.getStyle();
   }
 
   async getStyle() {
@@ -213,6 +210,7 @@ class Style {
             style.font[property.slice(fontPrefix.length)] = value;
         }
       });
+      this.logger.debug("loaded style");
     } catch (err) {
       this.logger.error("unable to get style", err);
     }
@@ -228,13 +226,18 @@ class AirtableManager {
     this.admins = new Admins();
     this.copy = new Copy();
     this.style = new Style();
-    this.updateFreq = 2000;
+    this.updatePeriod = 4000;
+    this.updateStagger = this.updatePeriod / 4;
     this.start();
   }
 
   start() {
-    this.logger.info(`starting airtable sync every ${this.updateFreq / 1000}s`);
-    this.interval = setInterval(this.sync.bind(this), this.updateFreq);
+    this.logger.info(
+      `starting airtable sync every ${
+        this.updatePeriod / 1000
+      }s, staggering calls by ${this.updateStagger / 1000}s`
+    );
+    this.interval = setInterval(this.sync.bind(this), this.updatePeriod);
   }
 
   stop() {
@@ -243,11 +246,18 @@ class AirtableManager {
 
   async sync() {
     try {
-      await this.composers.getComposers();
-      await this.admins.getAdmins();
-      await this.copy.getCopy();
-      await this.style.getStyle();
-      this.logger.debug("successfully re-synced airtable data");
+      setTimeout(async () => {
+        await this.composers.getComposers();
+      }, this.updateStagger);
+      setTimeout(async () => {
+        await this.admins.getAdmins();
+      }, this.updateStagger * 2);
+      setTimeout(async () => {
+        await this.copy.getCopy();
+      }, this.updateStagger * 3);
+      setTimeout(async () => {
+        await this.style.getStyle();
+      }, this.updateStagger * 4);
     } catch (err) {
       this.logger.error(err);
     }

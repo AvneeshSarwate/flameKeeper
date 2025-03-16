@@ -36,8 +36,6 @@ let filterAudio = function (loadedSlot) {
     return undefined;
   }
 
-  console.log("main.js", composer);
-
   return {
     loadedAudio,
     composer,
